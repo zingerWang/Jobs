@@ -79,3 +79,7 @@ dot -Tpng -Gdpi=200 input.dot -o output.png
 ## 反馈与完善
 
 发现代码、链接或解释有误，可以通过 [Issues](https://github.com/zingerWang/Jobs/issues) 反馈。涉及实验问题时，请附上文章路径、操作系统、编译器版本、复现命令和实际输出，方便定位与修正。
+
+## 许可证
+
+本仓库的原创代码与学习笔记采用 [MIT License](LICENSE)，版权归属为 `Copyright (c) 2026 zingerWang`。使用、修改和分发时请保留版权及许可声明。第三方内容如有单独的版权或许可声明，以其原声明为准。
