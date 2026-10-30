@@ -1,0 +1,45 @@
+digraph boundary {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>example 里哪些是 bRPC、哪些是 protobuf 生成的</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">新手最容易混的一点：你继承的 EchoService、你调用的 Stub，都<b>不是</b> bRPC 写的，是 protoc 现场生成的</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.8];
+
+    proto [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>echo.proto（你写 33 行）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#334155">两个 message + 一个 service<BR/><B>option cc_generic_services = true;</B> ← 少了它就不会生成 C++ service 代码</FONT></TD></TR>
+</TABLE>>];
+
+    mine [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>你手写的（example/echo_c++/）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#3730A3">server.cpp（140 行）<BR/>　class <B>EchoServiceImpl : public example::EchoService</B>（:38）<BR/>　重写 <B>Echo(cntl_base, req, resp, done)</B>（:42）<BR/>　main：<B>AddService</B>（:114）+ <B>Start</B>（:132）<BR/><BR/>client.cpp（97 行）<BR/>　<B>Channel::Init</B>（:50）+ <B>stub.Echo(&amp;cntl,...)</B>（:82）<BR/><BR/>echo.proto（33 行）</FONT></TD></TR>
+</TABLE>>];
+
+    gen [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>protoc 生成的（echo.pb.h / echo.pb.cc）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">EchoRequest / EchoResponse（消息类）<BR/><B>EchoService</B>：抽象基类，含 CallMethod 分发<BR/><B>EchoService_Stub</B>：客户端桩，Echo() 内部转调<BR/>EchoService::descriptor() / GetDescriptor()<BR/><BR/>它们 <B>不在 bRPC 仓库里</B>，也不在 protobuf 库里，<BR/>是编译时由 protoc 按 echo.proto 现场生成的</FONT></TD></TR>
+</TABLE>>];
+
+    brpc [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>bRPC 提供的（src/brpc/）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0F766E"><B>brpc::Server</B>（AddService / Start / RunUntilAskedToQuit）<BR/><B>brpc::Channel</B>（Init / CallMethod）<BR/><B>brpc::Controller</B>（继承 protobuf 的 RpcController）<BR/><B>brpc::ClosureGuard</B>（RAII 帮你调 done-&gt;Run()）<BR/><B>brpc::NewCallback / DoNothing</B>（造 Closure）<BR/><BR/>这些是「框架」——负责序列化、连接、超时、重试，<BR/>以及把请求送到你的 Echo()</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>一句话记住边界</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">协议 + 网络 + 调度归 bRPC；接口与消息类的「壳」归 protoc；<B>业务逻辑归你</B>。<BR/>gdb 里看到 <B>EchoService_Stub::Echo</B> 别去 brpc 源码里找 —— 它只存在于生成的 .pb.cc 里</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; mine; gen; brpc; }
+
+    proto -> gen [color="#D97706", fontcolor="#B45309", label="protoc 生成"];
+    proto -> mine [color="#4F46E5", fontcolor="#4338CA", label="照着写实现"];
+    mine -> gen [color="#4F46E5", fontcolor="#4338CA", label="继承 EchoService"];
+    mine -> brpc [color="#0D9488", fontcolor="#0F766E", label="调用 Server / Channel"];
+    gen -> brpc [color="#7C3AED", fontcolor="#6D28D9", label="Stub 内部持有 Channel"];
+    brpc -> note [color="#E11D48", fontcolor="#BE123C"];
+}

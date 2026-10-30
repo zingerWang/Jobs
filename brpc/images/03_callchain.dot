@@ -1,0 +1,96 @@
+digraph callchain {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.8, ranksep=0.42, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>一次 RPC 的关键函数调用链（echo 例子）</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">左列 = echo_client，右列 = echo_server；括号里的 文件:行号 是本系列后续跟源码的「索引」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.8];
+
+    // ===== 客户端 =====
+    c1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>1  stub.Echo(&amp;cntl,&amp;req,&amp;resp,nullptr)</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#3730A3">protobuf 生成的 EchoService_Stub（echo.pb.cc，<B>不在 bRPC 仓库里</B>）</FONT></TD></TR>
+</TABLE>>];
+
+    c2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>2  brpc::Channel::CallMethod</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#3730A3">channel.cpp:482　锁 call_id / 设超时 / 序列化请求体</FONT></TD></TR>
+</TABLE>>];
+
+    c3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>3  brpc::Controller::IssueRPC</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#3730A3">controller.cpp:1315　选 server（SelectServer）→ 拿 socket → 打包 → 写</FONT></TD></TR>
+</TABLE>>];
+
+    c4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>4  PackRpcRequest</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0369A1">baidu_rpc_protocol.cpp:1097　填 service/method 名、correlation_id（协议插件）</FONT></TD></TR>
+</TABLE>>];
+
+    c5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>5  Socket::Write</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0369A1">socket.cpp:1643　写进发送队列，真正的发送交给 EventDispatcher 线程</FONT></TD></TR>
+</TABLE>>];
+
+    // ===== 服务端 =====
+    s6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>6  Acceptor::OnNewConnections</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0F766E">acceptor.cpp:389　建连接（只在第一次连接时走）</FONT></TD></TR>
+</TABLE>>];
+
+    s7 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>7  InputMessenger::OnNewMessages</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0F766E">input_messenger.cpp:103　读数据 + <B>按协议切出一个完整请求</B></FONT></TD></TR>
+</TABLE>>];
+
+    s8 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>8  ProcessRpcRequest</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0F766E">baidu_rpc_protocol.cpp:599　解析 meta → 查 service/method → 反序列化请求</FONT></TD></TR>
+</TABLE>>];
+
+    s9 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>9  svc-&gt;CallMethod(...) → 你的 Echo()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#BE123C">baidu_rpc_protocol.cpp:875 调进来，落到 example/echo_c++/server.cpp:42 的 <B>EchoServiceImpl::Echo</B></FONT></TD></TR>
+</TABLE>>];
+
+    s10 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>10  done-&gt;Run() = SendRpcResponse</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0F766E">由 ClosureGuard 析构触发（closure_guard.h）→ baidu_rpc_protocol.cpp:288 组响应回包</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>同步调用的那一半：brpc::Join(correlation_id)</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#B45309">controller.cpp:827　done == nullptr 时，Channel::CallMethod 最后会 Join —— 当前 <B>bthread</B> 在此挂起，<BR/>等响应回来后被 <B>bthread_id_error</B> 唤醒（第 03 篇第 4 节详解）</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; c1; s6; }
+    { rank=same; c2; s7; }
+    { rank=same; c3; s8; }
+    { rank=same; c4; s9; }
+    { rank=same; c5; s10; }
+
+    c1 -> c2 [color="#4F46E5", fontcolor="#4338CA"];
+    c2 -> c3 [color="#4F46E5", fontcolor="#4338CA"];
+    c3 -> c4 [color="#4F46E5", fontcolor="#4338CA"];
+    c4 -> c5 [color="#0284C7", fontcolor="#0369A1"];
+
+    s6 -> s7 [color="#0D9488", fontcolor="#0F766E"];
+    s7 -> s8 [color="#0D9488", fontcolor="#0F766E"];
+    s8 -> s9 [color="#0D9488", fontcolor="#0F766E"];
+    s9 -> s10 [color="#E11D48", fontcolor="#BE123C", label="返回时 done 被触发"];
+
+    c5 -> s6 [color="#E11D48", fontcolor="#BE123C", style=bold, label="  TCP 请求（baidu_std）"];
+    s10 -> c2 [color="#7C3AED", fontcolor="#6D28D9", style=dashed, constraint=false, label="  TCP 响应 → 唤醒挂起的 bthread"];
+
+    c5 -> note [style=invis];
+    ranksep=0.42;
+}

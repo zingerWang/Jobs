@@ -1,0 +1,65 @@
+digraph socket_mental_model {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>怎么理解 socket：错误直觉 vs 正确模型</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">你是在跟内核打交道，不是跟对端打交道</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=2.0, arrowsize=0.9];
+
+    subgraph cluster_wrong {
+        label=<<FONT COLOR="#E11D48" POINT-SIZE="15"><B>错误直觉：socket 是一根直连管道</B></FONT>>;
+        fontname="PingFang SC";
+        color="#E11D48";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FFFDFD";
+        wa [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>进程 A</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">你的程序</FONT></TD></TR>
+</TABLE>>];
+        wb [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>进程 B</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">对端程序</FONT></TD></TR>
+</TABLE>>];
+        wa -> wb [label="  send 直接送到对端？", color="#E11D48", fontcolor="#BE123C"];
+    }
+
+    subgraph cluster_right {
+        label=<<FONT COLOR="#0D9488" POINT-SIZE="15"><B>正确模型：数据必须经过内核中转</B></FONT>>;
+        fontname="PingFang SC";
+        color="#0D9488";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFFFE";
+        pa [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>进程 A</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">你的程序</FONT></TD></TR>
+</TABLE>>];
+        ks [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>内核发送缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">数据先到这里</FONT></TD></TR>
+</TABLE>>];
+        net [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>网络</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">TCP 异步发送</FONT></TD></TR>
+</TABLE>>];
+        kr [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>对端接收缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">数据在这里等 recv</FONT></TD></TR>
+</TABLE>>];
+        pb [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>进程 B</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">对端程序</FONT></TD></TR>
+</TABLE>>];
+        pa -> ks [label="  send() 拷贝进去", color="#0D9488", fontcolor="#0F766E"];
+        ks -> net [label="  协议栈异步发送", color="#0284C7", fontcolor="#0369A1"];
+        net -> kr [label="  网络传输", color="#0284C7", fontcolor="#0369A1"];
+        kr -> pb [label="  recv() 拷贝出来", color="#0D9488", fontcolor="#0F766E"];
+    }
+}

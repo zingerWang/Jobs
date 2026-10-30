@@ -1,0 +1,65 @@
+digraph mindmap_02 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：编译与第一个 Demo</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>编译与第一个 Demo</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么要亲手编译</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>依赖清单</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三种构建方式</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>跑通 echo 例子</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>-g 与 gdb 调试</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>排错与选型</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">只读不跑 → 「以为懂了」</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>能 gdb 单步 → 效率翻倍</B></FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>必需：gflags / protobuf+protoc / leveldb / openssl / zlib</B></FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">可选：snappy / glog / gperftools / thrift / rdma</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">protobuf ≥ 4.22 → 必须 abseil + C++17</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">config_brpc.sh + make（最轻量）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">CMake：cmake -S . -B build + install（推荐）</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Bazel：bazel build //example:echo_c++_server</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">server 默认 8000 端口，client 每秒发 hello world</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">echo.pb.cc 由 protoc 现场生成，不是手写</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>默认 -O2 -g：有符号表但单步会跳</B></FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">断点：AddService / Channel::CallMethod</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">tools/gdb_bthread_stack.py 看协程栈</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">常见报错表：缺库 / protobuf 版本 / 头文件</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">构建方式怎么选：一次性 vs 长期</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b;
+}

@@ -1,0 +1,69 @@
+digraph three_way_handshake {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>三次握手与 API 的对应关系</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">connect() 返回 = 三次握手完成；握手全程由内核完成，应用只负责 accept 取结果</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=1.8];
+
+    // 列标题
+    client_hdr [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="16"><B>客户端（主动打开）</B></FONT></TD></TR>
+</TABLE>>];
+    server_hdr [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="16"><B>服务端（被动打开）</B></FONT></TD></TR>
+</TABLE>>];
+
+    // 客户端列
+    c_closed [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>CLOSED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">socket()</FONT></TD></TR>
+</TABLE>>];
+    c_syn [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>SYN_SENT</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">connect() 发出 SYN</FONT></TD></TR>
+</TABLE>>];
+    c_est [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>ESTABLISHED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">收到 SYN+ACK 后回 ACK<br/>connect() 返回</FONT></TD></TR>
+</TABLE>>];
+
+    // 服务端列
+    s_listen [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>LISTEN</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">socket()/bind()/listen()</FONT></TD></TR>
+</TABLE>>];
+    s_rcvd [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>SYN_RCVD</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">SYN 进入半连接队列<br/>回 SYN+ACK</FONT></TD></TR>
+</TABLE>>];
+    s_est [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>ESTABLISHED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">连接进入 accept 队列</FONT></TD></TR>
+</TABLE>>];
+    s_accept [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>accept()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">取出连接，返回 cfd</FONT></TD></TR>
+</TABLE>>];
+
+    // 垂直顺序
+    client_hdr -> c_closed -> c_syn -> c_est [style=invis];
+    server_hdr -> s_listen -> s_rcvd -> s_est -> s_accept [style=invis];
+
+    // 水平对齐
+    { rank=same; client_hdr; server_hdr; }
+    { rank=same; c_syn; s_rcvd; }
+    { rank=same; c_est; s_est; }
+
+    // 报文
+    c_syn -> s_rcvd [label="① SYN (seq=x)", color="#E11D48", fontcolor="#BE123C"];
+    s_rcvd -> c_syn [label="② SYN+ACK (seq=y, ack=x+1)", color="#E11D48", fontcolor="#BE123C"];
+    c_est -> s_est  [label="③ ACK (ack=y+1)", color="#0D9488", fontcolor="#0F766E"];
+}

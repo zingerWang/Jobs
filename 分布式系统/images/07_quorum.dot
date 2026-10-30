@@ -1,0 +1,40 @@
+digraph quorum {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>为什么必须是多数派</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">任意两个多数派必有交集 —— 这就是共识「安全性」的数学来源</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    g1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>多数派集合 ①</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12" COLOR="#0F766E">{ A, B, <B>C</B> }</FONT></TD></TR>
+</TABLE>>];
+    g2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>多数派集合 ②</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12" COLOR="#0369A1">{ <B>C</B>, D, E }</FONT></TD></TR>
+</TABLE>>];
+    inter [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>交集 ≠ ∅</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12" COLOR="#BE123C">一定存在节点 C 同时属于两组<BR/>它见过旧值，就不可能「不知道」旧值去同意新值</FONT></TD></TR>
+</TABLE>>];
+
+    formula [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>算一下要多少副本</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">· 多数派大小 = ⌊N / 2⌋ + 1（N=3 → 2；N=5 → 3；N=4 → 3）<BR/>· 容忍 f 个<b>崩溃</b>故障：N ≥ 2f + 1（3 节点容忍 1 台，5 节点容忍 2 台）<BR/>· 容忍 f 个<b>拜占庭</b>故障：N ≥ 3f + 1（见 06 篇：3 节点里 1 个叛徒就无解）</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>两个直接推论</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>已提交的值不会被覆盖</B>：它已被一个多数派接受，任何新的多数派都与之相交，一定能看到它<BR/>· <B>少数派必须停下来</B>：凑不齐多数派时，既不能提交、也不能选主 —— 宁可不可用（CP），也不能给出可能错的结果</FONT></TD></TR>
+</TABLE>>];
+
+    g1 -> inter [label=" 交集", color="#0D9488", fontcolor="#0F766E"];
+    g2 -> inter [label=" 交集", color="#0284C7", fontcolor="#0369A1"];
+    { rank=same; g1; g2; }
+    inter -> note [color="#7C3AED", fontcolor="#6D28D9"];
+    formula -> note [style=dashed, color="#D97706", fontcolor="#B45309"];
+}

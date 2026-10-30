@@ -1,0 +1,34 @@
+digraph zk_model {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>ZooKeeper 的数据模型：znode 树 + watch + 会话</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">ZooKeeper 不是「数据库」，而是一个高可用的、带通知能力的小型树形存储</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    tree [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>znode 树（每个节点路径唯一）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E"><B>/</B><BR/>├── <B>/app</B>　　　　　　← 配置存在这里<BR/>│　　├── /app/config　　← 数据 + 版本号 version<BR/>│　　└── /app/members　 ← 临时节点（会话结束自动消失）<BR/>└── <B>/locks</B>　　　　　 ← 分布式锁<BR/>　　　└── /locks/lock-0000000001　← 顺序节点（自动编号）</FONT></TD></TR>
+</TABLE>>];
+
+    types [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>四种节点类型（两个维度的组合）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">· <B>持久（PERSISTENT）</B>：显式删除才消失 —— 存配置、存元数据<BR/>· <B>临时（EPHEMERAL）</B>：<b>会话结束（断开超时）就自动删除</b> —— 这正是「服务下线自动摘除」「选主失败自动让位」的实现基础<BR/>· <B>顺序（SEQUENTIAL）</B>：创建时由服务端追加一个单调递增的 10 位序号 —— 用来排队、避免惊群<BR/>· 两者可组合：<B>临时顺序节点</B>是分布式锁的标准做法</FONT></TD></TR>
+</TABLE>>];
+
+    watch [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>watch：一次性的通知</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">客户端可以对某个 znode 注册 watch（getData / exists / getChildren）<BR/>· 节点<b>发生变化时，服务端推一次通知</b>——不用轮询<BR/>· 但 watch 是<b>一次性</b>的：触发后就失效，想继续监听<b>必须重新注册</b>（这是新手最常踩的坑）<BR/>· 通知<b>只保证"变了"，不保证"变成什么"</b>——收到通知后要重新读一次数据</FONT></TD></TR>
+</TABLE>>];
+
+    session [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>会话（session）：临时节点的生命周期靠它</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">客户端与服务端之间靠心跳维持会话（sessionTimeout 通常 10~30s）<BR/>· 心跳超时 → 会话过期 → <B>该会话创建的所有临时节点被自动删除</B><BR/>· 这意味着：<B>网络抖动也可能让你"丢锁"</B>——所以拿到锁后必须自己再确认一次（或依赖 zxid 做校验）</FONT></TD></TR>
+</TABLE>>];
+
+    tree -> types [label=" 节点怎么存"];
+    types -> watch [label=" 怎么感知变化"];
+    watch -> session [label=" 会话一来，临时节点才有意义"];
+}

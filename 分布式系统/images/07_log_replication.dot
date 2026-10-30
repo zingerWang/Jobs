@@ -1,0 +1,71 @@
+digraph log_replication {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>日志复制与「提交」的含义</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">已提交 = 已落在多数派上；只在少数副本上的条目随时可能被覆盖</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    leader [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>Leader（A）</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="4"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="3" CELLPADDING="4">
+    <TR>
+      <TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">1: set x=1</FONT></TD>
+      <TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">2: set y=2</FONT></TD>
+      <TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">3: set x=3</FONT></TD>
+      <TD BGCOLOR="#D97706" COLOR="white"><FONT POINT-SIZE="11">4: set z=9</FONT></TD>
+    </TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#3730A3">commitIndex = 3</FONT></TD></TR>
+</TABLE>>];
+
+    fa [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>跟随者 B</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="4"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="3" CELLPADDING="4">
+    <TR><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">1</FONT></TD><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">2</FONT></TD><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">3</FONT></TD><TD BGCOLOR="#D97706" COLOR="white"><FONT POINT-SIZE="11">4</FONT></TD></TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">commitIndex = 3</FONT></TD></TR>
+</TABLE>>];
+    fb [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>跟随者 C</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="4"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="3" CELLPADDING="4">
+    <TR><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">1</FONT></TD><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">2</FONT></TD><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">3</FONT></TD><TD BGCOLOR="#D97706" COLOR="white"><FONT POINT-SIZE="11">4</FONT></TD></TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">commitIndex = 3</FONT></TD></TR>
+</TABLE>>];
+    fc [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>跟随者 D（落后）</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="4"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="3" CELLPADDING="4">
+    <TR><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">1</FONT></TD><TD BGCOLOR="#0D9488" COLOR="white"><FONT POINT-SIZE="11">2</FONT></TD></TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#B45309">commitIndex = 2（后续补齐）</FONT></TD></TR>
+</TABLE>>];
+    fd [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>跟随者 E（宕机）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#334155">不参与本轮投票/复制</FONT></TD></TR>
+</TABLE>>];
+
+    commit [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>条目 3 已提交</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">A + B + C = <B>3 / 5</B> 个副本已落盘，达到多数派<BR/>committed 的条目<b>永远不会被回滚</b></FONT></TD></TR>
+</TABLE>>];
+
+    uncommit [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>条目 4 未提交</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">只落在少数副本上 → 新 leader 上任后<BR/>可能被<b>截断覆盖</b>（这正是 Raft「选举限制」要防的事）</FONT></TD></TR>
+</TABLE>>];
+
+    leader -> fa [label=" 追加/心跳", color="#0D9488", fontcolor="#0F766E"];
+    leader -> fb [color="#0D9488"];
+    leader -> fc [label=" 逐步补齐", color="#D97706", fontcolor="#B45309"];
+    leader -> fd [style=dashed, color="#475569", fontcolor="#334155"];
+    { rank=same; fa; fb; fc; fd; }
+    fb -> commit [style=invis];
+    fc -> uncommit [style=invis];
+    commit -> uncommit [style=invis];
+}

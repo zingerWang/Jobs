@@ -1,0 +1,42 @@
+digraph paxos_phases {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>单轮 Paxos：两个阶段各干什么</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">Phase 1 问出「有没有人开过头」，Phase 2 按 P2c 定下的值正式提交</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    ph1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>Phase 1：Prepare / Promise</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E"><B>Proposer → 多数派 Acceptor：</B>Prepare(n)<BR/><B>Acceptor 的处理：</B><BR/>· 若 <B>n ≤ promisedNum</B> → 拒绝（我已经承诺过更大的编号）<BR/>· 否则 <B>promisedNum = n</B>，回复 Promise + <B>我已接受过的编号最大的提案</B></FONT></TD></TR>
+</TABLE>>];
+
+    dec [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>Proposer 做两个判断</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">· promise 数 <B>不足多数派</B> → 放弃本轮，换个<b>更大的 n</b> 重来<BR/>· 拿到多数派 → 按 <B>P2c</B> 定值：响应里有已接受提案，就沿用其中编号最大的；一个都没有，才用自己的值</FONT></TD></TR>
+</TABLE>>];
+
+    ph2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>Phase 2：Accept / Accepted</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3"><B>Proposer → 多数派 Acceptor：</B>Accept(n, v)<BR/><B>Acceptor 的处理：</B><BR/>· 若 <B>n &lt; promisedNum</B> → 拒绝<BR/>· 否则 <B>accepted = (n, v)</B>，回复 Accepted<BR/><B>拿到多数派 Accepted → 该值被选中（chosen）</B>，通知 Learner</FONT></TD></TR>
+</TABLE>>];
+
+    retry [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>没凑够多数派怎么办</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">Phase 1 不够 → 换更大的 n，重新 Phase 1<BR/>Phase 2 不够 → 同样要换更大的 n，<b>从 Phase 1 重来</b>（因为可能已经有别人接受了别的值）</FONT></TD></TR>
+</TABLE>>];
+
+    safety [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么这样就安全</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">任意两个多数派必有交集 → 新提案的多数派里<b>至少有一个人见过旧值</b><BR/>→ 它的 Promise 响应会把这个旧值带回来 → 新提案只能沿用旧值</FONT></TD></TR>
+</TABLE>>];
+
+    ph1 -> dec [label=" 收齐 Promise"];
+    dec -> ph2 [label=" 按 P2c 定下 v", color="#4F46E5", fontcolor="#3730A3"];
+    ph2 -> safety [label=" 多数派接受", color="#7C3AED", fontcolor="#6D28D9"];
+    ph2 -> retry [style=dashed, color="#D97706", fontcolor="#B45309", label=" 被拒/超时"];
+    { rank=same; safety; retry; }
+}

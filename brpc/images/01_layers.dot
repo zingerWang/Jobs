@@ -1,0 +1,45 @@
+digraph layers {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>bRPC 源码分层依赖</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">上层依赖下层：butil 在最底且不依赖任何人，所以「自底向上读」最不容易迷路</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    brpc [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>brpc/　框架主体</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3">Server / Channel / Controller / Socket / EventDispatcher<BR/>接口在根目录 · 实现在 policy/ · 运维页在 builtin/</FONT></TD></TR>
+</TABLE>>];
+
+    bthread [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>bthread/　M:N 线程引擎</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">task_control / task_group / work_stealing<BR/>butex / stack / timer_thread —— 可独立使用</FONT></TD></TR>
+</TABLE>>];
+
+    bvar [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>bvar/　监控</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">variable / window<BR/>latency_recorder —— 可独立使用</FONT></TD></TR>
+</TABLE>>];
+
+    butil [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>butil/　基础库</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0369A1">IOBuf / Arena / FlatMap / ObjectPool / atomicops<BR/>bRPC 自带的「标准库」—— 不依赖任何上层</FONT></TD></TR>
+</TABLE>>];
+
+    os [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>操作系统 / Linux</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">epoll · futex · pthread · 系统调用</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; bthread; bvar; }
+
+    brpc -> bthread [color="#4F46E5", fontcolor="#4338CA", label="依赖"];
+    brpc -> bvar [color="#4F46E5", fontcolor="#4338CA", label="依赖"];
+    bthread -> butil [color="#E11D48", fontcolor="#BE123C", label="依赖"];
+    bvar -> butil [color="#D97706", fontcolor="#B45309", label="依赖"];
+    butil -> os [color="#0284C7", fontcolor="#0369A1", label="系统调用"];
+}

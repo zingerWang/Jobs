@@ -1,0 +1,41 @@
+digraph raft_safety {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Raft 安全性的四条规则</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">把 Paxos 的留白填上之后，安全性就被压缩成这四句可执行的约束</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    r1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>规则 1 · 选举限制</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">投票前先比日志：候选人必须「至少和我一样新」（先比 lastLogTerm，再比 lastLogIndex）<BR/>→ 保证<b>新 leader 一定含有所有已提交的条目</b>，这是「已提交不回滚」的第一道闸</FONT></TD></TR>
+</TABLE>>];
+
+    r2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>规则 2 · 只提交当前任期的条目</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">旧任期的条目即使已在多数派上，也不能凭「多数派有」直接提交（Figure 8 反例）<BR/>→ 新 leader 上任先提一条 <B>no-op</B>，用它的提交把旧条目一起「间接提交」</FONT></TD></TR>
+</TABLE>>];
+
+    r3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>规则 3 · 先持久化，再回 ACK</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1"><B>currentTerm / votedFor / log[]</B> 必须在回复投票或 ACK 之前落盘（fsync）<BR/>→ 否则重启后可能在同一任期重复投票，一个任期选出两个 leader，安全性直接崩塌</FONT></TD></TR>
+</TABLE>>];
+
+    r4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>规则 4 · 按序 apply</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">状态机严格按 index 顺序 apply <b>已提交</b>的条目，中间不允许跳号<BR/>→ 这也是「日志空洞要用 no-op 填平」的原因（不然 i+1 已提交、i 还没定，状态机只能干等）</FONT></TD></TR>
+</TABLE>>];
+
+    concl [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>四条合起来说明什么</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">规则 1 + 3 保证「leader 一定拥有全部已提交条目」；规则 2 + 4 保证「它不会把已提交的改掉、也不会算错顺序」<BR/>→ <B>已提交的条目永不回滚</B>（安全性），而活性交给随机化超时去争取</FONT></TD></TR>
+</TABLE>>];
+
+    r1 -> r2 [label=" 保证新任 leader 的日志是全的"];
+    r2 -> r3 [label=" 提交前必须先把日志坐实"];
+    r3 -> r4;
+    r4 -> concl [color="#7C3AED", fontcolor="#6D28D9"];
+}

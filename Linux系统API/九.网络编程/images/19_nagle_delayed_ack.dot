@@ -1,0 +1,35 @@
+digraph nagle_delayed_ack {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Nagle 算法 与 延迟确认</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">两个「攒着等」的机制同时开启时，会互相等待，产生 ~40ms 延迟</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=1.8, arrowsize=0.9];
+
+    sender [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>发送方（Nagle 开启）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#3730A3">还有数据「已发未确认」？<BR/>→ 那就先攒着小包，等 ACK 到了再一起发</FONT></TD></TR>
+</TABLE>>];
+
+    receiver [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>接收方（Delayed ACK 开启）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#0F766E">收到数据先不回 ACK<BR/>→ 等 40~200ms，看有没有数据要捎带</FONT></TD></TR>
+</TABLE>>];
+
+    wait [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>互相等待 → ~40ms 延迟</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">发送方等 ACK，接收方等数据，两边干等</FONT></TD></TR>
+</TABLE>>];
+
+    fix [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>解决办法</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#6D28D9">发送方开 TCP_NODELAY（别攒了，来一件发一件）</FONT></TD></TR>
+</TABLE>>];
+
+    sender -> wait [label="  等 ACK 才发下一批", color="#4F46E5", fontcolor="#3730A3"];
+    receiver -> wait [label="  等数据才回 ACK", color="#0D9488", fontcolor="#0F766E"];
+    wait -> fix [label="  关掉 Nagle", color="#7C3AED", fontcolor="#6D28D9"];
+}

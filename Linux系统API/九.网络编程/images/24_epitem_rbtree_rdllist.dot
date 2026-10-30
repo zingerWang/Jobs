@@ -1,0 +1,67 @@
+digraph epitem_rbtree_rdllist {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.6, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>epitem：rbn 挂红黑树，rdllink 挂就绪链表</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">同一个 epitem 对象有两根链子，平时只在红黑树里，就绪时再额外挂进就绪链表</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    epitem_struct [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>struct epitem（每个被监控 fd 一个）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#1E293B">struct rb_node&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <B>rbn</B>;&nbsp;&nbsp;&nbsp;<FONT COLOR="#0D9488"><B>① 挂红黑树</B></FONT><BR/>struct list_head&nbsp;&nbsp; <B>rdllink</B>;&nbsp;<FONT COLOR="#0284C7"><B>② 挂就绪链表</B></FONT><BR/>struct epoll_filefd ffd;&nbsp;&nbsp;<FONT COLOR="#64748B">// file* + fd</FONT><BR/>struct epoll_event&nbsp; event;&nbsp;<FONT COLOR="#64748B">// 关心的事件</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    subgraph cluster_tree {
+        label=<<FONT COLOR="#0D9488" POINT-SIZE="14"><B>红黑树（按 (file, fd) 排序）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#0D9488";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFEFD";
+
+        e6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>epitem fd=6</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">cfd1</FONT></TD></TR>
+</TABLE>>];
+        e3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>epitem fd=3</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">lfd</FONT></TD></TR>
+</TABLE>>];
+        e10 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>epitem fd=10</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#B45309">cfd2（就绪）</FONT></TD></TR>
+</TABLE>>];
+
+        e6 -> e3 [label="左", color="#0D9488", fontcolor="#0F766E"];
+        e6 -> e10 [label="右", color="#0D9488", fontcolor="#0F766E"];
+        {rank=same; e3; e10;}
+    }
+
+    subgraph cluster_list {
+        label=<<FONT COLOR="#0284C7" POINT-SIZE="14"><B>就绪链表（rdllist）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#0284C7";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFDFF";
+
+        l10 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>epitem fd=10</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0369A1">cfd2 · EPOLLIN</FONT></TD></TR>
+</TABLE>>];
+        lnull [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#94A3B8"><B>NULL</B></FONT></TD></TR>
+</TABLE>>];
+
+        l10 -> lnull [color="#0284C7"];
+    }
+
+    e10 -> l10 [style=dashed, dir=both, color="#D97706", fontcolor="#B45309", label="  同一个 epitem\n就绪时额外挂入"];
+
+    epitem_struct -> e6 [style=dashed, color="#4F46E5", fontcolor="#3730A3", label="每个 fd 一个 epitem"];
+}

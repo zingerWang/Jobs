@@ -1,0 +1,13 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.25", ranksep="0.5", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>深化实验与验证</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">可控交错、同步证明与验证边界</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>深化实验与验证</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155">从协议推导到运行证据</FONT></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>控制执行阶段</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155">谓词等待观察接口<BR/>barrier 划分轮次</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>检查协议</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155">关闭拒绝与排空<BR/>发布数据与归还槽位<BR/>SC 次序与结果通道</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>解释证据</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155">协议测试的原始运行记录<BR/>有限测试不能替代全部执行证明</FONT></TD></TR></TABLE>>];
+root -> a [color="#4F46E5"];
+root -> b [color="#0D9488"];
+root -> c [color="#D97706"];
+}

@@ -1,0 +1,41 @@
+digraph zk_patterns {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>ZooKeeper 的四类典型用法</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">全都建立在「临时节点 + 顺序节点 + watch」这三个原语之上</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    p1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① 选主（Leader Election）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">多个候选者同时去创建同一个<b>临时节点</b> <B>/leader</B>：<BR/>· 成功者即为主（无需锁、无需协调）<BR/>· 其他人 watch 这个节点，一旦它消失（主挂了 → 会话过期 → 临时节点自动删除）就重新争抢</FONT></TD></TR>
+</TABLE>>];
+
+    p2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② 分布式锁（用顺序节点避免惊群）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">每个客户端在 <B>/locks</B> 下创建<b>临时顺序节点</b> lock-000000000N：<BR/>· 序号<b>最小</b>者持锁；其他人<b>只 watch 自己前一个</b>节点（不是 watch 锁本身）<BR/>❌ 反例：所有人都 watch 同一个节点 → 锁一释放，几百个客户端同时被唤醒去抢 → <B>惊群 / 羊群效应</B></FONT></TD></TR>
+</TABLE>>];
+
+    p3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ 配置中心（推模式，不轮询）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">配置写进持久节点 <B>/app/config</B>；所有客户端 <B>getData + watch</B><BR/>配置一改 → 服务端推通知 → 客户端重新读取并热更新（记得<b>重新注册 watch</b>）<BR/>注意：ZooKeeper 适合存「小配置」，不适合存大文件（默认单节点数据上限 1MB，且全量存在内存里）</FONT></TD></TR>
+</TABLE>>];
+
+    p4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>④ 服务注册与发现（上下线自动感知）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">服务启动时在 <B>/services/order</B> 下创建<b>临时节点</b>（通常临时顺序）<BR/>· 实例挂了 → 会话过期 → 临时节点自动消失 → 消费者收到 watch 通知 → 摘除该实例<BR/>· 这正是 Dubbo 早期默认注册中心、Kafka 旧版选主（/controller）的做法</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>用 ZooKeeper 的正确姿势</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">· 它<b>不是数据库</b>：别拿它存业务数据、别做高频读写（所有写都走一遍 Zab 广播）<BR/>· 它<b>不保证强一致的读</b>：follower 可能读到旧值，要读最新得用 <B>sync() + read</B> 或直接读 leader<BR/>· 典型定位：<B>元数据、协调信息、通知</B>——量小、变更不频繁、但要求高可用</FONT></TD></TR>
+</TABLE>>];
+
+    p1 -> p2 [label=" 都是「抢一个位置」"];
+    p2 -> p3 [label=" 都是「注册 + 等通知」"];
+    p3 -> p4;
+    p4 -> note [label=" 使用边界", color="#E11D48", fontcolor="#BE123C"];
+}

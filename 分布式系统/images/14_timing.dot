@@ -1,0 +1,34 @@
+digraph timing {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>心跳 / 超时 / 租约：三个参数怎么定</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">这三个数决定了「多快发现故障」和「多容易被误判」——它们是同一枚硬币的两面</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    params [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>三个参数与它们的约束</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">· <B>heartbeatInterval</B>：leader 多久发一次心跳（etcd 默认 <B>100ms</B>）<BR/>· <B>electionTimeout</B>：follower 多久没收到心跳就认为 leader 挂了（etcd 默认 <B>1000ms</B>，Raft 论文建议 <B>150~300ms 随机</B>）<BR/>· <B>leaseLength</B>：领导权有效期。<B>必须显著大于 heartbeatInterval</B>，否则一次丢包就丢主<BR/>经验约束：<B>electionTimeout &gt; 2~3 × heartbeatInterval</B>；<B>leaseLength&nbsp;≈&nbsp;electionTimeout</B></FONT></TD></TR>
+</TABLE>>];
+
+    trade [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>调小 vs 调大：两类相反的故障</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">· 超时<b>太短</b> → 网络抖动 / GC 停顿就误判 leader 已死 → 频繁无谓换主（<B>"选主癫痫"</B>：新主刚上任又被推翻，集群几乎不可用）<BR/>· 超时<b>太长</b> → leader 真挂了要等很久才能恢复，故障窗口被拉长<BR/>· 租约<b>太长</b> → 假死窗口更大（旧 leader 能为非作歹更久）<BR/>· 心跳<b>太密</b> → 网络与 CPU 开销上升，大规模集群里可能成为主要负载</FONT></TD></TR>
+</TABLE>>];
+
+    cases [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>按部署场景取值</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">· <B>同机房内网</B>：心跳 100ms / 选举超时 1000ms（etcd 默认值，绝大多数场景够用）<BR/>· <B>跨可用区</B>：按 RTT 放大——心跳 ≈ 2×RTT，超时 ≈ 10×RTT，否则跨区抖动就会引发换主<BR/>· <B>跨地域</B>：RTT 几十毫秒起，选举超时要放到秒级；此时更要担心的是"多数派写延迟"而不是选主速度<BR/><FONT COLOR="#115E59">关键：<b>超时必须能容纳"最坏但正常"的一次停顿</b>（长 GC、CPU 限流、备份任务抢 IO）。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    k8s [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>容器时代的额外坑：CPU 限流</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">Kubernetes 的 CPU 配额（cgroup quota）会把进程"按周期掐停"：比如 limit 设成 0.5 核，进程每 100ms 只能跑 50ms。<BR/>→ 表现和 GC 停顿一样：<b>心跳延迟突然拉长</b>，但平均 CPU 使用率看起来只有 50%，监控很难发现。<BR/><FONT COLOR="#9F1239">这是"容器里跑共识服务"最经典的翻车方式——<b>别给 etcd 之类组件设过紧的 CPU limit</b>。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    params -> trade [label=" 取值时的取舍"];
+    trade -> cases [label=" 按场景定"];
+    cases -> k8s [label=" 部署到容器时还要注意", color="#E11D48", fontcolor="#BE123C"];
+}

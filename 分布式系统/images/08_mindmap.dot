@@ -1,0 +1,58 @@
+digraph mindmap_06 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：Paxos 算法</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>Paxos<br/>算法</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>角色与目标</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>安全性推导</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>两阶段协议</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>活性与选主</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Multi-Paxos 工程化</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">三角色：Proposer / Acceptor / Learner</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">「被选中」= 被多数派 acceptor 接受</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#334155">单轮 Paxos 只决定一个值（Synod）</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">P1 → P2 → P2a → P2b → P2c 逐步收紧</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">P2c：先问多数派，有人开过头就必须沿用其值</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>安全性靠 proposer 守规矩，不是靠 acceptor 拒绝</B></FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Phase 1：Prepare(n) → Promise + 已接受的最大提案</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Phase 2：Accept(n, v) → 多数派 accepted = chosen</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">两个状态必须持久化：promisedNum、accepted</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">两个 proposer 互提更高编号 → 活锁</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">解法：随机退避 / 选一个 distinguished proposer</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">Paxos 保证安全，不保证一定终止（FLP）</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Phase 1 复用 → 1 RTT/条，等价于「选出 leader」</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">日志空洞要填 no-op，且必须按序 apply</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9"><B>Raft = 把「选主 + 日志」做成一等公民的重设计</B></FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

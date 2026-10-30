@@ -1,0 +1,42 @@
+digraph socket_poll {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.42, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>内核如何判断一个 fd 就绪：socket 的 poll 方法</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">select / poll / epoll 统一调用 fd 的 poll 接口，对 socket 最终落到 tcp_poll 去查缓冲区与连接状态</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    caller [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>select / poll / epoll（内核实现）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">要判断某个 fd 是否就绪，<B>统一调用它的 poll 接口</B></FONT></TD></TR>
+</TABLE>>];
+
+    fops [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>file_operations 表（每个 fd 的「操作手册」）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#334155">其中有个 <B>poll</B> 函数指针，指向该类型 fd 的就绪判断实现<BR/>把「判断就绪」抽象成统一接口，屏蔽 fd 类型差异</FONT></TD></TR>
+</TABLE>>];
+
+    sockpoll [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>sock_poll() → tcp_poll()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">socket 的 poll 实现，转交给 TCP 协议栈去查</FONT></TD></TR>
+</TABLE>>];
+
+    sock [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>struct sock（socket 内核结构）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#1E293B">tcp_poll 先看 sk_state，分两种情况：<BR/><BR/><B>监听 socket（TCP_LISTEN）</B><BR/>· <B>icsk_accept_queue</B> 非空？&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 报 <FONT COLOR="#0D9488"><B>POLLIN</B></FONT>（accept 不阻塞）<BR/><BR/><B>已连接 socket（TCP_ESTABLISHED）</B><BR/>· <B>sk_receive_queue</B> 非空？&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 报 <FONT COLOR="#0D9488"><B>POLLIN</B></FONT>（可读）<BR/>· <B>sk_sndbuf</B> 还有空闲？&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ 报 <FONT COLOR="#0D9488"><B>POLLOUT</B></FONT>（可写）<BR/>· <B>连接状态</B>（FIN/关闭）→ 报 <FONT COLOR="#0D9488"><B>POLLIN / POLLHUP</B></FONT></FONT></TD></TR>
+</TABLE>>];
+
+    result [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>返回就绪事件位掩码</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">POLLIN | POLLOUT | POLLHUP…<BR/>select / poll / epoll 据此知道哪些 fd 就绪</FONT></TD></TR>
+</TABLE>>];
+
+    caller -> fops [label="调用 poll 接口", color="#E11D48", fontcolor="#BE123C"];
+    fops -> sockpoll [label="对 socket 而言", color="#475569", fontcolor="#334155"];
+    sockpoll -> sock [label="去查", color="#E11D48", fontcolor="#BE123C"];
+    sock -> result [label="返回", color="#0D9488", fontcolor="#0F766E"];
+}

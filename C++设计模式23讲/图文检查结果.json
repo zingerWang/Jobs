@@ -1,0 +1,419 @@
+{
+  "patterns": 23,
+  "categories": {
+    "创建型": 5,
+    "结构型": 7,
+    "行为型": 11
+  },
+  "examples_compiled_and_run": 23,
+  "delivered_runner_verified": true,
+  "source_and_article_identical": true,
+  "browser": {
+    "desktop": {
+      "patterns": 23,
+      "figures": 48,
+      "images": true,
+      "anchors": [],
+      "pageOverflow": false,
+      "unknownTags": [],
+      "modalClosed": true
+    },
+    "mobile": {
+      "pageOverflow": false
+    },
+    "codeMatches": true,
+    "expanded": 23,
+    "collapsed": 0,
+    "zoomWorks": true,
+    "errors": [],
+    "externalRequests": []
+  },
+  "figures": [
+    {
+      "name": "01_factory_method.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "02_abstract_factory.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "03_builder.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "04_prototype.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "05_singleton.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "06_adapter.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "07_bridge.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "08_composite.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "09_decorator.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "10_facade.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "11_flyweight.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "12_proxy.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "13_chain_of_responsibility.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "14_command.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "15_interpreter.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "16_iterator.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "17_mediator.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "18_memento.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "19_observer.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "20_state.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "21_strategy.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "22_template_method.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "23_visitor.svg",
+      "width": 1400,
+      "height": 535,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "mindmap.svg",
+      "width": 1650,
+      "height": 1120,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "overview.svg",
+      "width": 1400,
+      "height": 620,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_01_factory_method.svg",
+      "width": 1300,
+      "height": 1705,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_02_abstract_factory.svg",
+      "width": 1575,
+      "height": 2485,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_03_builder.svg",
+      "width": 1160,
+      "height": 685,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_04_prototype.svg",
+      "width": 1160,
+      "height": 715,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_05_singleton.svg",
+      "width": 1160,
+      "height": 445,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_06_adapter.svg",
+      "width": 1160,
+      "height": 925,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_07_bridge.svg",
+      "width": 1160,
+      "height": 1405,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_08_composite.svg",
+      "width": 1160,
+      "height": 955,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_09_decorator.svg",
+      "width": 1190,
+      "height": 1435,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_10_facade.svg",
+      "width": 1160,
+      "height": 1165,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_11_flyweight.svg",
+      "width": 1160,
+      "height": 925,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_12_proxy.svg",
+      "width": 1160,
+      "height": 955,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_13_chain_of_responsibility.svg",
+      "width": 1160,
+      "height": 955,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_14_command.svg",
+      "width": 1160,
+      "height": 1165,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_15_interpreter.svg",
+      "width": 1245,
+      "height": 1465,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_16_iterator.svg",
+      "width": 1160,
+      "height": 685,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_17_mediator.svg",
+      "width": 1190,
+      "height": 1225,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_18_memento.svg",
+      "width": 1160,
+      "height": 685,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_19_observer.svg",
+      "width": 1160,
+      "height": 925,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_20_state.svg",
+      "width": 1245,
+      "height": 1465,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_21_strategy.svg",
+      "width": 1160,
+      "height": 1165,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_22_template_method.svg",
+      "width": 1160,
+      "height": 925,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    },
+    {
+      "name": "uml_23_visitor.svg",
+      "width": 1300,
+      "height": 1705,
+      "outside": [],
+      "overlaps": [],
+      "cardOverflow": []
+    }
+  ],
+  "chinese_characters": 23868,
+  "code_lines": 884
+}

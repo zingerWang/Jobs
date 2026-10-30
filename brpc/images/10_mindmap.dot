@@ -1,0 +1,57 @@
+digraph mindmap {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.28, ranksep=0.9,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>思维导图：Arena 内存管理源码</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">一次性分配、统一释放 —— 赚的是「次数」，不是「字节」</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.7, color="#94A3B8", fontcolor="#475569"];
+
+    root [label=<
+<TABLE BORDER="1" COLOR="#4F46E5" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="14"><B>Arena 内存管理</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#3730A3">butil/arena.h + arena.cpp（约 190 行）</FONT></TD></TR>
+</TABLE>>];
+
+    n1 [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>为什么需要</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#BE123C">一批同生同死的小对象<BR/>malloc 四项成本：元数据 / 簿记 / 锁 / 局部性</FONT></TD></TR>
+</TABLE>>];
+
+    n2 [label=<
+<TABLE BORDER="1" COLOR="#0284C7" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>真实结构</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0369A1">Block{next, alloc_size, size, data[0]}<BR/>两条链：_cur_block / _isolated_blocks<BR/>64 → 翻倍 → 8192 封顶</FONT></TD></TR>
+</TABLE>>];
+
+    n3 [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>三个分配分支</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">够就切（指针加法）<BR/>n &gt; block_size/4 走 isolated<BR/>否则换块 + 翻倍（浪费率 ≤ 1/4）</FONT></TD></TR>
+</TABLE>>];
+
+    n4 [label=<
+<TABLE BORDER="1" COLOR="#7C3AED" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>数据验证</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#5B21B6">1960 块 vs 1,000,448 块（510×）<BR/>3.3ms vs 16.9ms<BR/>21MB vs 24MB（省次数不省字节）</FONT></TD></TR>
+</TABLE>>];
+
+    n5 [label=<
+<TABLE BORDER="1" COLOR="#D97706" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>边界与坑</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">忘记 clear → 只涨不落<BR/>不能单独 free / 不调析构<BR/>不对齐 / 大分配失败崩溃 / 非线程安全</FONT></TD></TR>
+</TABLE>>];
+
+    n6 [label=<
+<TABLE BORDER="1" COLOR="#475569" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>选型与 bRPC 用法</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#334155">butil::Arena：Redis/MySQL 解析<BR/>protobuf Arena：消息树（经消息工厂接入）<BR/>Controller 无 Arena；默认工厂用 new/delete</FONT></TD></TR>
+</TABLE>>];
+
+    root -> n1 [color="#E11D48"];
+    root -> n2 [color="#0284C7"];
+    root -> n3 [color="#0D9488"];
+    root -> n4 [color="#7C3AED"];
+    root -> n5 [color="#D97706"];
+    root -> n6 [color="#475569"];
+}

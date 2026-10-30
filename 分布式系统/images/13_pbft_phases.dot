@@ -1,0 +1,43 @@
+digraph pbft_phases {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>PBFT：三阶段 + 视图切换</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">如果它只是"多一轮投票"就能防住叛徒，那共识就不会这么难了</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    pre [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① Pre-Prepare（主节点定序）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">主节点（primary）收到客户端请求，分配序号 n，广播 <B>PRE-PREPARE(v, n, m)</B><BR/>· 序号由主节点<b>单方面决定</b>——这就是它比 Paxos/Raft 更"重"的地方：主节点是唯一的定序者<BR/>· 备份节点收到后检查：签名对不对、序号有没有重复、视图号是否匹配</FONT></TD></TR>
+</TABLE>>];
+
+    prep [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② Prepare（全体互相同意"这个序号配这个消息"）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">每个备份节点向<b>所有其他节点</b>广播 <B>PREPARE(v, n, d)</B>（d 是消息摘要）<BR/>收到 <B>2f 个</B>来自不同节点的、与自己一致的 PREPARE → 进入 prepared 状态<BR/><FONT COLOR="#92400E">为什么要"全体广播"而不是只发给主节点？因为主节点<b>自己可能就是叛徒</b>——它可能对不同节点说不同的话。<br/>这一步的作用是让所有人对"序号 n 对应哪个消息"达成一致。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    commit [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ Commit（确认"全网都同意了"）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">广播 <B>COMMIT(v, n, d)</B>；收到 <B>2f+1 个</B>（含自己）一致的 COMMIT → <B>执行</B>并回复客户端<BR/>· 第二个阶段（Prepare）保证"至少 f+1 个诚实节点已认可这个序号的绑定"<BR/>· 第三阶段（Commit）保证"这些诚实节点知道<b>别人也</b>认可了"——两阶段缺一不可</FONT></TD></TR>
+</TABLE>>];
+
+    view [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>视图切换（View Change）：主节点是叛徒 / 挂了怎么办</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">备份节点怀疑主节点（超时、序号跳变、签名错误）→ 广播 <B>VIEW-CHANGE</B>，附上自己知道的所有 prepared 证书<BR/>新主节点收集 <B>2f+1</B> 份 VIEW-CHANGE，据此重建状态并广播 <B>NEW-VIEW</B><BR/><FONT COLOR="#9F1239">难点在于：<b>换主时必须保证"已经 prepared 但还没 commit"的请求不被丢掉</b>——新主节点必须把它们重新提案。<br/>这套逻辑的正确性论证占了 PBFT 论文的一大半，也是"BFT 难实现"的主要来源。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    cost [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>代价：消息复杂度 O(n²)</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">Prepare 与 Commit 都是<b>全体广播</b>：n 个节点各发 n-1 条 → <B>O(n²)</B> 条消息。<BR/>· n=4：约 24 条；n=100：约 2 万条——所以 PBFT 类系统通常只部署 <B>4~16 个节点</B><BR/>· 这正是"BFT 只适合联盟链、不适合公链"的原因；公链要么用小规模委员会（EOS 的 21 个 BP），要么换思路（PoW/PoS）</FONT></TD></TR>
+</TABLE>>];
+
+    pre -> prep [label=" 备份节点接受则进入 Prepare"];
+    prep -> commit [label=" 收齐 2f 个 PREPARE"];
+    commit -> view [label=" 主节点异常时", style=dashed, color="#E11D48", fontcolor="#BE123C"];
+    view -> pre [label=" 新视图下重新走一遍", style=dashed, color="#7C3AED", fontcolor="#6D28D9"];
+    commit -> cost [style=invis];
+    { rank=same; view; cost; }
+}

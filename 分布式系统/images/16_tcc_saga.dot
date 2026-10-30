@@ -1,0 +1,35 @@
+digraph tcc_saga {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>TCC 与 Saga：放弃「原子提交」，改用「补偿」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">不再阻塞所有参与者，代价是把一致性从"强"降成"最终"，并且要求业务能补偿</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    tcc [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>TCC：Try / Confirm / Cancel（业务层的两阶段）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">· <B>Try</B>：<b>预留</b>资源（冻结额度、锁定库存），<b>不是直接扣减</b>——所以随时可以取消<BR/>· <B>Confirm</B>：所有 Try 成功后，真正扣减（<b>必须幂等</b>，可能被重试多次）<BR/>· <B>Cancel</B>：任一步失败，逆向释放预留（<b>必须幂等 + 能处理空回滚</b>）<BR/><FONT COLOR="#4338CA">本质：把"锁"从数据库行锁换成"业务状态"——所以它<b>不长事务持锁</b>，但要写三套逻辑。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    saga [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>Saga：一串本地事务 + 一串补偿</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">把大事务拆成 <B>T1 → T2 → … → Tn</B>，每个 Ti 都有一个补偿 <B>Ci</B>。<BR/>某一步失败时，<b>反向执行已完成的补偿</b>：Cn-1 → … → C1<BR/>· <B>正向恢复</B>：一直重试当前步骤（适合"失败是暂时的"）<BR/>· <B>反向恢复</B>：回滚已完成的部分（适合"业务上不该继续"）<BR/><FONT COLOR="#115E59">两种编排方式：<b>编排式（Orchestration）</b>由中心协调器驱动；<b>协同式（Choreography）</b>靠事件彼此触发。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    cmp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>四种方案横向对比</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">· <B>2PC/XA</B>：强一致、阻塞、适合短事务与单库跨分片<BR/>· <B>3PC</B>：非阻塞但分区下不安全，<b>工程上极少使用</b>（了解即可）<BR/>· <B>TCC</B>：最终一致（Confirm 前有中间态）、不阻塞、<b>需要业务改造三个接口</b>、要处理空回滚与悬挂<BR/>· <B>Saga</B>：最终一致、不阻塞、<b>没有隔离性</b>（中间状态对外可见）、补偿逻辑要业务写<BR/><FONT COLOR="#92400E">选型口诀：<b>能用短事务就别用分布式事务；必须跨服务就优先 Saga（改造成本低），对一致性要求更高才上 TCC。</b></FONT></FONT></TD></TR>
+</TABLE>>];
+
+    trap [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>TCC 的三个经典坑（都会真的发生）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">· <B>空回滚</B>：Cancel 比 Try 先到（Try 因网络问题还在路上）→ Cancel 必须能识别"我还没 Try 过"并直接返回成功<BR/>· <B>悬挂</B>：Cancel 执行完后，延迟的 Try 才到达 → 如果没有防悬挂标记，资源会被<b>永久预留</b>（没人再来 Confirm/Cancel 了）<BR/>· <B>幂等</B>：Confirm/Cancel 都可能被重试（超时重发）→ 必须靠唯一事务 ID 去重<BR/><FONT COLOR="#9F1239">这三个坑的根因是同一个：<b>网络里没有"消息一定按顺序到达"这回事</b>（见 03 篇）。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    tcc -> cmp [label=" 强一点的一致性"];
+    saga -> cmp [label=" 简单一些的实现"];
+    cmp -> trap [label=" 实现时会遇到", color="#E11D48", fontcolor="#BE123C"];
+    { rank=same; tcc; saga; }
+}

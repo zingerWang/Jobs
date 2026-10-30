@@ -1,0 +1,43 @@
+digraph raft_election {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>选主：从超时到当选</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">随机化超时打破对称，选举限制守住安全 —— 两者缺一不可</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① 等待心跳</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">每个 follower 都有一个<b>随机</b>选举超时（如 150~300ms）<BR/>只要收到心跳就重置——没收到就说明 leader 可能挂了</FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② 超时 → 变候选人</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309"><B>term += 1</B>，votedFor = 自己，然后并发向所有节点发 RequestVote<BR/>「随机化」是关键：否则大家同时超时、同时拉票，票被瓜分，谁也过不了半</FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ 投票者的两条判断（都满足才投）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">· <B>本任期还没投过票</B>（一个 term 只投一票，靠它保证「一个 term 最多一个 leader」）<BR/>· <B>选举限制</B>：候选人的日志「至少和我一样新」——先比最后一条的 term，相同再比长度<BR/><FONT COLOR="#9F1239">这一条是 Raft 安全性的第一道闸：日志落后的节点永远当不上 leader，所以已提交的条目不可能被覆盖。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>④ 拿到多数派 → 当选 leader</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">立刻发一轮心跳，告诉所有人「我上任了」——既宣示主权，也阻止别人超时<BR/>任期号会随心跳传播，旧 leader 看到更大的 term 会立刻降级为 follower</FONT></TD></TR>
+</TABLE>>];
+
+    fail [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>选不出来怎么办</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 票被瓜分 → 本轮无人过半 → 各自超时后 <B>term+1 重来</B>（随机化保证下一轮大概率有人胜出）<BR/>· 只剩少数派 → 永远凑不齐多数派 → <B>集群不可用</B>（CP 的代价，见 07 篇）<BR/>· 网络分区恢复后，旧 leader 的 term 更小 → 自动降级，不会出现「双主」</FONT></TD></TR>
+</TABLE>>];
+
+    s1 -> s2 [label=" 选举超时"];
+    s2 -> s3 [label=" RequestVote(term, lastLogIndex, lastLogTerm)"];
+    s3 -> s4 [label=" 多数派同意"];
+    s3 -> fail [label=" 票数不够 / 票被瓜分", style=dashed, color="#7C3AED", fontcolor="#6D28D9"];
+    s4 -> fail [style=invis];
+    { rank=same; s4; fail; }
+}

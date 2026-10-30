@@ -1,0 +1,60 @@
+digraph protobuf_skeleton {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.8, ranksep=0.65, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>protobuf 搭骨架，brpc 填血肉</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">echo.proto 经 protoc 生成 Message 与 Service；bRPC 只补上 Controller / Channel / Server 三样东西</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    proto [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>echo.proto　你手写的 IDL</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0369A1">message EchoRequest / EchoResponse<BR/>service EchoService { rpc Echo(...) returns (...) }</FONT></TD></TR>
+</TABLE>>];
+
+    gen_msg [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>protoc 生成：Message 层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">EchoRequest : google::protobuf::Message<BR/>自描述：GetDescriptor() / SerializeToString()</FONT></TD></TR>
+</TABLE>>];
+
+    gen_svc [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>protoc 生成：Service 层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">EchoService : google::protobuf::Service（抽象）<BR/>EchoService_Stub（持 Channel*，转发到 CallMethod）<BR/>descriptor() 给出 ServiceDescriptor / MethodDescriptor</FONT></TD></TR>
+</TABLE>>];
+
+    ctrl [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>brpc::Controller : RpcController</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">一次调用的全部上下文：超时 / attachment / 负载均衡<BR/>失败信息 / call_id / _done（回调）</FONT></TD></TR>
+</TABLE>>];
+
+    ch [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>brpc::Channel::CallMethod</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">(method, controller, request, response, done)<BR/>done == NULL 同步阻塞；否则异步回调</FONT></TD></TR>
+</TABLE>>];
+
+    srv [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>brpc::Server::AddService</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">把 Service 登记进服务表，按 descriptor 建索引<BR/>ServiceOwnership 决定谁负责 delete</FONT></TD></TR>
+</TABLE>>];
+
+    clo [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>google::protobuf::Closure</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">brpc::NewCallback（自删除回调）<BR/>brpc::ClosureGuard（RAII 保证只 Run 一次）<BR/>brpc::DoNothing（半同步：只等结果不做事）</FONT></TD></TR>
+</TABLE>>];
+
+    proto -> gen_msg [color="#0284C7", fontcolor="#0369A1", label="protoc"];
+    proto -> gen_svc [color="#0284C7", fontcolor="#0369A1", label="protoc"];
+
+    gen_svc -> ctrl [color="#E11D48", fontcolor="#BE123C", label="补齐实现"];
+    gen_svc -> ch [color="#0D9488", fontcolor="#0F766E", label="stub 转发"];
+    gen_svc -> srv [color="#0D9488", fontcolor="#0F766E", label="服务端注册"];
+    gen_svc -> clo [color="#7C3AED", fontcolor="#6D28D9", label="完成回调"];
+
+    { rank=same; ctrl; ch; }
+    { rank=same; srv; clo; }
+}

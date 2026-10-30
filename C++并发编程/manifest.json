@@ -1,0 +1,340 @@
+[
+  {
+    "n": 1,
+    "title": "从单线程到多线程：并发究竟解决了什么问题？",
+    "file": "01-从单线程到多线程：并发究竟解决了什么问题？.md",
+    "std": 11,
+    "expected": "输出 `500000500000`，断言通过。这个数验证任务划分与合并，不能验证加速比。"
+  },
+  {
+    "n": 2,
+    "title": "线程、进程与 CPU 核心：理解 C++ 多线程的运行环境",
+    "file": "02-线程、进程与 CPU 核心：理解 C++ 多线程的运行环境.md",
+    "std": 11,
+    "expected": "输出并发提示、回退值、主线程与工作线程标识。具体数字因机器而异；提示值允许为 0。"
+  },
+  {
+    "n": 3,
+    "title": "第一个 std::thread：创建线程、传递参数与等待结束",
+    "file": "03-第一个 stdthread：创建线程、传递参数与等待结束.md",
+    "std": 11,
+    "expected": "依次输出 `copy=11`、`owned=42`、`original=15`；所有断言通过。"
+  },
+  {
+    "n": 4,
+    "title": "线程生命周期管理：join、detach 与 RAII",
+    "file": "04-线程生命周期管理：join、detach 与 RAII.md",
+    "std": 11,
+    "expected": "输出 `main task failed; worker joined`。done 的读取发生在守卫完成 join 之后。"
+  },
+  {
+    "n": 5,
+    "title": "线程中的对象生命周期：引用、指针与悬空访问",
+    "file": "05-线程中的对象生命周期：引用、指针与悬空访问.md",
+    "std": 11,
+    "expected": "输出 `immutable config`，join 后 weak_ptr 过期断言通过。"
+  },
+  {
+    "n": 6,
+    "title": "从 std::thread 到 std::jthread：C++20 如何简化线程管理",
+    "file": "06-从 stdthread 到 stdjthread：C++20 如何简化线程管理.md",
+    "std": 20,
+    "expected": "输出 `stopped, steps=...`，数字允许为 0 或更大；程序正常退出。"
+  },
+  {
+    "n": 7,
+    "title": "多线程为什么会出错：数据竞争、竞态条件与未定义行为",
+    "file": "07-多线程为什么会出错：数据竞争、竞态条件与未定义行为.md",
+    "std": 20,
+    "expected": "输出 `tickets=0 sold=1`。示例使用 jthread 管理寿命，CAS 原理自 C++11 即可使用。"
+  },
+  {
+    "n": 8,
+    "title": "并发 Bug 排查手段：GDB 多线程调试、core 分析与竞态复现",
+    "file": "08-并发 Bug 排查手段：GDB 多线程调试、core 分析与竞态复现.md",
+    "std": 20,
+    "edition": "engineering-expansion",
+    "expected": "默认输出 logical race reproduced: tickets=0 sold=2；--hang/--crash 为独立故障模式。",
+    "compile_flags": [
+      "-O0",
+      "-g",
+      "-fno-omit-frame-pointer"
+    ]
+  },
+  {
+    "n": 9,
+    "title": "并发不等于更快：用 Amdahl 定律分析多线程加速的上限",
+    "file": "09-并发不等于更快：用 Amdahl 定律分析多线程加速的上限.md",
+    "std": 11,
+    "expected": "打印 1.000、1.667、2.500、3.333、4.000，最后理想上限为 5.000。这些是模型计算值。"
+  },
+  {
+    "n": 10,
+    "title": "std::mutex 入门：如何保护共享数据与维护不变量",
+    "file": "10-stdmutex 入门：如何保护共享数据与维护不变量.md",
+    "std": 20,
+    "expected": "输出 `withdrawn=1000 balance=0`；使用 C++20 管理线程，mutex 与 lock_guard 自 C++11 提供。"
+  },
+  {
+    "n": 11,
+    "title": "lock_guard、unique_lock 与 scoped_lock：三种锁管理工具怎么选？",
+    "file": "11-lock_guard、unique_lock 与 scoped_lock：三种锁管理工具怎么选？.md",
+    "std": 17,
+    "expected": "输出 `snapshot=70`，演示多锁操作与提前解锁后的快照处理。"
+  },
+  {
+    "n": 12,
+    "title": "死锁是如何发生的：锁顺序、多锁获取与排查方法",
+    "file": "12-死锁是如何发生的：锁顺序、多锁获取与排查方法.md",
+    "std": 20,
+    "expected": "输出 `total=2000`，两个账户各为 1000。这里只测试互斥和总额，不实现银行透支政策。"
+  },
+  {
+    "n": 13,
+    "title": "缩小临界区：如何减少锁竞争而不破坏正确性",
+    "file": "13-缩小临界区：如何减少锁竞争而不破坏正确性.md",
+    "std": 11,
+    "expected": "输出 `5050`。这验证快照求和结果，性能收益应在真实并发负载下另测。"
+  },
+  {
+    "n": 14,
+    "title": "条件变量入门：等待、通知与生产者—消费者模型",
+    "file": "14-条件变量入门：等待、通知与生产者—消费者模型.md",
+    "std": 20,
+    "expected": "输出 `5050`，即关闭后已提交的 100 个元素均被处理。"
+  },
+  {
+    "n": 15,
+    "title": "条件变量的常见陷阱：虚假唤醒、通知丢失与退出协议",
+    "file": "15-条件变量的常见陷阱：虚假唤醒、通知丢失与退出协议.md",
+    "std": 11,
+    "expected": "输出 `timeout checked; early notification safe`，不依赖固定调度延迟。"
+  },
+  {
+    "n": 16,
+    "title": "读多写少就该用读写锁吗？理解 std::shared_mutex 的收益与代价",
+    "file": "16-读多写少就该用读写锁吗？理解 stdshared_mutex 的收益与代价.md",
+    "std": 17,
+    "expected": "输出 `config`，缺失键返回空 optional。示例验证接口语义，不宣称读写锁性能优势。"
+  },
+  {
+    "n": 17,
+    "title": "只初始化一次：std::call_once 与线程安全的局部静态对象",
+    "file": "17-只初始化一次：stdcall_once 与线程安全的局部静态对象.md",
+    "std": 11,
+    "expected": "默认输出 `ready attempts=1`。可选 `--retry` 按规范预期输出 `ready attempts=2`，但本机该可选路径超时，详见正文与验证报告。"
+  },
+  {
+    "n": 18,
+    "title": "thread_local：线程局部存储的用途、生命周期与陷阱",
+    "file": "18-thread_local：线程局部存储的用途、生命周期与陷阱.md",
+    "std": 20,
+    "expected": "输出 `3 3 1`，thread_local 功能本身自 C++11 可用。"
+  },
+  {
+    "n": 19,
+    "title": "C++20 同步工具：semaphore、latch 与 barrier 的使用场景",
+    "file": "19-C++20 同步工具：semaphore、latch 与 barrier 的使用场景.md",
+    "std": 20,
+    "expected": "输出 `phases=2 total=6`，展示两次屏障阶段的可见性。"
+  },
+  {
+    "n": 20,
+    "title": "多线程下信号处理：信号掩码、sigaction 与线程安全陷阱",
+    "file": "20-多线程下信号处理：信号掩码、sigaction 与线程安全陷阱.md",
+    "std": 20,
+    "edition": "engineering-expansion",
+    "expected": "Linux 默认自测接收 SIGTERM，输出 signal received; worker joined；其他平台明确跳过。",
+    "platform": "linux"
+  },
+  {
+    "n": 21,
+    "title": "从线程到任务：理解 future、promise 与异步结果传递",
+    "file": "21-从线程到任务：理解 future、promise 与异步结果传递.md",
+    "std": 20,
+    "expected": "依次输出 `42` 和 `task failed`，异常在 future.get 所在线程处理。"
+  },
+  {
+    "n": 22,
+    "title": "std::async 使用指南：启动策略、异常传播与析构等待",
+    "file": "22-stdasync 使用指南：启动策略、异常传播与析构等待.md",
+    "std": 11,
+    "expected": "输出 `42`，deferred 状态断言通过。"
+  },
+  {
+    "n": 23,
+    "title": "std::packaged_task：把可调用对象变成可调度任务",
+    "file": "23-stdpackaged_task：把可调用对象变成可调度任务.md",
+    "std": 11,
+    "expected": "输出 `42`，本例没有创建线程，用于验证任务封装与调度的分离。"
+  },
+  {
+    "n": 24,
+    "title": "任务类型区分：CPU 密集型与 IO 密集型任务的线程池选型",
+    "file": "24-任务类型区分：CPU 密集型与 IO 密集型任务的线程池选型.md",
+    "std": 17,
+    "edition": "engineering-expansion",
+    "expected": "输出模式、线程数、32 项任务、校验和与耗时；不要求随线程数加速。"
+  },
+  {
+    "n": 25,
+    "title": "从零实现线程池：任务队列、工作线程与结果返回",
+    "file": "25-从零实现线程池：任务队列、工作线程与结果返回.md",
+    "std": 17,
+    "expected": "输出 `sum=2470 exception propagated`。公共头文件须与 cpp 保持在同一 examples 目录。"
+  },
+  {
+    "n": 26,
+    "title": "线程池的关闭协议：排空任务、取消任务与安全析构",
+    "file": "26-线程池的关闭协议：排空任务、取消任务与安全析构.md",
+    "std": 20,
+    "expected": "输出 `queued canceled; running completed; submit rejected`。第 22 篇公共头文件实现关闭逻辑。"
+  },
+  {
+    "n": 27,
+    "title": "线程池为什么越忙越慢：队列容量、背压与任务粒度",
+    "file": "27-线程池为什么越忙越慢：队列容量、背压与任务粒度.md",
+    "std": 17,
+    "expected": "输出 `capacity enforced`；容量 1 表示一个排队任务，另有一个可正在运行。"
+  },
+  {
+    "n": 28,
+    "title": "协作式取消：使用 stop_token 设计可停止的任务",
+    "file": "28-协作式取消：使用 stop_token 设计可停止的任务.md",
+    "std": 20,
+    "expected": "输出 `wait interrupted by stop`，在停止请求先于或晚于等待注册时均应结束。"
+  },
+  {
+    "n": 29,
+    "title": "异常在多线程中的传播：线程内异常、任务异常捕获与崩溃防护",
+    "file": "29-异常在多线程中的传播：线程内异常、任务异常捕获与崩溃防护.md",
+    "std": 17,
+    "edition": "engineering-expansion",
+    "expected": "输出 raw exception delivered; pool worker survived; next=42；--terminate 应退出 86。"
+  },
+  {
+    "n": 30,
+    "title": "并行算法与执行策略：std::execution 能做什么，不能做什么",
+    "file": "30-并行算法与执行策略：stdexecution 能做什么，不能做什么.md",
+    "std": 17,
+    "expected": "输出 `333833500`。若目标 libstdc++ 选择 TBB 后端，可能需要安装并链接 TBB；本地构建结果见验证报告。"
+  },
+  {
+    "n": 31,
+    "title": "std::atomic 入门：原子操作能保证什么？",
+    "file": "31-stdatomic 入门：原子操作能保证什么？.md",
+    "std": 20,
+    "expected": "count 固定为 `200000`，lock_free 输出取决于平台。"
+  },
+  {
+    "n": 32,
+    "title": "C++ 内存模型：理解 happens-before 与 synchronizes-with",
+    "file": "32-C++ 内存模型：理解 happens-before 与 synchronizes-with.md",
+    "std": 20,
+    "expected": "输出 `42`；这是一次发布，生产者在发布后不再修改 data。"
+  },
+  {
+    "n": 33,
+    "title": "memory_order 全景：六种内存序分别意味着什么？",
+    "file": "33-memory_order 全景：六种内存序分别意味着什么？.md",
+    "std": 20,
+    "expected": "输出 `sum=42 visits=1`，访问计数不参与数据发布。"
+  },
+  {
+    "n": 34,
+    "title": "从发布到读取：用 release/acquire 正确传递共享数据",
+    "file": "34-从发布到读取：用 releaseacquire 正确传递共享数据.md",
+    "std": 20,
+    "expected": "输出 `answer:42`，一次发布后不再修改 Payload。"
+  },
+  {
+    "n": 35,
+    "title": "memory_order_relaxed：为什么计数器可以用，发布数据却不行？",
+    "file": "35-memory_order_relaxed：为什么计数器可以用，发布数据却不行？.md",
+    "std": 20,
+    "expected": "输出 `40000`；最终读取在四个 join 之后。"
+  },
+  {
+    "n": 36,
+    "title": "CAS 与重试循环：compare_exchange 的正确用法",
+    "file": "36-CAS 与重试循环：compare_exchange 的正确用法.md",
+    "std": 20,
+    "expected": "输出 `2000`，整个例子只聚合数值，不发布关联对象。"
+  },
+  {
+    "n": 37,
+    "title": "C++20 atomic::wait 与 notify：基于原子变量实现等待和唤醒",
+    "file": "37-C++20 atomicwait 与 notify：基于原子变量实现等待和唤醒.md",
+    "std": 20,
+    "expected": "输出 `42`。消费者启动早晚均由原子值检查正确处理。"
+  },
+  {
+    "n": 38,
+    "title": "无锁不等于无等待：理解阻塞、Lock-Free 与 Wait-Free",
+    "file": "38-无锁不等于无等待：理解阻塞、Lock-Free 与 Wait-Free.md",
+    "std": 20,
+    "expected": "输出 counter=20000，并明确提示该算法使用阻塞式自旋锁。"
+  },
+  {
+    "n": 39,
+    "title": "无锁数据结构的难点：ABA 问题与安全内存回收",
+    "file": "39-无锁数据结构的难点：ABA 问题与安全内存回收.md",
+    "std": 11,
+    "expected": "输出 `stale CAS rejected; no reclamation implemented`。64 位原子是否无锁由平台决定，不影响本例语义。"
+  },
+  {
+    "n": 40,
+    "title": "内存回收方案：Hazard Pointer 与 Epoch-Based Reclamation 的原理和取舍",
+    "file": "40-内存回收方案：Hazard Pointer 与 Epoch-Based Reclamation 的原理和取舍.md",
+    "std": 20,
+    "edition": "engineering-expansion",
+    "expected": "输出 HP 与 EBR 两条延迟回收成功记录，断言成立。"
+  },
+  {
+    "n": 41,
+    "title": "实现 SPSC 环形队列：从内存序推导到缓存优化",
+    "file": "41-实现 SPSC 环形队列：从内存序推导到缓存优化.md",
+    "std": 20,
+    "expected": "输出 `100000 items in FIFO order`，小容量满空测试及每项序号断言通过。"
+  },
+  {
+    "n": 42,
+    "title": "缓存一致性与伪共享：多线程程序的性能为什么突然下降？",
+    "file": "42-缓存一致性与伪共享：多线程程序的性能为什么突然下降？.md",
+    "std": 20,
+    "expected": "输出两组地址和 5 轮耗时；每轮最终计数必须正确，不对哪组更快作断言。"
+  },
+  {
+    "n": 43,
+    "title": "内存分配器与多线程：malloc 锁、jemalloc 与 TCMalloc 的原理和选型",
+    "file": "43-内存分配器与多线程：malloc 锁、jemalloc 与 TCMalloc 的原理和选型.md",
+    "std": 17,
+    "edition": "engineering-expansion",
+    "expected": "默认 allocations=102400、checksum=13056000；耗时随环境变化。",
+    "compile_flags": [
+      "-fno-builtin-malloc",
+      "-fno-builtin-free"
+    ]
+  },
+  {
+    "n": 44,
+    "title": "如何验证并发代码：ThreadSanitizer、压力测试与故障复现",
+    "file": "44-如何验证并发代码：ThreadSanitizer、压力测试与故障复现.md",
+    "std": 20,
+    "expected": "明确输出 `BUG reproduced: sold=2 with initial stock=1`。这是有意演示的、无数据竞争但逻辑错误的原子协议。"
+  },
+  {
+    "n": 45,
+    "title": "如何测量并发性能：吞吐量、尾延迟与基准测试陷阱",
+    "file": "45-如何测量并发性能：吞吐量、尾延迟与基准测试陷阱.md",
+    "std": 17,
+    "expected": "输出输入规模、校验和、中位数和范围。数字由本机运行决定；不要求双线程一定更快。"
+  },
+  {
+    "n": 46,
+    "title": "综合实战：构建支持背压、批量写入与安全关闭的异步日志系统",
+    "file": "46-综合实战：构建支持背压、批量写入与安全关闭的异步日志系统.md",
+    "std": 17,
+    "expected": "在运行目录生成 async-demo.log，输出 `accepted=2000 written=2000 unique=2000`。测试会覆盖同名实验文件。"
+  }
+]

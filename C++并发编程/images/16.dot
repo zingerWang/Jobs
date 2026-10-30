@@ -1,0 +1,37 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.16", ranksep="0.45", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [color="#475569", arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>读多写少就该用读写锁吗？理解 std::shared_mutex 的收益与代价</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 16 篇 · 原理推导、失败路径与验证</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 16 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">读多写少就该用读写锁吗？理解<BR/>std::shared_mutex 的收益与代价</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>共享读模型</B></FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+p0_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>共享读与独占写</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_0 [color="#4F46E5"];
+p0_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>只读接口不能隐式插入</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_1 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>生命周期</B></FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+p1_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>返回拥有数据的副本</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_0 [color="#0D9488"];
+p1_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>解锁后引用可能失效</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>选型边界</B></FONT></TD></TR></TABLE>>];
+root -> b2 [color="#E11D48"];
+p2_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>公平性不能假定</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_0 [color="#E11D48"];
+p2_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>同时测写入尾延迟</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_1 [color="#E11D48"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>深入推导</B></FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+p3_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>多张阅览证为什么不一定比一把钥匙便宜</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_0 [color="#7C3AED"];
+p3_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>查不到再插入，为什么要重新检查</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_1 [color="#7C3AED"];
+b4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>边界与验证</B></FONT></TD></TR></TABLE>>];
+root -> b4 [color="#D97706"];
+p4_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>写者饥饿为什么是业务问题</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_0 [color="#D97706"];
+p4_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>设计一组能够推翻选型的实验</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_1 [color="#D97706"];
+}

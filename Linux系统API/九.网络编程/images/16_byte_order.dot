@@ -1,0 +1,48 @@
+digraph byte_order {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>字节序：大端 vs 小端</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">以 32 位整数 0x12345678 在内存中的存放为例（地址从左到右递增）</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=1.8, arrowsize=0.9];
+
+    value [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="15"><B>数值 0x12345678</B></FONT></TD></TR>
+</TABLE>>];
+
+    be [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7" COLSPAN="5"><FONT POINT-SIZE="14"><B>大端（网络字节序）—— 高字节在低地址</B></FONT></TD></TR>
+  <TR>
+    <TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#0369A1">低地址</FONT></TD>
+    <TD BGCOLOR="#BAE6FD" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#075985"><B>12</B></FONT></TD>
+    <TD BGCOLOR="#BAE6FD" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#075985"><B>34</B></FONT></TD>
+    <TD BGCOLOR="#BAE6FD" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#075985"><B>56</B></FONT></TD>
+    <TD BGCOLOR="#BAE6FD" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#075985"><B>78</B></FONT></TD>
+    <TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#0369A1">高地址</FONT></TD>
+  </TR>
+</TABLE>>];
+
+    le [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7" COLSPAN="5"><FONT POINT-SIZE="14"><B>小端（x86 主机序）—— 低字节在低地址</B></FONT></TD></TR>
+  <TR>
+    <TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#B45309">低地址</FONT></TD>
+    <TD BGCOLOR="#FDE68A" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#92400E"><B>78</B></FONT></TD>
+    <TD BGCOLOR="#FDE68A" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#92400E"><B>56</B></FONT></TD>
+    <TD BGCOLOR="#FDE68A" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#92400E"><B>34</B></FONT></TD>
+    <TD BGCOLOR="#FDE68A" ALIGN="CENTER" CELLPADDING="10"><FONT FACE="Menlo" POINT-SIZE="14" COLOR="#92400E"><B>12</B></FONT></TD>
+    <TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#B45309">高地址</FONT></TD>
+  </TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>为什么要转换</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">网络字节序 = 大端；x86 主机 = 小端<BR/>端口/IP 收发前必须 htons/htonl/ntohs/ntohl 转换</FONT></TD></TR>
+</TABLE>>];
+
+    value -> be [style=invis];
+    value -> le [style=invis];
+    be -> le [style=invis];
+    le -> note [style=invis];
+}

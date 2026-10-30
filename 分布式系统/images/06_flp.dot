@@ -1,0 +1,41 @@
+digraph flp {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>FLP 的核心：超时 ≠ 失败</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">异步系统里，A 无法区分「B 挂了」还是「B 只是慢」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    a [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>进程 A</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#3730A3">发请求，等 ACK<BR/>超时了，没等到</FONT></TD></TR>
+</TABLE>>];
+
+    b [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>进程 B</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#334155">（真相未知）</FONT></TD></TR>
+</TABLE>>];
+
+    crash [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>真相①：B 崩溃了</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#BE123C">永远不会有回应</FONT></TD></TR>
+</TABLE>>];
+
+    slow [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>真相②：B 只是慢</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#B45309">响应还在路上，稍后会到</FONT></TD></TR>
+</TABLE>>];
+
+    a -> b [label="请求", color="#4F46E5", fontcolor="#3730A3"];
+    b -> crash [style=dashed, color="#E11D48", fontcolor="#BE123C", label="可能"];
+    b -> slow [style=dashed, color="#D97706", fontcolor="#B45309", label="可能"];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">对 A 来说，①和②的表现【完全一样】：都是「没收到 ACK」<BR/>所以 A 无法安全地宣布「B 失败」并继续推进</FONT></TD></TR>
+</TABLE>>];
+    crash -> note [style=invis, constraint=false];
+    slow -> note [style=invis, constraint=false];
+}

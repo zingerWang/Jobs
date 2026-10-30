@@ -1,0 +1,41 @@
+digraph three_phase_commit {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>3PC：用「超时」换掉「阻塞」，代价是安全性</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">把"全员同意"提前告诉所有人，于是每个参与者都能自己决定</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① CanCommit</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">协调者问「能提交吗」<BR/>参与者<b>只回答意愿</b>，<b>不锁资源</b>（比 2PC 的 Prepare 轻）</FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② PreCommit（新增的关键一步）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">协调者广播 <B>preCommit</B>：参与者锁资源、执行操作，并回 ACK。<BR/><B>这一步真正的作用</B>：让每个参与者都<b>知道「全员都同意过」</b>——<BR/>于是即使协调者随后消失，它们也能自己做出正确决定。</FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ DoCommit</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">协调者发 COMMIT，参与者提交并释放锁<BR/>若协调者宕机 → 参与者<b>超时后自行提交</b>（因为它在 PRECOMMITTED 状态）</FONT></TD></TR>
+</TABLE>>];
+
+    rule [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>超时决策规则（3PC 的核心）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 停在 <B>PREPARED</B>（没收到 preCommit）→ 超时后<b>回滚</b>（说明不是所有人都同意）<BR/>· 停在 <B>PRECOMMITTED</B>（收到过 preCommit）→ 超时后<b>提交</b>（说明全员都同意过）<BR/><FONT COLOR="#5B21B6">这就是"不阻塞"的实现方式：<b>把决定权从协调者下放给每个参与者的本地时钟。</b></FONT></FONT></TD></TR>
+</TABLE>>];
+
+    flaw [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>代价：网络分区下会「一边提交、一边回滚」</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">preCommit 只到达了一部分节点（分区）：<BR/>· 收到 preCommit 的节点 → 超时后<b>提交</b><BR/>· 没收到的节点 → 超时后<b>回滚</b><BR/>→ 同一笔事务出现两种结局 —— <B>原子性被破坏</B><BR/><FONT COLOR="#9F1239">根因：用它来裁决"该不该提交"的是<b>本地时钟 + 消息可达性</b>，而不是一个共识决议。<br/>这也解释了为什么"用超时解决分歧"在分布式系统里总是危险的（回想 06 篇的 FLP）。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    s1 -> s2 [label=" 全员同意意愿"];
+    s2 -> s3 [label=" 全员 ACK"];
+    s3 -> rule [label=" 协调者失联时"];
+    rule -> flaw [label=" 但分区时…", color="#E11D48", fontcolor="#BE123C"];
+}

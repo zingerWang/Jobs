@@ -1,0 +1,45 @@
+digraph sticky_packet {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>粘包 / 拆包</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">TCP 是字节流，没有消息边界；UDP 是报文，有边界</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=1.8, arrowsize=0.9];
+
+    send1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>发送 "hello"</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">第一次 send</FONT></TD></TR>
+</TABLE>>];
+    send2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>发送 "world"</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">第二次 send</FONT></TD></TR>
+</TABLE>>];
+
+    stream [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>TCP 字节流（无边界）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12" COLOR="#0369A1"><FONT FACE="Menlo">h e l l o w o r l d</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    r1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>粘包</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">一次收到 "helloworld"</FONT></TD></TR>
+</TABLE>>];
+    r2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>拆包</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">拆成 "hel" + "loworld"</FONT></TD></TR>
+</TABLE>>];
+    r3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>正好</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">"hello" + "world" 各一次</FONT></TD></TR>
+</TABLE>>];
+
+    send1 -> stream;
+    send2 -> stream;
+    stream -> r1;
+    stream -> r2;
+    stream -> r3;
+}

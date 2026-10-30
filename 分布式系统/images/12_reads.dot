@@ -1,0 +1,44 @@
+digraph reads {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>线性一致读：三条路与各自的假设</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">写靠共识保证，读要靠「确认自己还是 leader + 等到该看到的位置」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    why [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么不能直接读 leader 的本地状态机？</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">两个原因：① 可能读到<b>尚未提交</b>的条目；② 分区后的<b>旧 leader</b> 还以为自己是主，读出来的是过期数据</FONT></TD></TR>
+</TABLE>>];
+
+    r1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① 走日志（最稳、最慢）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">把读请求也写成一条日志，走一遍完整共识再返回<BR/>· 天然线性一致，无额外假设<BR/>· 代价：每次读都要一次共识 + 一次 fsync → 读吞吐被写吞吐绑死<BR/>· 只适合兜底或极低频的强读</FONT></TD></TR>
+</TABLE>>];
+
+    r2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② ReadIndex（生产默认）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">三步：<B>记下当前 commitIndex</B> → 向多数派发一轮心跳<b>确认自己仍是 leader</b> → 等状态机 apply 到该 index 再返回<BR/>· 只多一轮心跳（不落盘），读吞吐大幅提升<BR/>· 仍然<b>不依赖时钟</b>——这是它比 Lease Read 更受欢迎的原因</FONT></TD></TR>
+</TABLE>>];
+
+    r3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ Lease Read（最快，但有前提）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">leader 在选举超时里"租"一段时间：租约期内<b>直接读</b>，不问多数派<BR/>· 省掉那一轮心跳，延迟最低<BR/>· <B>前提：各节点时钟漂移有上界</B>——否则租约期还没过，别人已经选出新 leader 了<BR/>· 时钟跳变（NTP 校时、虚拟机迁移）会直接破坏正确性</FONT></TD></TR>
+</TABLE>>];
+
+    cmp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>同一套共识里的三个「假设等级」</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 走日志 / ReadIndex：只依赖"多数派可达"，<B>不含任何时间假设</B><BR/>· Lease Read：额外依赖"时钟漂移有上界"——这是一个<b>新的失败模式</b>（FLP 之外的风险）<BR/>· 顺带一提：选举超时本身也是时间假设（部分同步），但它是"活性"假设；Lease Read 把它用到了"安全性"上，风险等级不同</FONT></TD></TR>
+</TABLE>>];
+
+    why -> r1;
+    why -> r2;
+    why -> r3;
+    r1 -> cmp [style=invis];
+    r2 -> cmp;
+    r3 -> cmp [style=invis];
+    { rank=same; r1; r2; r3; }
+}

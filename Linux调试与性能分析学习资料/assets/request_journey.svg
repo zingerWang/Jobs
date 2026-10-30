@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1010" viewBox="0 0 1400 1010">
+<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1 1 L10 6 L1 11" fill="none" stroke="#396b89" stroke-width="2"/></marker></defs>
+<rect width="1400" height="1010" fill="#f4f8fb"/>
+<text x="60" y="55" font-family="Microsoft YaHei, sans-serif" font-size="31" font-weight="700" fill="#244e69">一次订单查询：请求经过哪里，用什么工具观察？</text>
+<text x="60" y="92" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">按 ① → ② → ③ → ④ 阅读；位置和时长仅为原理示意</text>
+<rect x="70" y="130" width="460" height="100" rx="12" fill="white" stroke="#9bb6c8" stroke-width="2"/>
+<text x="93" y="168" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="700" fill="#244e69">你的电脑 / 客户端</text>
+<text x="93" y="206" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">发起查询，等待并显示结果</text>
+<rect x="870" y="130" width="460" height="100" rx="12" fill="white" stroke="#9bb6c8" stroke-width="2"/>
+<text x="893" y="168" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="700" fill="#244e69">运行订单服务的服务器</text>
+<text x="893" y="206" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">接收请求，查询数据，生成响应</text>
+<path d="M300 250 V640 M1100 250 V640" stroke="#b2c7d4" stroke-width="3" stroke-dasharray="8 8"/>
+<text x="70" y="285" font-family="Microsoft YaHei, sans-serif" font-size="23" font-weight="700" fill="#244e69">① 发起“查询订单 42”</text>
+<path d="M320 315 H1085" fill="none" stroke="#396b89" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="585" y="296" font-family="Microsoft YaHei, sans-serif" font-size="22" font-weight="400" fill="#244e69">请求到达服务器</text>
+<rect x="865" y="350" width="465" height="152" rx="12" fill="white" stroke="#9bb6c8" stroke-width="2"/>
+<text x="888" y="388" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="700" fill="#244e69">② 服务端接收并处理</text>
+<text x="888" y="426" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">查找订单、等待依赖、生成结果</text>
+<text x="888" y="458" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">这一段可能在计算，也可能在等待</text>
+<path d="M1080 550 H320" fill="none" stroke="#396b89" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="555" y="533" font-family="Microsoft YaHei, sans-serif" font-size="23" font-weight="700" fill="#244e69">③ 返回查询结果</text>
+<text x="70" y="605" font-family="Microsoft YaHei, sans-serif" font-size="23" font-weight="700" fill="#244e69">④ 收到结果，显示页面</text>
+<text x="60" y="697" font-family="Microsoft YaHei, sans-serif" font-size="26" font-weight="700" fill="#244e69">工具观察范围：先问清楚问题，再挑工具</text>
+<rect x="60" y="725" width="405" height="205" rx="12" fill="white" stroke="#9bb6c8" stroke-width="2"/>
+<text x="83" y="763" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="700" fill="#244e69">curl：从客户端看总过程</text>
+<text x="83" y="801" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">发请求，记录建连和首字节时间</text>
+<text x="83" y="833" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">回答：等待主要在哪个阶段？</text>
+<text x="83" y="865" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">不能直接给出服务器哪一行慢</text>
+<rect x="495" y="725" width="405" height="205" rx="12" fill="white" stroke="#9bb6c8" stroke-width="2"/>
+<text x="518" y="763" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="700" fill="#244e69">tcpdump / Wireshark：看通信</text>
+<text x="518" y="801" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">记录并分析请求、响应经过时刻</text>
+<text x="518" y="833" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">回答：数据何时到达观察点？</text>
+<text x="518" y="865" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">不能只凭 ACK 判定业务已完成</text>
+<rect x="930" y="725" width="410" height="205" rx="12" fill="white" stroke="#9bb6c8" stroke-width="2"/>
+<text x="953" y="763" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="700" fill="#244e69">GDB / perf：进服务器看程序</text>
+<text x="953" y="801" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">GDB 看代码位置、变量和线程</text>
+<text x="953" y="833" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">perf 采样看运行时的热点路径</text>
+<text x="953" y="865" font-family="Microsoft YaHei, sans-serif" font-size="21" font-weight="400" fill="#244e69">再用日志关联到同一条请求</text>
+<text x="60" y="975" font-family="Microsoft YaHei, sans-serif" font-size="22" font-weight="400" fill="#244e69">先区分：请求没到、服务处理慢、响应返回慢。客户端感觉到的等待包含整个过程。</text>
+</svg>

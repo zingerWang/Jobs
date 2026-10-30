@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="910" viewBox="0 0 1400 910" role="img" aria-label="图 1  GDB 怎样把机器状态还原为源码现场">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10" fill="#5a7c92"/></marker></defs>
+<rect width="1400" height="910" rx="20" fill="#f8fafb"/>
+<text x="48" y="56" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="29" font-weight="700" fill="#18384b" text-anchor="start">图 1  GDB 怎样把机器状态还原为源码现场</text>
+<text x="48" y="96" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">理解地址、调试信息与执行控制，才能判断“停在这一行”究竟意味着什么。</text>
+<rect x="48" y="140" width="365" height="170" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="179" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">① 编译产物</text>
+<text x="70" y="219" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">可执行文件：机器指令与符号</text>
+<text x="70" y="251" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">-g：生成调试信息（常见 DWARF）</text>
+<text x="70" y="283" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">映射：地址 ↔ 文件、行号、变量</text>
+<rect x="515" y="140" width="365" height="170" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="537" y="179" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">② GDB 调试器</text>
+<text x="537" y="219" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">设置断点、读取寄存器与内存</text>
+<text x="537" y="251" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">借助符号与展开信息解释状态</text>
+<text x="537" y="283" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">bt / frame / print / x</text>
+<rect x="982" y="140" width="370" height="170" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="1004" y="179" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">③ 被调试进程</text>
+<text x="1004" y="219" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">每个线程：寄存器、调用栈</text>
+<text x="1004" y="251" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">进程共享：代码、堆、全局数据</text>
+<text x="1004" y="283" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">Linux 常通过 ptrace 控制目标</text>
+<line x1="418" y1="220" x2="505" y2="220" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="462" y="202" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="17" font-weight="400" fill="#536c7c" text-anchor="middle">读取</text>
+<line x1="885" y1="220" x2="972" y2="220" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="927" y="202" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="16" font-weight="400" fill="#536c7c" text-anchor="middle">控制 / 读取</text>
+<rect x="48" y="350" width="630" height="205" rx="14" fill="#eef5f8" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="389" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">调用栈回答“从哪里调用过来”</text>
+<text x="70" y="429" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">#0  show_user(user=0x0)  ← 当前故障位置</text>
+<text x="70" y="461" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">#1  main(...)                 ← 上一层调用者</text>
+<text x="70" y="493" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">栈帧并不保证与源码函数一一对应：</text>
+<text x="70" y="525" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">内联、尾调用、优化会改变可见结构。</text>
+<rect x="710" y="350" width="642" height="205" rx="14" fill="#eef5f8" stroke="#cbdbe3" stroke-width="2"/>
+<text x="732" y="389" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">数据检查回答“为什么会失败”</text>
+<text x="732" y="429" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">PC：当前指令地址；指针：可能位于寄存器或内存</text>
+<text x="732" y="461" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">user == 0x0 → 不存在可读取的 User 对象</text>
+<text x="732" y="493" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">地址变成源代码位置，需要匹配的符号和程序。</text>
+<text x="732" y="525" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">&lt;optimized out&gt; 不等于变量值为 0。</text>
+<text x="48" y="610" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">典型软件断点流程（以 x86/Linux 为例；后端实现可不同）</text>
+<rect x="48" y="640" width="304" height="140" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="679" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">1  布置断点</text>
+<text x="70" y="719" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">保存目标处原指令</text>
+<text x="70" y="751" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">写入陷阱指令（如 int3）</text>
+<line x1="356" y1="710" x2="372" y2="710" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="380" y="640" width="304" height="140" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="402" y="679" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">2  命中并暂停</text>
+<text x="402" y="719" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">CPU 执行陷阱指令</text>
+<text x="402" y="751" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">内核通知调试器</text>
+<line x1="688" y1="710" x2="704" y2="710" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="712" y="640" width="304" height="140" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="734" y="679" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">3  读取现场</text>
+<text x="734" y="719" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">查看线程、栈和变量</text>
+<text x="734" y="751" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">all-stop 常暂停所有线程</text>
+<line x1="1020" y1="710" x2="1036" y2="710" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="1044" y="640" width="304" height="140" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="1066" y="679" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">4  恢复执行</text>
+<text x="1066" y="719" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">处理原指令的执行</text>
+<text x="1066" y="751" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#18384b" text-anchor="start">恢复断点后继续运行</text>
+<text x="48" y="835" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="700" fill="#21786c" text-anchor="start">硬件观察点：监测特定地址的访问；普通 watch 主要在表达式值变化时报告。</text>
+<text x="48" y="871" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#536c7c" text-anchor="start">实际影响：暂停会改变线程时序；优化会改变源码可见性；core 只保存快照，不能继续运行。</text>
+</svg>

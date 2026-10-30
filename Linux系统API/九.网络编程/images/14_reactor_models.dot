@@ -1,0 +1,61 @@
+digraph reactor_models {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Reactor 三种模型</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">一个 epoll 事件循环统一监听，事件就绪后分发（dispatch）</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.9];
+
+    subgraph cluster_single {
+        label=<<FONT COLOR="#0D9488" POINT-SIZE="14"><B>① 单 Reactor 单线程</B></FONT>>;
+        fontname="PingFang SC"; color="#0D9488"; style="rounded,dashed"; penwidth=2; bgcolor="#FBFFFE";
+        s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>单线程 Reactor</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">accept + 读 + 写 + 业务<BR/>全挤在一个线程</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    subgraph cluster_multi {
+        label=<<FONT COLOR="#0D9488" POINT-SIZE="14"><B>② 单 Reactor 多线程</B></FONT>>;
+        fontname="PingFang SC"; color="#0D9488"; style="rounded,dashed"; penwidth=2; bgcolor="#FBFFFE";
+        m1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>Reactor 线程</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">accept + 读 + 写 + 分发</FONT></TD></TR>
+</TABLE>>];
+        m2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>线程池</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">只做业务处理</FONT></TD></TR>
+</TABLE>>];
+        m1 -> m2 [label="  分发任务"];
+    }
+
+    subgraph cluster_master {
+        label=<<FONT COLOR="#0D9488" POINT-SIZE="14"><B>③ 主从 Reactor（多线程）</B></FONT>>;
+        fontname="PingFang SC"; color="#0D9488"; style="rounded,dashed"; penwidth=2; bgcolor="#FBFFFE";
+        main [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>主 Reactor</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">只负责 accept</FONT></TD></TR>
+</TABLE>>];
+        sub1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>从 Reactor 1</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">读 + 写</FONT></TD></TR>
+</TABLE>>];
+        sub2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>从 Reactor 2</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">读 + 写</FONT></TD></TR>
+</TABLE>>];
+        sub3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>从 Reactor N</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">读 + 写</FONT></TD></TR>
+</TABLE>>];
+        main -> sub1 [label="  分连接"];
+        main -> sub2;
+        main -> sub3;
+    }
+}

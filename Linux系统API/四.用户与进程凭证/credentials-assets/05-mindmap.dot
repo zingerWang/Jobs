@@ -1,0 +1,20 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", pad="0.35", nodesep="0.40", ranksep="0.60", dpi=200, fontname="PingFang SC", labelloc=t,
+label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>用户与进程凭证</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">从账号资料，到内核身份，再到受控的特权操作</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=12, color="#64748B", fontcolor="#475569", arrowsize=0.8, penwidth=1.5];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="16"><B>用户与进程凭证</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="13">谁在执行？以谁的身份？<BR ALIGN="CENTER"/>这次操作是否被允许？</FONT></TD></TR></TABLE>>];
+db [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="16"><B>账号数据库</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#334155" POINT-SIZE="13">passwd / shadow / group<BR ALIGN="CENTER"/>NSS：账号查询来源</FONT></TD></TR></TABLE>>];
+source [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>身份怎样产生</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">登录设置，fork 继承<BR ALIGN="CENTER"/>数据库改变不刷新旧进程</FONT></TD></TR></TABLE>>];
+ids [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="16"><B>进程凭证</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#334155" POINT-SIZE="13">real / effective / saved<BR ALIGN="CENTER"/>FSUID、附加组、capabilities</FONT></TD></TR></TABLE>>];
+bits [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="16"><B>特殊权限程序</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#334155" POINT-SIZE="13">SUID 改有效用户；SGID 改有效组<BR ALIGN="CENTER"/>exec 生效条件与父子进程边界</FONT></TD></TR></TABLE>>];
+pw [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="16"><B>passwd 改密</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="13">验证请求 → 检查策略 → 新散列<BR ALIGN="CENTER"/>本地或远程后端更新</FONT></TD></TR></TABLE>>];
+api [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="16"><B>身份修改与实验</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155" POINT-SIZE="13">seteuid 与 setuid / setresuid<BR ALIGN="CENTER"/>id、/proc、C 程序观察</FONT></TD></TR></TABLE>>];
+root -> db [label="", color="#0284C7", fontcolor="#0284C7"];
+root -> source [label="", color="#4F46E5", fontcolor="#4F46E5"];
+root -> ids [label="", color="#7C3AED", fontcolor="#7C3AED"];
+root -> bits [label="", color="#E11D48", fontcolor="#E11D48"];
+root -> pw [label="", color="#0D9488", fontcolor="#0D9488"];
+root -> api [label="", color="#D97706", fontcolor="#D97706"];
+
+}

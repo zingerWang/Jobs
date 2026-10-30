@@ -1,0 +1,18 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.40", ranksep="0.60", dpi=200, fontname="PingFang SC", labelloc=t,
+label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>从账号信息到权限判断</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">数据库提供账号资料；内核使用进程当前凭证判断访问</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=12, color="#64748B", fontcolor="#475569", arrowsize=0.8, penwidth=1.5];
+db [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="16"><B>账号数据库</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#334155" POINT-SIZE="13">passwd：用户与主组<BR ALIGN="CENTER"/>group：组成员；shadow：口令验证资料</FONT></TD></TR></TABLE>>];
+login [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>登录 / 会话建立</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">验证身份后，设置用户与组身份<BR ALIGN="CENTER"/>不是每次访问文件都重新查数据库</FONT></TD></TR></TABLE>>];
+cred [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>进程当前凭证</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">用户 ID、组 ID、附加组<BR ALIGN="CENTER"/>FSUID/FSGID、capabilities 等</FONT></TD></TR></TABLE>>];
+file [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="16"><B>文件自身属性</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#334155" POINT-SIZE="13">inode 中的所有者、所属组<BR ALIGN="CENTER"/>rwx 权限、ACL 等</FONT></TD></TR></TABLE>>];
+check [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="16"><B>内核权限检查</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#334155" POINT-SIZE="13">根据操作比较身份与资源属性<BR ALIGN="CENTER"/>还需满足其他安全机制的限制</FONT></TD></TR></TABLE>>];
+result [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="16"><B>允许或拒绝</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="13">例如 open 成功，或返回权限错误</FONT></TD></TR></TABLE>>];
+db -> login [label="查询与认证", color="#0284C7", fontcolor="#0284C7"];
+login -> cred [label="设置并继承", color="#4F46E5", fontcolor="#4F46E5"];
+cred -> check [label="访问者身份", color="#4F46E5", fontcolor="#4F46E5"];
+file -> check [label="被访问对象", color="#0284C7", fontcolor="#0284C7"];
+check -> result [label="检查结果", color="#0D9488", fontcolor="#0D9488"];
+{rank=same; cred; file;}
+}

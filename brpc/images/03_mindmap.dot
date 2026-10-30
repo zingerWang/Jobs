@@ -1,0 +1,70 @@
+digraph mindmap_03 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：第一个 RPC 走了哪些函数</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>第一个 RPC 的函数索引</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么要从 example 反推</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>客户端主线</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>服务端主线</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Controller 与 done</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>边界：谁写的</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>怎么自己验证</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">静态搜索搜不到函数指针注册点</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>用调用栈当索引，后面每篇按索引进</B></FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">stub.Echo → Channel::CallMethod（channel.cpp:482）</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Channel::Init（channel.cpp:420 / 257）解析名字 + 建 LB</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Controller::IssueRPC（controller.cpp:1315）</FONT>>];
+    l1d [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">PackRpcRequest（:1097）→ Socket::Write（socket.cpp:1643）</FONT>>];
+    l1e [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>done==nullptr → brpc::Join 挂起 bthread（controller.cpp:827）</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Acceptor::OnNewConnections（acceptor.cpp:389）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">InputMessenger::OnNewMessages（input_messenger.cpp:103）切包</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ProcessRpcRequest（baidu_rpc_protocol.cpp:599）查 method</FONT>>];
+    l2d [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>svc-&gt;CallMethod（:875）→ 你的 EchoServiceImpl::Echo</B></FONT>>];
+    l2e [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">done-&gt;Run() = SendRpcResponse（:288）回包</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#B45309">Controller 继承 protobuf 的 RpcController（controller.h:124）</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#B45309">done 是 google::protobuf::Closure，服务端必须调它</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">ClosureGuard 用 RAII 保证 done-&gt;Run()（closure_guard.h）</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>EchoService / Stub / Request / Response 都是 protoc 生成的</B></FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Server / Channel / Controller / ClosureGuard 才是 bRPC 的</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">断点：AddService / CallMethod / ProcessRpcRequest</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">curl /status、/vars 观察连接与指标</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">再看异步例子：done 换成 NewCallback（asynchronous_echo_c++）</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c; s1 -> l1d; s1 -> l1e;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c; s2 -> l2d; s2 -> l2e;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

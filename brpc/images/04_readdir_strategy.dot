@@ -1,0 +1,37 @@
+digraph strategy {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>读源码的两种方向：自顶向下 vs 自底向上</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">先决定「从哪一端进入」，再决定「跟到哪一层停」——方向错了，再努力也会迷路</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    start [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>我要弄懂「一次 RPC 怎么走」</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#334155">先问：我现在手里有什么线索？</FONT></TD></TR>
+</TABLE>>];
+
+    topdown [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>自顶向下（从用户 API 进）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#3730A3">入口：stub.Echo / channel.CallMethod<BR/>线索：你写的调用代码<BR/>问的是：「它内部怎么实现的？」<BR/>适合：读主流程、客户端/服务端链路<BR/><B>风险：越往下越碎，容易陷进细节</B></FONT></TD></TR>
+</TABLE>>];
+
+    bottomup [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>自底向上（从事件循环出）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#0369A1">入口：epoll_wait 返回 / EventDispatcher<BR/>线索：一个就绪事件、一段数据<BR/>问的是：「这个事件最终交给了谁？」<BR/>适合：读 IO/唤醒/回调、排查卡死<BR/><B>风险：栈很深，不知道上面是谁在等</B></FONT></TD></TR>
+</TABLE>>];
+
+    meet [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>交汇点：两头都走通，链路才算真的懂了</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">自顶向下找到「谁把请求挂进 epoll」；自底向上找到「epoll 唤醒后回调了谁」<BR/>在 Socket / EventDispatcher 处会师 —— 第 29、30 篇正是这个交点</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; topdown; bottomup; }
+
+    start -> topdown [color="#4F46E5", fontcolor="#4338CA", label="有调用代码"];
+    start -> bottomup [color="#0284C7", fontcolor="#0369A1", label="有事件/数据"];
+    topdown -> meet [color="#4F46E5", fontcolor="#4338CA", label="往下跟"];
+    bottomup -> meet [color="#0284C7", fontcolor="#0369A1", label="往上追"];
+}

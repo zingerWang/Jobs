@@ -1,0 +1,36 @@
+digraph membership {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>成员变更：为什么不能「直接改配置」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">两个配置的多数派可能不相交 —— 这就是双主窗口的来源</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    prob [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>危险窗口：{A,B,C} 扩到 {A,B,C,D,E}</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">各节点<b>异步</b>切换配置时，会短暂出现"两边用的配置不一样"：<BR/>· C、D、E 还在按<b>旧配置</b>数票 → 多数派 = 2 → <B>{A,B} 就能选出 leader</B><BR/>· A、B 已按<b>新配置</b>数票 → 多数派 = 3 → <B>{C,D,E} 就能选出 leader</B><BR/><FONT COLOR="#9F1239">{A,B} 与 {C,D,E} <b>不相交</b> → 同一时刻两个 leader 各自发号施令 → 数据分裂</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    joint [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>解法一：joint consensus（论文方案，两阶段）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E"><B>阶段一</B>：切到 <B>C_old,new</B> —— 任何决议必须<b>同时</b>取得旧配置的多数派和新配置的多数派<BR/><B>阶段二</B>：C_old,new 这条配置变更被提交后，再切到 <B>C_new</B><BR/><FONT COLOR="#115E59">为什么安全？两个 joint 多数派都要"同时过半"于同一个旧配置 {A,B,C}——而 3 个节点里凑不出两组各占 2 个的<b>不相交</b>集合，所以必然相交。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    single [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>解法二：一次只改一个节点（工程常用）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">比如 {A,B,C} → {A,B,C,D} → {A,B,C,D,E}，每次只动一个成员。<BR/>任意两个相邻配置的多数派<b>必然相交</b>，所以只要保证"上一次变更已提交，才开始下一次"，就永远不会有双主窗口。<BR/><FONT COLOR="#92400E">etcd 用的是这条路（比 joint consensus 好实现），代价是：必须<b>一个一个</b>来，扩到 7 节点要 4 轮。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三条容易踩的坑</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>配置本身也要走日志</B>：变更必须作为一条日志条目被复制、提交，不能"本地改一下就生效"<BR/>· <B>新节点要先追日志再加进来</B>：一个空日志的新节点加进来会拉低整体可用性，通常先让它以"学习者"身份同步<BR/>· <B>旧 leader 可能不在新配置里</B>：变更提交后，leader 若发现自己已被移除，要主动退位（否则它还在发心跳）</FONT></TD></TR>
+</TABLE>>];
+
+    prob -> joint [label=" 用双重多数派堵住窗口"];
+    prob -> single [label=" 或把步子拆到足够小"];
+    joint -> note [style=invis];
+    { rank=same; joint; single; }
+    single -> note;
+}

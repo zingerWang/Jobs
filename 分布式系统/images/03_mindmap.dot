@@ -1,0 +1,56 @@
+digraph mindmap_03 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：CAP 定理与一致性模型</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>CAP 定理<br/>与一致性模型</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>一致性模型</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>CAP 定理</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>BASE 理论</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>选型</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>边界（误解）</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">强一致（写完立刻可见）</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">顺序一致（有全局顺序）</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9"><B>弱一致（最终/因果/会话）→ 详见 04</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">C 一致性 / A 可用性</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>P 分区容错（必须选）</B></FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>分区时 C/A 二选一 → CP / AP</B></FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">BA 基本可用 / S 软状态 / E 最终一致</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">和 ACID 是一对反义词</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">不能容忍旧值 → CP / 强一致</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">能容忍旧值 → AP / 最终一致</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#B45309">不是「三选二」而是「P 必选 + C/A 二选一」</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">一致性是光谱，不是非黑即白</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b;
+    s4 -> l4a; s4 -> l4b;
+    s5 -> l5a; s5 -> l5b;
+}

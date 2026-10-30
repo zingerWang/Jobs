@@ -1,0 +1,43 @@
+digraph paxos_roles {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Paxos 的三种角色</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">值被「选中（chosen）」= 被【多数派】acceptor 接受 —— 不是「某个 leader 说了算」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    proposer [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>Proposer（提案者）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">提出提案 <B>(编号 n, 值 v)</B><BR/>可以同时存在多个，互不协调</FONT></TD></TR>
+</TABLE>>];
+
+    acceptor [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>Acceptor（接受者）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">对提案投票，并且<b>必须记住两件事</b>：<BR/>· <B>promisedNum</B>：我承诺不再接受比它更小的编号<BR/>· <B>accepted</B>：我已接受的编号最大的提案<BR/>（这两个状态必须持久化，否则重启就失忆）</FONT></TD></TR>
+</TABLE>>];
+
+    learner [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>Learner（学习者）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">只「学会」已经被选中的值，不参与投票<BR/>（在 Raft 里就是状态机 apply 日志的那一步）</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>「被选中」的定义很关键</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">被选中 ⇔ 被<b>多数派</b> acceptor 接受。只是「某个 proposer 提了」「某个 acceptor 收了」都不算<BR/>正因如此才需要 3.1 节的多数派交集：两个多数派必有公共节点，值不可能被悄悄换掉</FONT></TD></TR>
+</TABLE>>];
+
+    note2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程实现里：三种角色通常是同一个进程</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">etcd / ZooKeeper 的每个节点既是 proposer 又是 acceptor 又是 learner<BR/>角色划分只是<b>逻辑上的</b>，别被这三个名字吓到</FONT></TD></TR>
+</TABLE>>];
+
+    proposer -> acceptor [label=" ① 提案 (n, v)", color="#4F46E5", fontcolor="#3730A3"];
+    acceptor -> learner [label=" ② 通知「已选中」", color="#0D9488", fontcolor="#0F766E"];
+    acceptor -> note [style=dashed, color="#E11D48", fontcolor="#BE123C"];
+    learner -> note2 [style=invis];
+    { rank=same; acceptor; note; }
+    { rank=same; learner; note2; }
+}

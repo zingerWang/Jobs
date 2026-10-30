@@ -1,0 +1,57 @@
+digraph mindmap {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.26, ranksep=0.95,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>思维导图：FlatMap / FlatSet 源码</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">链地址法 + 首节点内联 + 节点池 —— 命中首元素只需一次访存</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.7, color="#94A3B8", fontcolor="#475569"];
+
+    root [label=<
+<TABLE BORDER="1" COLOR="#4F46E5" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="14"><B>FlatMap / FlatSet</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#3730A3">butil/containers/flat_map.h + flat_map_inl.h</FONT></TD></TR>
+</TABLE>>];
+
+    n1 [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>为什么不用 unordered_map</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#BE123C">桶里放指针 → 命中两次访存<BR/>节点 24B vs Bucket 16B<BR/>每次增删一次 malloc/free</FONT></TD></TR>
+</TABLE>>];
+
+    n2 [label=<
+<TABLE BORDER="1" COLOR="#0284C7" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>真实结构（不是开放寻址）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0369A1">closed addressing + 首节点内联<BR/>next == (Bucket*)-1 表示空槽（无墓碑）<BR/>溢出节点来自 SingleThreadedPool<BR/>小 map：_default_buckets[17] 内联</FONT></TD></TR>
+</TABLE>>];
+
+    n3 [label=<
+<TABLE BORDER="1" COLOR="#D97706" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>扩容（有反直觉行为）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">2 的幂 + 位与（不用素数）<BR/>★ 惰性检查：只在插链尾时判拥挤<BR/>→ 零冲突 = 永不扩容、装载率可超 100%<BR/>resize 重算所有 hash；峰值 1.5×</FONT></TD></TR>
+</TABLE>>];
+
+    n4 [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>实测（Apple M2 / N=100 万）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">seek 快 2.2×（8ms vs 17ms）<BR/>erase 快 7×（9ms vs 62ms）<BR/>预留 vs 不预留 insert 差 3.6×<BR/>string key：seek 反慢、内存多 45%</FONT></TD></TR>
+</TABLE>>];
+
+    n5 [label=<
+<TABLE BORDER="1" COLOR="#7C3AED" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>坑</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#5B21B6">★ 指针不稳定：扩容全失效 / erase 搬迁同桶元素<BR/>迭代顺序不可预测<BR/>对坏哈希零防御（链可退化成 O(n)）<BR/>非线程安全 / insert 静默覆盖</FONT></TD></TR>
+</TABLE>>];
+
+    n6 [label=<
+<TABLE BORDER="1" COLOR="#475569" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>选型</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#334155">热路径 + 规模已知 → FlatMap（务必 init 预留）<BR/>string key → 自配 murmur hasher<BR/>稀疏 + 频繁遍历 → SparseFlatMap<BR/>要有序 / 10~100 元素 → PooledMap<BR/>要稳定指针 / 并发 → unordered_map 或外层加锁</FONT></TD></TR>
+</TABLE>>];
+
+    root -> n1 [color="#E11D48"];
+    root -> n2 [color="#0284C7"];
+    root -> n3 [color="#D97706"];
+    root -> n4 [color="#0D9488"];
+    root -> n5 [color="#7C3AED"];
+    root -> n6 [color="#475569"];
+}

@@ -1,0 +1,61 @@
+digraph cut_pointer {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.4, ranksep=0.35,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>一次 cutn + append 的前后指针变化</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">数据自始至终躺在同一个 Block 里，动的只有 BlockRef 的 offset / length</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=2.0, arrowsize=0.9, color="#475569"];
+
+    // ---------- 起点 ----------
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="4" BGCOLOR="#475569" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>① 起点：一次 readv 读进来 100 字节，全在第 1 个 Block 里</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="240" BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="12"><B>offset 0 ─ 100 已写入（size = 100）</B></FONT></TD>
+    <TD WIDTH="340" BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11" COLOR="#64748B">offset 100 ─ 8160 空闲（left_space = 8060）</FONT></TD>
+  </TR>
+  <TR><TD COLSPAN="2" BGCOLOR="#FFFFFF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#1E293B">src ⟶ SmallView.refs[0] = <B>{ offset = 0, length = 100, block = B1 }</B>　　nshared = 2（TLS 池 + src 各 1）</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- cutn ----------
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="4" BGCOLOR="#E11D48" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>② src.cutn(&amp;pkt, 40)　—— 一个字节都没动，只是数字重算</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="100" BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="12"><B>0 ─ 40</B></FONT><BR/><FONT POINT-SIZE="10">归 pkt</FONT></TD>
+    <TD WIDTH="140" BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="12"><B>40 ─ 100</B></FONT><BR/><FONT POINT-SIZE="10">仍归 src</FONT></TD>
+    <TD WIDTH="340" BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11" COLOR="#64748B">100 ─ 8160 空闲</FONT></TD>
+  </TR>
+  <TR><TD COLSPAN="3" BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#1E293B">pkt ⟶ refs[0] = { <B>offset = 0, length = 40</B>, block = B1 }　　src ⟶ refs[0] = { <B>offset = 40, length = 60</B>, block = B1 }<BR/>两条 ref 指向<B>同一个 Block</B>；pkt 新拿一条引用，nshared 2 → 3（改动只在 refs 的 8 个字节里）</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- append ----------
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="4" BGCOLOR="#0D9488" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>③ src.append("XYZ", 3)　—— 同一块里接着写，ref 与上一条相邻 ⇒ 自动 merge</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="100" BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11">0 ─ 40<BR/>pkt</FONT></TD>
+    <TD WIDTH="140" BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11">40 ─ 100<BR/>src.refs[0]</FONT></TD>
+    <TD WIDTH="60" BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11">100─103<BR/>新写</FONT></TD>
+    <TD WIDTH="280" BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11" COLOR="#64748B">103 ─ 8160 空闲</FONT></TD>
+  </TR>
+  <TR><TD COLSPAN="4" BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#1E293B">新 ref = { offset = 100, length = 3, block = B1 }；它与 refs[0] <B>同块且首尾相接</B>（40 + 60 == 100）<BR/>⇒ 被 merge 进 refs[0]：<B>src 仍然只有 1 条 ref = { offset = 40, length = 63 }</B>（iobuf.cpp:511 的 Merge ref 分支）</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- BigView ----------
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="2" BGCOLOR="#7C3AED" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>④ 第 3 条 ref 到来（跨块的 append / 切包）—— SmallView 装不下，转成 BigView</B></FONT></TD></TR>
+  <TR><TD WIDTH="250" BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#6D28D9"><B>refs[0]</B> B1 { 40, 63 }<BR/><B>refs[1]</B> B2 { 0, 8160 }<BR/><B>refs[2]</B> B3 { 0, 12 }</FONT></TD>
+  <TD WIDTH="360" BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#6D28D9">union 换一种解释：<B>magic = −1</B>，refs 指向堆上 32 槽数组，<BR/>cap_mask = 31、start = 0、nbytes 开始记账<BR/>原来的两条 ref 被原样搬进数组，<B>payload 依旧原地不动</B><BR/>数组满了一次翻倍（32 → 64 → …，iobuf.cpp:575）</FONT></TD></TR>
+</TABLE>>];
+
+    legend [label=<<FONT POINT-SIZE="11" COLOR="#334155"><B>一句话</B>：cutn / pop_front 改 offset，append 改 length，转 BigView 只搬 48 字节的 ref 数组——<B>payload 从没搬过家</B></FONT>>];
+
+    s1 -> s2 [label="  cutn(&pkt, 40)", color="#E11D48", fontcolor="#BE123C"];
+    s2 -> s3 [label="  append(\"XYZ\", 3)", color="#0D9488", fontcolor="#0F766E"];
+    s3 -> s4 [label="  第 3 条 ref 到来", color="#7C3AED", fontcolor="#6D28D9"];
+    s4 -> legend [style=invis];
+
+    { rank=same; s1; }
+}

@@ -1,0 +1,209 @@
+[
+  {
+    "id": 1,
+    "name": "工厂方法",
+    "english": "Factory Method",
+    "category": "创建型",
+    "file": "01_factory_method.cpp",
+    "anchor": "pattern-01",
+    "output": "text=hello\njson={\"text\":\"hello\"}\n"
+  },
+  {
+    "id": 2,
+    "name": "抽象工厂",
+    "english": "Abstract Factory",
+    "category": "创建型",
+    "file": "02_abstract_factory.cpp",
+    "anchor": "pattern-02",
+    "output": "dark button + dark checkbox\nlight button + light checkbox\n"
+  },
+  {
+    "id": 3,
+    "name": "生成器（建造者）",
+    "english": "Builder",
+    "category": "创建型",
+    "file": "03_builder.cpp",
+    "anchor": "pattern-03",
+    "output": "GET /orders timeout=1000\ninvalid timeout rejected\n"
+  },
+  {
+    "id": 4,
+    "name": "原型",
+    "english": "Prototype",
+    "category": "创建型",
+    "file": "04_prototype.cpp",
+    "anchor": "pattern-04",
+    "output": "original=1 copy=2\n"
+  },
+  {
+    "id": 5,
+    "name": "单例",
+    "english": "Singleton",
+    "category": "创建型",
+    "file": "05_singleton.cpp",
+    "anchor": "pattern-05",
+    "output": "same=true count=1\n"
+  },
+  {
+    "id": 6,
+    "name": "适配器",
+    "english": "Adapter",
+    "category": "结构型",
+    "file": "06_adapter.cpp",
+    "anchor": "pattern-06",
+    "output": "legacy:hello\n"
+  },
+  {
+    "id": 7,
+    "name": "桥接",
+    "english": "Bridge",
+    "category": "结构型",
+    "file": "07_bridge.cpp",
+    "anchor": "pattern-07",
+    "output": "email:hello\nsms:URGENT:fire\n"
+  },
+  {
+    "id": 8,
+    "name": "组合",
+    "english": "Composite",
+    "category": "结构型",
+    "file": "08_composite.cpp",
+    "anchor": "pattern-08",
+    "output": "total=60\n"
+  },
+  {
+    "id": 9,
+    "name": "装饰器",
+    "english": "Decorator",
+    "category": "结构型",
+    "file": "09_decorator.cpp",
+    "anchor": "pattern-09",
+    "output": "price=1250 cents\n"
+  },
+  {
+    "id": 10,
+    "name": "外观",
+    "english": "Facade",
+    "category": "结构型",
+    "file": "10_facade.cpp",
+    "anchor": "pattern-10",
+    "output": "projector -> speakers -> play:demo\n"
+  },
+  {
+    "id": 11,
+    "name": "享元",
+    "english": "Flyweight",
+    "category": "结构型",
+    "file": "11_flyweight.cpp",
+    "anchor": "pattern-11",
+    "output": "glyphs=3 styles=2 shared=true\n"
+  },
+  {
+    "id": 12,
+    "name": "代理",
+    "english": "Proxy",
+    "category": "结构型",
+    "file": "12_proxy.cpp",
+    "anchor": "pattern-12",
+    "output": "loads=1 picture=photo.png\n"
+  },
+  {
+    "id": 13,
+    "name": "责任链",
+    "english": "Chain of Responsibility",
+    "category": "行为型",
+    "file": "13_chain_of_responsibility.cpp",
+    "anchor": "pattern-13",
+    "output": "500=lead\n5000=manager\n50000=unhandled\n"
+  },
+  {
+    "id": 14,
+    "name": "命令",
+    "english": "Command",
+    "category": "行为型",
+    "file": "14_command.cpp",
+    "anchor": "pattern-14",
+    "output": "after execute=50\nafter undo=10\n"
+  },
+  {
+    "id": 15,
+    "name": "解释器",
+    "english": "Interpreter",
+    "category": "行为型",
+    "file": "15_interpreter.cpp",
+    "anchor": "pattern-15",
+    "output": "take_umbrella=true\nunknown variable rejected\n"
+  },
+  {
+    "id": 16,
+    "name": "迭代器",
+    "english": "Iterator",
+    "category": "行为型",
+    "file": "16_iterator.cpp",
+    "anchor": "pattern-16",
+    "output": "sum=6\n"
+  },
+  {
+    "id": 17,
+    "name": "中介者",
+    "english": "Mediator",
+    "category": "行为型",
+    "file": "17_mediator.cpp",
+    "anchor": "pattern-17",
+    "output": "submitted=hello\n"
+  },
+  {
+    "id": 18,
+    "name": "备忘录",
+    "english": "Memento",
+    "category": "行为型",
+    "file": "18_memento.cpp",
+    "anchor": "pattern-18",
+    "output": "before restore=hello world\nafter restore=hello\n"
+  },
+  {
+    "id": 19,
+    "name": "观察者",
+    "english": "Observer",
+    "category": "行为型",
+    "file": "19_observer.cpp",
+    "anchor": "pattern-19",
+    "output": "remaining=1 latest=120\n"
+  },
+  {
+    "id": 20,
+    "name": "状态",
+    "english": "State",
+    "category": "行为型",
+    "file": "20_state.cpp",
+    "anchor": "pattern-20",
+    "output": "illegal transition rejected\nstate=shipped\n"
+  },
+  {
+    "id": 21,
+    "name": "策略",
+    "english": "Strategy",
+    "category": "行为型",
+    "file": "21_strategy.cpp",
+    "anchor": "pattern-21",
+    "output": "standard=300 express=1100\n"
+  },
+  {
+    "id": 22,
+    "name": "模板方法",
+    "english": "Template Method",
+    "category": "行为型",
+    "file": "22_template_method.cpp",
+    "anchor": "pattern-22",
+    "output": "BEGIN|csv(data)|END\nBEGIN|[data]|END\n"
+  },
+  {
+    "id": 23,
+    "name": "访问者",
+    "english": "Visitor",
+    "category": "行为型",
+    "file": "23_visitor.cpp",
+    "anchor": "pattern-23",
+    "output": "total=1500\nbook:cpp fruit:apple\n"
+  }
+]

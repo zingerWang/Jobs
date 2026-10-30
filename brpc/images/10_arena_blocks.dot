@@ -1,0 +1,64 @@
+digraph arena_blocks {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.8, ranksep=0.75,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>butil::Arena 的块链表结构</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">两个链表：_cur_block 串起「还在分配的块」，_isolated_blocks 挂「大对象独占的块」</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8, color="#475569", fontcolor="#334155"];
+
+    arena [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>Arena 对象（栈上，很小）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3">Block* _cur_block　　　　← 当前正在分配的块<BR/>Block* _isolated_blocks　← 大对象专属块链表<BR/>size_t _block_size　　　　← 下次新块大小（逐步翻倍）<BR/>ArenaOptions _options　　 ← initial=64 / max=8192</FONT></TD></TR>
+</TABLE>>];
+
+    cur [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>Block（当前块）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#115E59">Block* next ｜ uint32 alloc_size ｜ uint32 size<BR/>char data[0]（柔性数组，块尾）</FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFFFF" ALIGN="CENTER" CELLPADDING="6"><TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+     <TR>
+       <TD BGCOLOR="#CCFBF1" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#115E59">已用 alloc_size<BR/>（一直往后挪）</FONT></TD>
+       <TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#64748B">空闲 left_space<BR/>（够就接着给，不够就换块）</FONT></TD>
+     </TR>
+  </TABLE></TD></TR>
+</TABLE>>];
+
+    old1 [label=<
+<TABLE BORDER="1" COLOR="#475569" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>上一个块</B>（已被换下）</FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#334155">剩余空间直接浪费（≤ 1/4）</FONT></TD></TR>
+</TABLE>>];
+
+    nullnode [label=<<FONT POINT-SIZE="12" COLOR="#64748B">nullptr</FONT>>];
+
+    iso [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>大对象块（isolated）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">当 n &gt; _block_size / 4 时，单独 malloc 一块<BR/>alloc_size == size == n，绝不与别人共享</FONT></TD></TR>
+</TABLE>>];
+
+    iso2 [label=<
+<TABLE BORDER="1" COLOR="#D97706" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>更早的大对象块</B></FONT></TD></TR>
+</TABLE>>];
+
+    rule [label=<
+<TABLE BORDER="1" COLOR="#0284C7" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>三条分配规则（arena.cpp:75-102）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0369A1">1. 当前块剩余够 → data + alloc_size 直接切一段（O(1)，无锁无函数调用）<BR/>2. 不够且 n &gt; _block_size/4 → 走 isolated 链表，单独 malloc<BR/>3. 否则 → malloc 新块，_block_size 翻倍（上限 max_block_size），旧当前块挂到 isolated 链</FONT></TD></TR>
+</TABLE>>];
+
+    arena -> cur [label="  _cur_block", color="#0D9488", fontcolor="#0D9488", penwidth=2.2];
+    arena -> iso [label="  _isolated_blocks", color="#E11D48", fontcolor="#E11D48", penwidth=2.2];
+    cur -> old1 [label=" next（换块时挂过去）", color="#475569"];
+    old1 -> nullnode [style=dashed, arrowhead=none];
+    iso -> iso2 [label=" next", color="#D97706"];
+    iso2 -> nullnode [style=dashed, arrowhead=none];
+
+    { rank=same; cur; iso; }
+    { rank=same; old1; iso2; }
+
+    nullnode -> rule [style=invis];
+}

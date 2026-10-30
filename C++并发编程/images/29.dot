@@ -1,0 +1,15 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.22", ranksep="0.5", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>异常在多线程中的传播</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 29 篇 · 工程问题、机制推导与验证边界</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 29 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">异常在多线程中的传播：线程内异常、任<BR/>务异常捕获与崩溃防护</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>异常边界</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="11">创建失败与入口异常分开 / 任务与基础<BR/>设施错误分开</FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>结果通道</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="11">promise 交付 exception_ptr /<BR/>packaged_task 保住工作线程</FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>关闭与提交</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155" POINT-SIZE="11">异常捕获不等于事务回滚 / 显式 close<BR/>观察错误</FONT></TD></TR></TABLE>>];
+root -> b2 [color="#D97706"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>崩溃验证</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#334155" POINT-SIZE="11">未捕获异常触发 terminate / 信号不是<BR/>普通 C++ throw</FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+}

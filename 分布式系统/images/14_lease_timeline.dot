@@ -1,0 +1,34 @@
+digraph lease_timeline {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>租约的时间线，以及「假死」为什么致命</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">租约是对「别人的时钟」的承诺 —— 被挂起的节点不会知道自己已经过期</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    normal [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>正常情况：心跳续租</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">leader 每 <B>heartbeatInterval</B> 发一次心跳，followers 每次收到就把租约推到 <B>now + leaseLength</B>。<BR/>只要心跳不断，租约永不过期 —— 领导权在"沉默"中延续。<BR/>参数关系必须满足：<B>leaseLength &gt; heartbeatInterval × 2~3</B>（容忍偶发丢包与抖动）</FONT></TD></TR>
+</TABLE>>];
+
+    pause [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>致命场景：leader 假死（长 GC / 容器被冻结 / 虚拟机被挂起）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C" FACE="Menlo">真实时间 ──────────────────────────────────────────▶<BR/>leader A 　[心跳][心跳]　✗ 被挂起 250ms（本地时钟也停摆）　[醒来]<BR/>follower B [收到][收到]　租约到期 → 选举 → 新 leader(term+1)　　继续服务<BR/>A 的错觉 　"我的租约还没到期，我还是 leader"<BR/></FONT><FONT POINT-SIZE="11" COLOR="#9F1239">关键：<B>A 的本地时钟在挂起期间也停了</B>，所以它醒来后觉得「只过了一会儿」、租约还没到期 —— 而别人早就不认它了。</FONT></TD></TR>
+</TABLE>>];
+
+    danger [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>双主的伤害：旧 leader 后写，把新值覆盖回旧值</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">顺序很关键：<B>新 leader 先写、旧 leader 后写</B>，数据就被改坏了。<BR/>（如果旧 leader 先写、新 leader 后写，表面看没问题——所以这类 bug 极难复现）<BR/>更糟的是：旧 leader 可能已经对外宣称"写入成功"，客户端据此做了后续动作。</FONT></TD></TR>
+</TABLE>>];
+
+    fix [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三重防线</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>① Fencing token（最关键）</B>：每次换主让 token 单调递增（term / zxid / epoch），<b>下游存储自己拒绝旧 token 的写</b>——把正确性从"上游守规矩"变成"下游强校验"<BR/>· <B>② 缩短租约 + 保守取值</B>：租约越短，假死窗口越小（但心跳开销越大）<BR/>· <B>③ 时钟监控</B>：检测时钟跳变（NTP 大步校时、VM 迁移）就主动放弃领导权<BR/><FONT COLOR="#5B21B6">注意：租约只能"减少"假死窗口，<b>永远无法消除</b>——只有 fencing token 能真正兜住正确性。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    normal -> pause [label=" 心跳一旦中断"];
+    pause -> danger [label=" 旧 leader 醒来"];
+    danger -> fix [label=" 怎么防", color="#7C3AED", fontcolor="#6D28D9"];
+}

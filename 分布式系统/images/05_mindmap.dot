@@ -1,0 +1,49 @@
+digraph mindmap_03 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：分布式时钟与事件排序</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>分布式时钟<br/>与事件排序</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么需要</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>happens-before</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Lamport 时钟</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>向量时钟</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">物理时钟漂移 → 用先后代替时间</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">程序顺序（同进程）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">消息传递（发送→接收）</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">传递性</FONT>>];
+    l2d [label=<<FONT POINT-SIZE="11" COLOR="#334155">并发 = 无法确定先后</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">本地 +1；接收 max(C,t)+1</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">保证 A→B 则 C(A)&lt;C(B)</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>局限：不能判断并发</B></FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">每进程一个向量；逐元素 max</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>能判断先于 / 并发</B></FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>代价：向量长度=节点数</B></FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4;
+    s1 -> l1a;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c; s2 -> l2d;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+}

@@ -1,0 +1,50 @@
+digraph mindmap_10 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：共识工程细节</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>共识<br/>工程细节</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>快照与日志压缩</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>成员变更</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>线性一致读</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>共同的方法论</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">快照 = lastIncludedIndex/Term + 状态机 + 配置</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">InstallSnapshot 给掉队太远的 follower 补课</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>先落快照再截日志，反过来会留空洞</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">朴素切换：新旧配置的多数派可能不相交 → 双主</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">joint consensus：同时过半于新旧两个配置</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">工程常用：一次只改一个节点（etcd 的做法）</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">走日志：最稳最慢，读被写绑死</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ReadIndex：一轮心跳确认领导权 + 等 apply</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">Lease Read：最快，但把安全性押在时钟上</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">把"多数派"当作唯一可信来源</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">任何优化先问：它引入了什么新假设？</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">安全假设越少，系统越好论证（时钟最危险）</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+}

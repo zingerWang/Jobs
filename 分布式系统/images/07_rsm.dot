@@ -1,0 +1,54 @@
+digraph rsm {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>复制状态机（Replicated State Machine）</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">复制的不是「状态」，而是「操作日志」——状态只是日志的函数</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    client [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>客户端</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#3730A3">命令：<BR/>set x = 1</FONT></TD></TR>
+</TABLE>>];
+
+    consensus [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>共识层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">对「日志第 i 项是什么」达成一致<BR/>只决定<b>顺序与内容</b>，不关心命令语义</FONT></TD></TR>
+</TABLE>>];
+
+    sm1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>副本 A 状态机</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">按序 apply → x = 1</FONT></TD></TR>
+</TABLE>>];
+    sm2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>副本 B 状态机</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">按序 apply → x = 1</FONT></TD></TR>
+</TABLE>>];
+    sm3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>副本 C 状态机</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">按序 apply → x = 1</FONT></TD></TR>
+</TABLE>>];
+
+    note1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么复制日志，而不是复制状态？</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">· state = apply(log)：日志是「因」，状态是「果」<BR/>· 日志小得多，且天然带着「顺序」这个关键信息<BR/>· 可校验、可重放、可增量同步、可在崩溃后重建状态</FONT></TD></TR>
+</TABLE>>];
+
+    note2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>铁律：状态机必须是确定性的</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 同样的 (状态, 命令) → 必须得到同样的新状态<BR/>· 所以日志里<b>不能写 now()、随机数、本机 IP</b> 这类「每个副本算出来不一样」的东西<BR/>· 需要时间戳时，要由 leader 在<b>写日志时</b>就定死这个值</FONT></TD></TR>
+</TABLE>>];
+
+    client -> consensus [label="提交命令", color="#4F46E5", fontcolor="#3730A3"];
+    consensus -> sm1 [label=" 日志", color="#0D9488", fontcolor="#0F766E"];
+    consensus -> sm2 [color="#0D9488"];
+    consensus -> sm3 [color="#0D9488"];
+    { rank=same; sm1; sm2; sm3; }
+    consensus -> note1 [style=dashed, color="#D97706", fontcolor="#B45309", label=" 为什么不复制状态"];
+    consensus -> note2 [style=dashed, color="#7C3AED", fontcolor="#6D28D9", label=" 状态机的铁律"];
+}

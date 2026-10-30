@@ -1,0 +1,69 @@
+digraph butil_vs_stl {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.35, ranksep=0.4, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>butil 重造了哪些「轮子」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">每张卡片 = 一个自造组件：它替代了标准库的什么，为什么要自造</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.7, color="#CBD5E1"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>凡是热路径上的东西，都不将就 STL</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">冷路径 / 启动期的工具，直接搬 Chromium 的实现；热路径的容器与缓冲，必须自己写</FONT></TD></TR>
+</TABLE>>];
+
+    d1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil::FlatMap / FlatSet</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#BE123C">替代：std::unordered_map　｜　containers/flat_map.h（FlatSet 也在此文件）<BR/>理由：桶数组里直接内嵌首个链表节点，省一次内存间接寻址，缓存友好</FONT></TD></TR>
+</TABLE>>];
+
+    d2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil::Arena + butil::ObjectPool</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#0369A1">替代：零散 malloc/free　｜　arena.h · object_pool.h · resource_pool.h<BR/>理由：Arena 一次性分配、统一释放；ObjectPool 按线程分组复用对象，减少锁竞争</FONT></TD></TR>
+</TABLE>>];
+
+    d3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil::IOBuf</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#0F766E">替代：没有直接对应（类似 std::string + 链表的混合体）　｜　iobuf.h<BR/>理由：要容纳「不连续的多块内存」，要能做到零拷贝的切分与拼接</FONT></TD></TR>
+</TABLE>>];
+
+    d4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil/atomicops.h</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#6D28D9">替代：std::atomic（当年标准与编译器支持都不足）　｜　atomicops.h + atomicops_internals_*<BR/>理由：NeedBarrier 语义显式可控，跨 x86/arm/mips/riscv 统一封装</FONT></TD></TR>
+</TABLE>>];
+
+    d5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil::StringPiece</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#3730A3">替代：const std::string&amp;（后来是 std::string_view）　｜　strings/string_piece.h<BR/>理由：只持指针 + 长度，零拷贝传字符串；比 string_view 早了很多年</FONT></TD></TR>
+</TABLE>>];
+
+    d6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil/thread_local.h</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#B45309">替代：thread_local　｜　thread_local.h（BAIDU_VOLATILE_THREAD_LOCAL 宏）<BR/>理由：用 __thread + noinline 访问器绕过 TLS 的动态初始化与析构开销</FONT></TD></TR>
+</TABLE>>];
+
+    d7 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil/containers/doubly_buffered_data.h</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#6D28D9">替代：读写锁保护的共享数据　｜　doubly_buffered_data.h<BR/>理由：读多写少时，Read 几乎无锁；写时切前台/后台两份副本</FONT></TD></TR>
+</TABLE>>];
+
+    d8 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil::EndPoint / butil/endpoint.h</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10.5" COLOR="#334155">替代：sockaddr_in / sockaddr_in6 / sockaddr_un 三套结构　｜　endpoint.h<BR/>理由：只有 {ip_t ip; int port;} 共 8 字节，可按值传、可当 key；IPv6/UDS 复用同一布局</FONT></TD></TR>
+</TABLE>>];
+
+    // 用不可见链把 8 张卡片竖着排成一列
+    root -> d1 [label="热路径上的自造件"];
+    d1 -> d2 [style=invis]; d2 -> d3 [style=invis]; d3 -> d4 [style=invis];
+    d4 -> d5 [style=invis]; d5 -> d6 [style=invis]; d6 -> d7 [style=invis];
+    d7 -> d8 [style=invis];
+    root -> d2 [style=invis]; root -> d3 [style=invis]; root -> d4 [style=invis];
+    root -> d5 [style=invis]; root -> d6 [style=invis]; root -> d7 [style=invis];
+    root -> d8 [style=invis];
+}

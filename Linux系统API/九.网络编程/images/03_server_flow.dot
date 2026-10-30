@@ -1,0 +1,53 @@
+digraph server_flow {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.45, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>服务端流程</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">socket → bind → listen → accept → 收发 → close（下方为对应 TCP 状态）</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    socket [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>① socket()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">创建套接字<BR/>无地址无连接</FONT></TD></TR>
+</TABLE>>];
+
+    bind [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>② bind()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">绑定本地地址<BR/>IP + 端口<BR/>冲突报 EADDRINUSE</FONT></TD></TR>
+</TABLE>>];
+
+    listen [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>③ listen()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">转为监听<BR/>维护两个队列</FONT></TD></TR>
+</TABLE>>];
+
+    accept [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>④ accept()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">取出完成连接<BR/>返回新 fd（cfd）<BR/>空则阻塞/EAGAIN</FONT></TD></TR>
+</TABLE>>];
+
+    io [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑤ recv()/send()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">收发数据</FONT></TD></TR>
+</TABLE>>];
+
+    close [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑥ close()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">关闭连接<BR/>四次挥手</FONT></TD></TR>
+</TABLE>>];
+
+    socket -> bind -> listen -> accept -> io -> close;
+
+    s0 [label="TCP_CLOSE", shape=plaintext, fontname="PingFang SC", fontcolor="#64748B", fontsize=11];
+    s1 [label="TCP_CLOSE\n(已绑定)", shape=plaintext, fontname="PingFang SC", fontcolor="#64748B", fontsize=11];
+    s2 [label="TCP_LISTEN", shape=plaintext, fontname="PingFang SC", fontcolor="#B45309", fontsize=11];
+    s3 [label="cfd 处于\nESTABLISHED", shape=plaintext, fontname="PingFang SC", fontcolor="#BE123C", fontsize=11];
+    socket -> s0 [style=invis];
+    bind -> s1 [style=invis];
+    listen -> s2 [style=invis];
+    accept -> s3 [style=invis];
+}

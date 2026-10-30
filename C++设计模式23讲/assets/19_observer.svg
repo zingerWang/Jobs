@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="535" viewBox="0 0 1400 535" role="img" aria-label="19  观察者 · Observer">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9Z" fill="#63859d"/></marker></defs>
+<rect width="1400" height="535" rx="20" fill="#f4f7fa"/>
+<text x="48" y="60" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="30" font-weight="700" fill="#20394e" text-anchor="start">19  观察者 · Observer</text>
+<text x="48" y="102" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#61778a" text-anchor="start">职责示意图：看谁负责什么，再对照代码中的对象关系。</text>
+<rect x="48" y="155" width="360" height="225" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="48" y="155" width="360" height="62" rx="14" fill="#e5edf7" stroke="#c7d9e5" stroke-width="2"/>
+<text x="70" y="195" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">PriceSource 发布者</text>
+<text x="70" y="263" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">知道统一 Observer 接口</text>
+<text x="70" y="298" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">不知道具体界面实现</text>
+<rect x="520" y="155" width="360" height="225" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="520" y="155" width="360" height="62" rx="14" fill="#e3f0ee" stroke="#c7d9e5" stroke-width="2"/>
+<text x="542" y="195" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">弱订阅与通知快照</text>
+<text x="542" y="263" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">weak_ptr 不长期拥有订阅者</text>
+<text x="542" y="298" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">回调前锁定一轮有效对象</text>
+<rect x="992" y="155" width="360" height="225" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="992" y="155" width="360" height="62" rx="14" fill="#e9e9f4" stroke="#c7d9e5" stroke-width="2"/>
+<text x="1014" y="195" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">多个 Observer</text>
+<text x="1014" y="263" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">各自收到 update</text>
+<text x="1014" y="298" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">退出者在后续通知中清理</text>
+<path d="M418 255 L508 255" stroke="#63859d" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<text x="463.0" y="238.0" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="17" font-weight="400" fill="#61778a" text-anchor="middle">变化通知</text>
+<path d="M890 255 L980 255" stroke="#63859d" stroke-width="3" fill="none" marker-end="url(#arrow)"/>
+<text x="935.0" y="238.0" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="17" font-weight="400" fill="#61778a" text-anchor="middle">分别回调</text>
+<rect x="48" y="425" width="1304" height="72" rx="14" fill="#eaf1f6" stroke="#c7d9e5" stroke-width="2"/>
+<text x="70" y="469" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#20394e" text-anchor="start">本例同步、单线程；退订、异常、重入与并发必须有明确约定。</text>
+</svg>

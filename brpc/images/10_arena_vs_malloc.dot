@@ -1,0 +1,39 @@
+digraph arena_vs_malloc {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.7,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Arena vs malloc：一批小对象，两种活法</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">同样分配 100 万个 16 字节对象：malloc 要 100 万次分配 + 100 万次释放；Arena 只要「块数次」</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    raw [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>逐个 new / delete</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#BE123C">每 new 一个对象 = 一次 malloc<BR/>每 delete 一个对象 = 一次 free<BR/><BR/>· malloc 元数据：每块 16~32 字节（对象才 16 字节）<BR/>· 分配/释放各 100 万次，元数据开销超过有效载荷<BR/>· 对象散布在整个堆里，跨缓存行、TLB 命中差<BR/>· glibc 分配器本身还有锁与 bin 管理成本</FONT></TD></TR>
+</TABLE>>];
+
+    arena [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>butil::Arena 批量分配</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#115E59">allocate(n) 只是指针加法：data + alloc_size 后 n 字节<BR/>析构时遍历链表，每块一次 free<BR/><BR/>· 默认 initial_block_size=64B、max_block_size=8192B，逐块翻倍<BR/>· 100 万个 16B 对象 → 块容量 64,128,…,8192 后固定，只需约 1960 次 malloc（≈ N/512）<BR/>· 同一块内对象首尾相接，缓存局部性极好<BR/>· 注意：Arena <B>不调用析构函数</B>，也不保证对齐</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; raw; arena; }
+
+    flow [label=<
+<TABLE BORDER="1" COLOR="#0284C7" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>释放时机的差别（这才是 Arena 的本质）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#0369A1">malloc：<B>谁分配、谁释放</B>——生命周期必须逐个精确管理，指针必须原样传回 free<BR/>Arena：<B>一次性统统释放</B>——只保留「Arena 对象」这一个句柄，块链表在析构/clear() 时整条释放<BR/><BR/>代价：<B>不能单独释放一个对象</B>。Arena 只适合「生命周期一致的一批对象」，这条边界决定了它的全部适用场景。</FONT></TD></TR>
+</TABLE>>];
+
+    raw -> flow [style=invis];
+    arena -> flow [style=invis];
+
+    promo [label=<
+<TABLE BORDER="1" COLOR="#7C3AED" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>bRPC 里的真实用法（redis 协议解析）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#5B21B6">RedisResponse::_arena（redis.h:182）一次请求解析出的几十上百个 RedisReply + 字符串，<BR/>全部落在同一个 Arena 上；请求处理完 Clear() 一次搞定（redis.cpp:229）。</FONT></TD></TR>
+</TABLE>>];
+
+    flow -> promo [style=invis];
+}

@@ -1,0 +1,15 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.22", ranksep="0.5", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>任务类型区分</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 24 篇 · 工程问题、机制推导与验证边界</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 24 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">任务类型区分：CPU 密集型与 IO 密集型<BR/>任务的线程池选型</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>负载分解</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="11">计算与阻塞等待分别计量 / CPU 配额与<BR/>下游连接预算</FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>容量设计</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="11">线程数模型的前提 / 延迟与字节预算决<BR/>定队列</FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>执行架构</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155" POINT-SIZE="11">分池隔离长短任务 / 跨池依赖仍可能死<BR/>锁</FONT></TD></TR></TABLE>>];
+root -> b2 [color="#D97706"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>实验选型</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#334155" POINT-SIZE="11">CPU 校验和与模拟等待 / 真实 IO 与端<BR/>到端指标</FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+}

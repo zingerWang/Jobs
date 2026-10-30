@@ -1,0 +1,37 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.16", ranksep="0.45", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [color="#475569", arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>线程池为什么越忙越慢</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 27 篇 · 原理推导、失败路径与验证</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 27 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">线程池为什么越忙越慢：队列容量、背压与<BR/>任务粒度</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>过载模型</B></FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+p0_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>固定线程仍可能无限排队</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_0 [color="#4F46E5"];
+p0_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>容量关联等待与内存</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_1 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>策略选择</B></FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+p1_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>拒绝、阻塞、丢弃、调用者执行</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_0 [color="#0D9488"];
+p1_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>池内阻塞提交可能死锁</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>验证与监控</B></FONT></TD></TR></TABLE>>];
+root -> b2 [color="#E11D48"];
+p2_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>门闩确定容量边界</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_0 [color="#E11D48"];
+p2_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>区分排队与执行耗时</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_1 [color="#E11D48"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>深入推导</B></FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+p3_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>从排队速度推导为什么无界队列会拖垮系统</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_0 [color="#7C3AED"];
+p3_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>容量到底限制排队量还是全部在途量</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_1 [color="#7C3AED"];
+b4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>边界与验证</B></FONT></TD></TR></TABLE>>];
+root -> b4 [color="#D97706"];
+p4_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>四种背压策略如何改变调用语义</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_0 [color="#D97706"];
+p4_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>粒度与容量要一起调</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_1 [color="#D97706"];
+}

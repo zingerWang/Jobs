@@ -1,0 +1,38 @@
+digraph cap_triangle {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.8, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>CAP 定理：三者最多选两个</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">P（分区容错）必须选，所以实际是「分区发生时，在 C 和 A 之间二选一」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    c [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>C 一致性</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">各节点同一时刻<BR/>数据相同</FONT></TD></TR>
+</TABLE>>];
+
+    a [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>A 可用性</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">请求总能得到<BR/>非错误响应</FONT></TD></TR>
+</TABLE>>];
+
+    p [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>P 分区容错</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">网络分区时<BR/>系统仍能运行（必须选）</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>只能三选二</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">CP：选一致性，牺牲可用性<BR/>AP：选可用性，牺牲一致性</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; c; a; }
+    c -> a [style=invis];
+    c -> p [color="#94A3B8"];
+    a -> p [color="#94A3B8"];
+    c -> note [style=invis];
+    a -> note [style=invis];
+    p -> note [style=dashed, color="#475569", fontcolor="#334155"];
+}

@@ -1,0 +1,50 @@
+digraph mindmap_05 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：共识问题与复制状态机</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>共识问题<br/>与复制状态机</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>共识问题的定义</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>复制状态机</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>多数派（Quorum）</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程骨架</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">三性质：一致性 / 有效性 / 终止性</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">前两个 = 安全性，第三个 = 活性</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>FLP：异步下三者不可兼得（06 篇）</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">复制的是日志：state = apply(log)</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">铁律：状态机必须确定性（禁 now()/随机数）</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>于是「共识」= 对日志每一项达成一致</B></FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">任意两个多数派必有交集 → 安全性来源</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">容忍 f 个崩溃需 N ≥ 2f+1（BFT 要 3f+1）</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>少数派必须停止服务（CP）</B></FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">接口：propose(v) → decide(v)</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">三件事：选主、日志复制、安全约束</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">已提交不可覆盖，未提交可被截断</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+}

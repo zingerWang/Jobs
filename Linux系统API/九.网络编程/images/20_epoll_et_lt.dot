@@ -1,0 +1,85 @@
+digraph epoll_et_lt {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.45, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>epoll 触发模式：ET（边缘） vs LT（水平）</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">同一个「只读一半」场景：对端发来 4KB，第一次只 recv 读走 2KB，缓冲区还剩 2KB</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    scenario [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>同一个场景</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#334155">对端一次发来 <B>4KB</B>，第一次只 recv 读走 <B>2KB</B>，缓冲区还剩 <B>2KB</B></FONT></TD></TR>
+</TABLE>>];
+
+    subgraph cluster_lt {
+        label=<<FONT COLOR="#0D9488" POINT-SIZE="15"><B>LT · 水平触发（默认）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#0D9488";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFEFD";
+
+        lt1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>第 1 次 epoll_wait</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">缓冲区有数据 → 返回该 fd</FONT></TD></TR>
+</TABLE>>];
+
+        lt2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>只读 2KB，还剩 2KB</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">再次 epoll_wait → <B>仍然返回</B>该 fd<BR/>水平：只要还有数据就提醒</FONT></TD></TR>
+</TABLE>>];
+
+        lt3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>结论</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">漏读安全，不要求非阻塞<BR/>代价：不读就一直被唤醒</FONT></TD></TR>
+</TABLE>>];
+
+        lt1 -> lt2 -> lt3;
+    }
+
+    subgraph cluster_et {
+        label=<<FONT COLOR="#7C3AED" POINT-SIZE="15"><B>ET · 边缘触发</B></FONT>>;
+        fontname="PingFang SC";
+        color="#7C3AED";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+
+        et1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>第 1 次 epoll_wait</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#6D28D9">缓冲区有数据 → 返回该 fd<BR/>仅此一次（边沿）</FONT></TD></TR>
+</TABLE>>];
+
+        et2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>只读 2KB，还剩 2KB</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#6D28D9">再次 epoll_wait → <B>不再返回</B><BR/>剩 2KB 被「遗忘」</FONT></TD></TR>
+</TABLE>>];
+
+        et3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>结论</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">必须非阻塞 + 循环读到 EAGAIN<BR/>一次读空，否则丢数据</FONT></TD></TR>
+</TABLE>>];
+
+        et1 -> et2 -> et3;
+    }
+
+    scenario -> lt1 [style=dashed, color="#0D9488", fontcolor="#0F766E"];
+    scenario -> et1 [style=dashed, color="#7C3AED", fontcolor="#6D28D9"];
+
+    lt1 -> et1 [style=invis];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>内核本质</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#0369A1"><B>LT 问「现在还有没有数据」，ET 问「数据是不是刚到」</B>——前者是持续状态，后者是一次性跳变</FONT></TD></TR>
+</TABLE>>];
+
+    lt3 -> note [style=dashed, color="#0284C7", fontcolor="#0369A1"];
+    et3 -> note [style=dashed, color="#0284C7", fontcolor="#0369A1"];
+}

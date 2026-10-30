@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1650" height="1120" viewBox="0 0 1650 1120" role="img" aria-label="总结思维导图：23 种设计模式的 C++ 实战">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9Z" fill="#63859d"/></marker></defs>
+<rect width="1650" height="1120" rx="20" fill="#f4f7fa"/>
+<text x="48" y="60" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="30" font-weight="700" fill="#20394e" text-anchor="start">总结思维导图：23 种设计模式的 C++ 实战</text>
+<text x="48" y="102" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#61778a" text-anchor="start">根节点是共同目标，分支按创建、结构、行为展开；底部保留 C++ 工程检查。</text>
+<rect x="48" y="465" width="330" height="180" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="48" y="465" width="330" height="62" rx="14" fill="#dceaf4" stroke="#c7d9e5" stroke-width="2"/>
+<text x="70" y="505" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">隔离变化，明确职责</text>
+<text x="70" y="573" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">先看业务问题</text>
+<text x="70" y="608" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">再选结构并验证行为</text>
+<rect x="570" y="145" width="1028" height="235" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="570" y="145" width="1028" height="62" rx="14" fill="#e5edf7" stroke="#c7d9e5" stroke-width="2"/>
+<text x="592" y="185" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">创建型 5 种</text>
+<text x="592" y="253" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">工厂方法 / 抽象工厂</text>
+<text x="592" y="288" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">一个产品 / 相关产品族</text>
+<text x="592" y="323" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">生成器 / 原型 / 单例</text>
+<text x="592" y="358" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">分步组装 / 克隆 / 受控入口</text>
+<path d="M385 555 C465 555,475 262,560 262" fill="none" stroke="#7397ad" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="570" y="430" width="1028" height="235" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="570" y="430" width="1028" height="62" rx="14" fill="#e3f0ee" stroke="#c7d9e5" stroke-width="2"/>
+<text x="592" y="470" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">结构型 7 种</text>
+<text x="592" y="538" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">适配器 / 桥接 / 组合</text>
+<text x="592" y="573" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">兼容接口 / 两维扩展 / 树</text>
+<text x="592" y="608" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">装饰器 / 外观 / 享元 / 代理</text>
+<text x="592" y="643" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">叠职责 / 简入口 / 共享 / 控访问</text>
+<path d="M385 555 C465 555,475 547,560 547" fill="none" stroke="#7397ad" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="570" y="715" width="1028" height="235" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="570" y="715" width="1028" height="62" rx="14" fill="#e9e9f4" stroke="#c7d9e5" stroke-width="2"/>
+<text x="592" y="755" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">行为型 11 种</text>
+<text x="592" y="823" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">责任链 / 命令 / 解释器 / 迭代器</text>
+<text x="592" y="858" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">中介者 / 备忘录 / 观察者</text>
+<text x="592" y="893" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">状态 / 策略 / 模板方法 / 访问者</text>
+<text x="592" y="928" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">传请求、存状态、换算法、分离操作</text>
+<path d="M385 555 C465 555,475 832,560 832" fill="none" stroke="#7397ad" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="48" y="1010" width="1550" height="66" rx="14" fill="#e7eff4" stroke="#c7d9e5" stroke-width="2"/>
+<text x="72" y="1053" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="400" fill="#20394e" text-anchor="start">C++ 检查：所有权与借用 · 虚析构 · 复制与移动 · 失败路径 · 并发边界 · 可运行验证</text>
+</svg>

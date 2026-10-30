@@ -1,0 +1,135 @@
+digraph tcp_state_machine {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>TCP 状态机：客户端 vs 服务端</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">左列客户端（主动）、右列服务端（被动）；交换报文的状态对齐在同一行，虚线箭头为跨端报文</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.8];
+
+    // ===== 列标题 =====
+    chdr [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>客户端（主动方）</B></FONT></TD></TR>
+</TABLE>>];
+    shdr [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>服务端（被动方）</B></FONT></TD></TR>
+</TABLE>>];
+
+    // ===== 客户端列 =====
+    c_closed [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>CLOSED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#334155">起点</FONT></TD></TR>
+</TABLE>>];
+    c_syn_sent [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>SYN_SENT</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#BE123C">connect() 发 SYN</FONT></TD></TR>
+</TABLE>>];
+    c_estab [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>ESTABLISHED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">收发数据</FONT></TD></TR>
+</TABLE>>];
+    c_fin_wait1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>FIN_WAIT_1</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#B45309">close() 发 FIN</FONT></TD></TR>
+</TABLE>>];
+    c_fin_wait2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>FIN_WAIT_2</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#B45309">收到 ACK</FONT></TD></TR>
+</TABLE>>];
+    c_time_wait [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>TIME_WAIT</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#6D28D9">等 2MSL</FONT></TD></TR>
+</TABLE>>];
+    c_closed2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>CLOSED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#334155">终点</FONT></TD></TR>
+</TABLE>>];
+
+    // ===== 服务端列 =====
+    s_closed [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>CLOSED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#334155">起点</FONT></TD></TR>
+</TABLE>>];
+    s_listen [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>LISTEN</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#334155">listen()</FONT></TD></TR>
+</TABLE>>];
+    s_syn_rcvd [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>SYN_RCVD</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#B45309">收到 SYN</FONT></TD></TR>
+</TABLE>>];
+    s_estab [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>ESTABLISHED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">收发数据</FONT></TD></TR>
+</TABLE>>];
+    s_close_wait [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>CLOSE_WAIT</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#B45309">收到 FIN</FONT></TD></TR>
+</TABLE>>];
+    s_last_ack [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>LAST_ACK</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#B45309">发 FIN</FONT></TD></TR>
+</TABLE>>];
+    s_closed2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>CLOSED</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#334155">终点</FONT></TD></TR>
+</TABLE>>];
+
+    // ===== 隐形垂直链（锁每列上下顺序）=====
+    chdr -> c_closed -> c_syn_sent -> c_estab -> c_fin_wait1 -> c_fin_wait2 -> c_time_wait -> c_closed2 [style=invis];
+    shdr -> s_closed -> s_listen -> s_syn_rcvd -> s_estab -> s_close_wait -> s_last_ack -> s_closed2 [style=invis];
+
+    // ===== 对齐：交换报文的状态同一行 =====
+    { rank=same; chdr; shdr; }
+    { rank=same; c_closed; s_closed; }
+    { rank=same; c_syn_sent; s_syn_rcvd; }
+    { rank=same; c_estab; s_estab; }
+    { rank=same; c_fin_wait1; s_close_wait; }
+    { rank=same; c_fin_wait2; s_last_ack; }
+    { rank=same; c_time_wait; s_closed2; }
+
+    // ===== 状态转换（竖边，实线）=====
+    c_closed -> c_syn_sent [label="connect()", color="#E11D48", fontcolor="#BE123C", constraint=false];
+    c_syn_sent -> c_estab [label="收到 SYN+ACK", color="#0D9488", fontcolor="#0F766E", constraint=false];
+    c_estab -> c_fin_wait1 [label="close()", color="#D97706", fontcolor="#B45309", constraint=false];
+    c_fin_wait1 -> c_fin_wait2 [label="收到 ACK", color="#D97706", fontcolor="#B45309", constraint=false];
+    c_fin_wait2 -> c_time_wait [label="收到 FIN", color="#7C3AED", fontcolor="#6D28D9", constraint=false];
+    c_time_wait -> c_closed2 [label="2MSL 超时", color="#475569", fontcolor="#334155", constraint=false];
+
+    s_closed -> s_listen [label="listen()", color="#475569", fontcolor="#334155", constraint=false];
+    s_listen -> s_syn_rcvd [label="收到 SYN", color="#E11D48", fontcolor="#BE123C", constraint=false];
+    s_syn_rcvd -> s_estab [label="收到 ACK", color="#0D9488", fontcolor="#0F766E", constraint=false];
+    s_estab -> s_close_wait [label="收到 FIN", color="#D97706", fontcolor="#B45309", constraint=false];
+    s_close_wait -> s_last_ack [label="close()", color="#D97706", fontcolor="#B45309", constraint=false];
+    s_last_ack -> s_closed2 [label="收到 ACK", color="#475569", fontcolor="#334155", constraint=false];
+
+    // ===== 跨端报文（虚线，编号）=====
+    c_syn_sent -> s_syn_rcvd [label="① SYN", style=dashed, color="#E11D48", fontcolor="#BE123C"];
+    s_syn_rcvd -> c_estab [label="② SYN+ACK", style=dashed, color="#E11D48", fontcolor="#BE123C"];
+    c_estab -> s_estab [label="③ ACK", style=dashed, color="#0D9488", fontcolor="#0F766E"];
+    c_fin_wait1 -> s_close_wait [label="④ FIN", style=dashed, color="#D97706", fontcolor="#B45309"];
+    s_close_wait -> c_fin_wait2 [label="⑤ ACK", style=dashed, color="#D97706", fontcolor="#B45309"];
+    s_last_ack -> c_time_wait [label="⑥ FIN", style=dashed, color="#D97706", fontcolor="#B45309"];
+    c_time_wait -> s_closed2 [label="⑦ ACK", style=dashed, color="#D97706", fontcolor="#B45309"];
+
+    // ===== 图例 =====
+    legend [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="3" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10">初始/结束</FONT></TD><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10">SYN_SENT</FONT></TD><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10">SYN_RCVD / 关闭中</FONT></TD><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10">已建立</FONT></TD><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10">TIME_WAIT</FONT></TD></TR>
+</TABLE>>];
+    c_time_wait -> legend [style=invis];
+}

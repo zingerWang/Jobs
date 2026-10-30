@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reactor 模式交互图 · Event Handle / Demultiplexer / Reactor / Handler</title>
+<style>
+  :root{
+    --handle:#0284C7;   --handle-bg:#F0F9FF;
+    --demux:#D97706;    --demux-bg:#FFFBEB;
+    --reactor:#4F46E5;  --reactor-bg:#EEF2FF;
+    --handler:#0D9488;  --handler-bg:#F0FDFA;
+    --ink:#1E293B;      --muted:#64748B;   --line:#CBD5E1;
+    --danger:#E11D48;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; padding:24px 16px 64px;
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    color:var(--ink); background:#F8FAFC;
+  }
+  .wrap{max-width:1160px;margin:0 auto}
+  h1{font-size:26px;margin:0 0 6px;letter-spacing:.5px}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.7}
+  .sub b{color:var(--ink)}
+  .stage{
+    position:relative;background:#fff;border:1px solid var(--line);
+    border-radius:16px;padding:8px;box-shadow:0 6px 24px rgba(15,23,42,.06);
+  }
+  svg{display:block;width:100%;height:auto}
+
+  /* 角色节点交互态 */
+  .role{cursor:pointer;transition:opacity .25s, filter .25s}
+  .role .card{transition:stroke .2s, stroke-width .2s, filter .2s}
+  .role:hover .card{filter:drop-shadow(0 4px 10px rgba(15,23,42,.18))}
+  .dim{opacity:.22}
+  .sel .card{stroke-width:3.5}
+  .pulse{animation:pulse 1s ease-in-out infinite}
+  @keyframes pulse{0%,100%{filter:none}50%{filter:drop-shadow(0 0 10px rgba(79,70,229,.65))}}
+
+  .flow{fill:none;stroke-width:2.4;marker-end:url(#arrow)}
+  .flow.sel{stroke-width:4}
+  .flabel{font-size:12.5px;font-weight:600;fill:var(--muted);text-anchor:middle}
+  .badge{font-size:12px;font-weight:800;fill:#fff}
+  .badge-bg{fill:var(--ink);opacity:.85}
+
+  /* 动画小球 */
+  #token{filter:drop-shadow(0 0 8px rgba(225,29,72,.8))}
+
+  /* 控件 */
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:18px 0 10px}
+  button{
+    font:inherit;font-size:14px;font-weight:600;color:#fff;background:var(--reactor);
+    border:0;border-radius:10px;padding:10px 18px;cursor:pointer;
+    transition:transform .12s, opacity .2s;
+  }
+  button:hover{transform:translateY(-1px)}
+  button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+  button.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--line)}
+  .stepbar{
+    flex:1;min-width:240px;font-size:14px;color:var(--ink);
+    background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 14px;
+    min-height:44px;display:flex;align-items:center;gap:10px;
+  }
+  .stepbar .idx{
+    flex:none;width:24px;height:24px;border-radius:50%;background:var(--danger);color:#fff;
+    font-size:13px;font-weight:800;display:grid;place-items:center;
+  }
+  .stepbar.idle .idx{background:var(--muted)}
+  .stepbar.idle{color:var(--muted)}
+
+  /* 详情面板 */
+  .panel{
+    margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+  }
+  .pcard{
+    background:#fff;border:1px solid var(--line);border-top:4px solid var(--muted);
+    border-radius:12px;padding:14px 16px;
+  }
+  .pcard h3{margin:0 0 2px;font-size:16px}
+  .pcard .en{font-size:12px;color:var(--muted);letter-spacing:.4px;margin-bottom:8px}
+  .pcard .desc{font-size:13.5px;line-height:1.75;color:#334155;margin:0 0 10px}
+  .pcard .kv{font-size:13px;line-height:1.7;margin:6px 0}
+  .pcard .kv .k{display:inline-block;font-weight:700;color:var(--ink);margin-right:6px}
+  .pcard .kv .k.api{color:#0369A1}
+  .pcard .kv .k.warn{color:var(--danger)}
+  code{background:#F1F5F9;border-radius:5px;padding:1px 6px;font-size:12.5px;
+       font-family:"SF Mono",Menlo,Consolas,monospace;color:#0F172A}
+
+  #tip{
+    position:absolute;pointer-events:none;z-index:20;background:rgba(15,23,42,.94);color:#fff;
+    font-size:12.5px;line-height:1.6;padding:8px 11px;border-radius:8px;max-width:260px;
+    opacity:0;transition:opacity .15s;box-shadow:0 8px 24px rgba(15,23,42,.3);
+  }
+  #tip.on{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Reactor 模式：四个角色与一次完整的事件旅程</h1>
+  <p class="sub">
+    <b>Event Handle</b>（事件句柄）产生事件 → <b>Event Demultiplexer</b>（事件分离器 <code>epoll_wait</code>）等到就绪 →
+    <b>Event Reactor</b>（反应器）查表分发 → <b>Event Handler</b>（事件处理器）执行回调。
+    <br>悬停看职责 · 点击看详情 · 点「播放事件流」看一次完整的「就绪 → 分发 → 回调 → 下一轮」动画。
+  </p>
+
+  <div class="stage" id="stage">
+    <svg id="diagram" viewBox="0 0 1120 520" role="img"
+         aria-label="Reactor 模式结构图：事件句柄、事件分离器、事件反应器、事件处理器">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"/>
+        </marker>
+      </defs>
+
+      <!-- ================= Event Handle 列 ================= -->
+      <g class="role" data-role="handle" id="n-handle">
+        <text x="125" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#0284C7">Event Handle（事件句柄）</text>
+        <text x="125" y="137" text-anchor="middle" font-size="11.5" fill="#64748B">socket fd，事件产生的源头</text>
+        <g class="card">
+          <rect x="50" y="152" width="150" height="40" rx="8" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.8"/>
+          <rect x="50" y="200" width="150" height="40" rx="8" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.8"/>
+          <rect x="50" y="248" width="150" height="40" rx="8" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.8"/>
+          <rect x="50" y="296" width="150" height="40" rx="8" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.8"/>
+        </g>
+        <text x="125" y="177" text-anchor="middle" font-size="12.5" fill="#0369A1" font-family="monospace">fd 3</text>
+        <text x="125" y="225" text-anchor="middle" font-size="12.5" fill="#0369A1" font-family="monospace">fd 5</text>
+        <text x="125" y="273" text-anchor="middle" font-size="12.5" fill="#0369A1" font-family="monospace">fd 7</text>
+        <text x="125" y="321" text-anchor="middle" font-size="12.5" fill="#0369A1" font-family="monospace">fd 9</text>
+        <text x="125" y="362" text-anchor="middle" font-size="11" fill="#0284C7">listen fd + 已连接 fd</text>
+      </g>
+
+      <!-- ================= Event Demultiplexer ================= -->
+      <g class="role" data-role="demux" id="n-demux">
+        <g class="card">
+          <rect x="290" y="188" width="196" height="152" rx="14" fill="#FFFBEB" stroke="#D97706" stroke-width="1.8"/>
+        </g>
+        <text x="388" y="222" text-anchor="middle" font-size="13.5" font-weight="700" fill="#B45309">Event Demultiplexer</text>
+        <text x="388" y="243" text-anchor="middle" font-size="11.5" fill="#64748B">事件分离器</text>
+        <text x="388" y="278" text-anchor="middle" font-size="14" font-weight="700" fill="#D97706" font-family="monospace">epoll_wait()</text>
+        <text x="388" y="300" text-anchor="middle" font-size="11.5" fill="#B45309">阻塞等待 → 返回就绪列表</text>
+        <text x="388" y="322" text-anchor="middle" font-size="11" fill="#64748B">select / poll / epoll / kqueue</text>
+      </g>
+
+      <!-- ================= Event Reactor ================= -->
+      <g class="role" data-role="reactor" id="n-reactor">
+        <g class="card">
+          <rect x="576" y="168" width="204" height="192" rx="14" fill="#EEF2FF" stroke="#4F46E5" stroke-width="1.8"/>
+        </g>
+        <text x="678" y="200" text-anchor="middle" font-size="13.5" font-weight="700" fill="#4338CA">Event Reactor</text>
+        <text x="678" y="221" text-anchor="middle" font-size="11.5" fill="#64748B">反应器（核心调度）</text>
+        <text x="678" y="252" text-anchor="middle" font-size="11.5" fill="#4F46E5">维护 fd → handler 注册表</text>
+        <text x="678" y="276" text-anchor="middle" font-size="14" font-weight="700" fill="#4F46E5" font-family="monospace">loop()</text>
+        <text x="678" y="298" text-anchor="middle" font-size="11.5" fill="#4338CA">事件循环 · 分发 dispatch</text>
+        <text x="678" y="322" text-anchor="middle" font-size="11" fill="#64748B">muduo 的 EventLoop</text>
+      </g>
+
+      <!-- ================= Event Handler 列 ================= -->
+      <g class="role" data-role="handler" id="n-handler">
+        <text x="950" y="118" text-anchor="middle" font-size="13" font-weight="700" fill="#0D9488">Event Handler（事件处理器）</text>
+        <text x="950" y="137" text-anchor="middle" font-size="11.5" fill="#64748B">onRead / onWrite 回调</text>
+        <g class="card">
+          <rect x="856" y="152" width="188" height="52" rx="10" fill="#F0FDFA" stroke="#0D9488" stroke-width="1.8"/>
+          <rect x="856" y="220" width="188" height="52" rx="10" fill="#F0FDFA" stroke="#0D9488" stroke-width="1.8"/>
+          <rect x="856" y="288" width="188" height="52" rx="10" fill="#F0FDFA" stroke="#0D9488" stroke-width="1.8"/>
+        </g>
+        <text x="950" y="174" text-anchor="middle" font-size="12.5" fill="#0F766E" font-family="monospace">handleRead()</text>
+        <text x="950" y="191" text-anchor="middle" font-size="10.5" fill="#64748B">读数据、回包</text>
+        <text x="950" y="242" text-anchor="middle" font-size="12.5" fill="#0F766E" font-family="monospace">handleWrite()</text>
+        <text x="950" y="259" text-anchor="middle" font-size="10.5" fill="#64748B">可写时发送缓冲数据</text>
+        <text x="950" y="310" text-anchor="middle" font-size="12.5" fill="#0F766E" font-family="monospace">handleAccept()</text>
+        <text x="950" y="327" text-anchor="middle" font-size="10.5" fill="#64748B">新连接到来</text>
+      </g>
+
+      <!-- ================= 连线 ================= -->
+      <!-- 1 注册 fd -->
+      <path id="p-register" class="flow" d="M200,264 C240,264 250,264 290,264" stroke="#0284C7"/>
+      <!-- 2 就绪事件 -->
+      <path id="p-ready" class="flow" d="M486,264 C530,264 536,264 576,264" stroke="#D97706"/>
+      <!-- 3 分发 -->
+      <path id="p-dispatch" class="flow" d="M780,264 C818,264 818,264 856,264" stroke="#4F46E5"/>
+      <!-- 4 回调返回 / 循环 -->
+      <path id="p-loop" class="flow" d="M678,360 C678,452 388,452 388,340" stroke="#E11D48"
+            marker-end="url(#arrow)" style="marker-start:url(#arrow)"/>
+
+      <text class="flabel" x="243" y="248" fill="#0284C7">① 注册 fd</text>
+      <text class="flabel" x="531" y="248" fill="#B45309">② 返回就绪</text>
+      <text class="flabel" x="818" y="248" fill="#4338CA">③ dispatch</text>
+      <text class="flabel" x="533" y="478" fill="#BE123C">④ 处理完 → 回到事件循环，等待下一批事件</text>
+
+      <!-- 步骤徽标 -->
+      <g class="badge-bg"><circle cx="243" cy="264" r="11"/></g><text class="badge" x="243" y="268" text-anchor="middle">1</text>
+      <g class="badge-bg"><circle cx="531" cy="264" r="11"/></g><text class="badge" x="531" y="268" text-anchor="middle">2</text>
+      <g class="badge-bg"><circle cx="818" cy="264" r="11"/></g><text class="badge" x="818" y="268" text-anchor="middle">3</text>
+
+      <!-- 动画小球 -->
+      <circle id="token" r="9" cx="-50" cy="-50" fill="#E11D48" opacity="0"/>
+    </svg>
+    <div id="tip"></div>
+  </div>
+
+  <div class="controls">
+    <button id="play">▶ 播放事件流</button>
+    <button id="reset" class="ghost">↺ 重置</button>
+    <div class="stepbar idle" id="stepbar"><span class="idx">·</span><span class="txt">点「播放事件流」，看一次完整的事件旅程</span></div>
+  </div>
+
+  <div class="panel" id="panel"></div>
+</div>
+
+<script>
+(() => {
+  const NS = 'http://www.w3.org/2000/svg';
+
+  /* ---------------- 角色数据 ---------------- */
+  const ROLES = {
+    handle: {
+      name: 'Event Handle', en: '事件句柄',
+      color: '#0284C7',
+      desc: '事件产生的源头。在 Linux 网络编程里，它就是一个 socket 文件描述符（fd）——包括 listen fd 和每个已连接客户端的 fd。',
+      tip: '事件句柄：socket fd。数据可读/可写/新连接到来时，内核在这个 fd 上标记「就绪」。',
+      api: 'socket() / accept() 返回的 int fd',
+      warn: 'fd 是「可复用的整数」：关掉后新连接可能复用同一数字。忘记从 epoll 里摘除旧 fd，就会收到幽灵事件。'
+    },
+    demux: {
+      name: 'Event Demultiplexer', en: '事件分离器',
+      color: '#D97706',
+      desc: '负责「等待」的角色。它一次监听成百上千个 fd，阻塞到其中任意一个就绪，然后返回就绪列表——把「1 个线程等 N 个连接」这件事变成可能。',
+      tip: '事件分离器：epoll_wait()。阻塞等待多个 fd，返回就绪的那些。',
+      api: 'epoll_create / epoll_ctl / epoll_wait（旧的有 select / poll）',
+      warn: 'epoll_wait 返回的是「就绪事件列表」，不保证一次把所有数据收完——必须配合非阻塞 fd + 循环读，否则会漏数据。'
+    },
+    reactor: {
+      name: 'Event Reactor', en: '反应器',
+      color: '#4F46E5',
+      desc: '整套模式的大脑。它维护一张「fd → 事件处理器」的注册表，围绕一个事件循环运转：调 demultiplexer 等事件，拿到结果后查表，把每个就绪 fd 分发（dispatch）给它对应的处理器。',
+      tip: '事件反应器：持有注册表 + 事件循环。等事件、查表、分发，如此往复。',
+      api: 'loop() / register / remove / dispatch（muduo 里叫 EventLoop、Poller）',
+      warn: '处理器里做耗时操作会阻塞整个事件循环，拖垮所有连接——重活必须丢线程池。这是「单 Reactor 单线程」最典型的坑。'
+    },
+    handler: {
+      name: 'Event Handler', en: '事件处理器',
+      color: '#0D9488',
+      desc: '真正干活的角色。它定义一组回调（可读、可写、新连接、出错），由反应器在事件就绪时调用。业务代码通常继承一个抽象基类，只写自己的处理逻辑。',
+      tip: '事件处理器：onRead / onWrite 等回调。事件就绪时由反应器调用。',
+      api: 'handleRead / handleWrite / handleAccept（回调函数）',
+      warn: '回调必须是「短平快」的。若在 handleRead 里做同步写文件、查数据库，事件循环就会被卡住，其他连接全部饿死。'
+    }
+  };
+  const ORDER = ['handle', 'demux', 'reactor', 'handler'];
+
+  /* ---------------- 渲染详情面板 ---------------- */
+  const panel = document.getElementById('panel');
+  function renderPanel(active) {
+    panel.innerHTML = ORDER.map(k => {
+      const r = ROLES[k];
+      const on = (k === active);
+      return `<div class="pcard" data-panel="${k}" style="border-top-color:${r.color};
+                ${active && !on ? 'opacity:.55' : ''}">
+        <h3 style="color:${r.color}">${r.name}</h3>
+        <div class="en">${r.en}</div>
+        <p class="desc">${r.desc}</p>
+        <div class="kv"><span class="k">关键 API</span><code>${r.api}</code></div>
+        <div class="kv"><span class="k warn">易错点</span>${r.warn}</div>
+      </div>`;
+    }).join('');
+  }
+  renderPanel(null);
+
+  /* ---------------- 悬停提示 + 选中 ---------------- */
+  const tip = document.getElementById('tip');
+  const stage = document.getElementById('stage');
+  const nodes = [...document.querySelectorAll('.role')];
+  let selected = null;
+
+  function highlight(role) {
+    nodes.forEach(n => n.classList.toggle('dim', role && n.dataset.role !== role));
+    document.querySelectorAll('.flow').forEach(p => p.classList.toggle('sel', !!role));
+  }
+  function clearHL() {
+    nodes.forEach(n => n.classList.remove('dim'));
+    document.querySelectorAll('.flow').forEach(p => p.classList.remove('sel'));
+  }
+
+  nodes.forEach(n => {
+    const role = n.dataset.role;
+    n.addEventListener('mouseenter', e => {
+      if (playing) return;
+      highlight(role);
+      tip.innerHTML = ROLES[role].tip;
+      tip.classList.add('on');
+    });
+    n.addEventListener('mousemove', e => {
+      const r = stage.getBoundingClientRect();
+      let x = e.clientX - r.left + 16, y = e.clientY - r.top + 16;
+      if (x + 270 > r.width) x = e.clientX - r.left - 280;
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    });
+    n.addEventListener('mouseleave', () => {
+      if (playing) return;
+      tip.classList.remove('on');
+      if (selected) highlight(selected); else clearHL();
+    });
+    n.addEventListener('click', () => {
+      if (playing) return;
+      selected = (selected === role) ? null : role;
+      nodes.forEach(m => m.classList.toggle('sel', m.dataset.role === selected));
+      if (selected) highlight(selected); else clearHL();
+      renderPanel(selected);
+    });
+  });
+
+  /* ---------------- 播放动画 ---------------- */
+  const token = document.getElementById('token');
+  const stepbar = document.getElementById('stepbar');
+  const playBtn = document.getElementById('play');
+  const resetBtn = document.getElementById('reset');
+  let playing = false, timer = null;
+
+  const STEPS = [
+    { i: 1, role: 'handle',  txt: '① 应用创建连接，拿到 socket fd —— 这就是一个 Event Handle。',
+      path: 'p-register', t0: 0, t1: 1 },
+    { i: 2, role: 'demux',   txt: '② 反应器把 fd 注册进 epoll，调用 epoll_wait() 阻塞等待 —— 线程就在这里「睡」着。',
+      path: null, hold: 900 },
+    { i: 3, role: 'demux',   txt: '③ 某个 fd 数据到达、变为就绪，epoll_wait 返回就绪列表。',
+      path: 'p-ready', t0: 0, t1: 1 },
+    { i: 4, role: 'reactor', txt: '④ 反应器拿到就绪 fd，查「fd → handler」注册表，找到对应的处理器。',
+      path: null, hold: 900 },
+    { i: 5, role: 'handler', txt: '⑤ 调用处理器的回调 handleRead()，真正把数据读出来、处理业务。',
+      path: 'p-dispatch', t0: 0, t1: 1, hold: 800 },
+    { i: 6, role: 'reactor', txt: '⑥ 回调返回，反应器回到事件循环，继续下一轮等待 —— 如此往复。',
+      path: 'p-loop', t0: 0, t1: 1, hold: 400 }
+  ];
+
+  function setStep(s) {
+    stepbar.classList.remove('idle');
+    stepbar.querySelector('.idx').textContent = s.i;
+    stepbar.querySelector('.txt').textContent = s.txt;
+    nodes.forEach(n => n.classList.toggle('pulse', n.dataset.role === s.role));
+    document.querySelectorAll('.flow').forEach(p => p.classList.toggle('sel', p.id === s.path));
+    nodes.forEach(n => n.classList.toggle('dim', n.dataset.role !== s.role));
+  }
+
+  function moveToken(pathId, t0, t1, dur, done) {
+    const path = document.getElementById(pathId);
+    const len = path.getTotalLength();
+    const start = performance.now();
+    token.setAttribute('opacity', '1');
+    function frame(now) {
+      let p = Math.min(1, (now - start) / dur);
+      const e = p < .5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2;  // easeInOutQuad
+      const t = t0 + (t1 - t0) * e;
+      const pt = path.getPointAtLength(len * t);
+      token.setAttribute('cx', pt.x);
+      token.setAttribute('cy', pt.y);
+      if (p < 1) requestAnimationFrame(frame);
+      else done && done();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  function runStep(idx) {
+    if (idx >= STEPS.length) { finish(); return; }
+    const s = STEPS[idx];
+    setStep(s);
+    if (!s.path) {                                   // 原地「等待」型步骤：不移动小球
+      timer = setTimeout(() => runStep(idx + 1), s.hold || 700);
+      return;
+    }
+    moveToken(s.path, s.t0, s.t1, 900, () => {
+      timer = setTimeout(() => runStep(idx + 1), s.hold || 450);
+    });
+  }
+
+  function finish() {
+    playing = false;
+    playBtn.disabled = false;
+    resetBtn.disabled = false;
+    token.setAttribute('opacity', '0');
+    nodes.forEach(n => n.classList.remove('pulse'));
+    stepbar.querySelector('.txt').textContent =
+      '✅ 一次完整的事件旅程结束。核心就一句：一个线程循环「等事件 → 分发 → 回调」，撑起成千上万连接。';
+    stepbar.querySelector('.idx').textContent = '✓';
+    if (selected) highlight(selected); else clearHL();
+    document.querySelectorAll('.flow').forEach(p => p.classList.remove('sel'));
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (playing) return;
+    playing = true;
+    selected = null;
+    renderPanel(null);
+    nodes.forEach(m => m.classList.remove('sel'));
+    tip.classList.remove('on');
+    playBtn.disabled = true;
+    resetBtn.disabled = true;
+    runStep(0);
+  });
+
+  function resetAll() {
+    clearTimeout(timer);
+    playing = false;
+    playBtn.disabled = false;
+    resetBtn.disabled = false;
+    token.setAttribute('opacity', '0');
+    token.setAttribute('cx', -50); token.setAttribute('cy', -50);
+    nodes.forEach(n => n.classList.remove('pulse', 'dim', 'sel'));
+    document.querySelectorAll('.flow').forEach(p => p.classList.remove('sel'));
+    stepbar.classList.add('idle');
+    stepbar.querySelector('.idx').textContent = '·';
+    stepbar.querySelector('.txt').textContent = '点「播放事件流」，看一次完整的事件旅程';
+    selected = null;
+    renderPanel(null);
+  }
+  resetBtn.addEventListener('click', resetAll);
+})();
+</script>
+</body>
+</html>

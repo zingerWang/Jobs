@@ -1,0 +1,73 @@
+digraph mindmap_08 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.3, ranksep=0.7,
+           label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：IOBuf 块结构与零拷贝</B></FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>IOBuf 块结构与零拷贝</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么不能用 std::string</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三件套结构</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>IOBuf 本体：32 字节</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>块从哪来：TLS 池</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>零拷贝到底省在哪</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>边界与坑</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">粘包 / 半包：一次 read 拿到的不是完整包</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>连续扩容 = O(n²) 次 memcpy</B></FONT>>];
+    l0c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">要能「切一小块出来而不动数据」</FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Block：一次 malloc 的整块内存（默认 8192）</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>nshared：atomic 引用计数，归零才 free</B></FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">BlockRef：16 字节的「窗口」= offset+length+block</FONT>>];
+    l1d [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">cap = block_size − sizeof(Block) = 8160</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">SmallView：内联 refs[2]，堆上零分配</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">BigView：环形动态数组，满了翻倍</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">两者 union 共用 32 字节，magic 正负做判别</FONT>>];
+    l2d [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">相邻同块 ref 自动 merge，ref 数被压到最少</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">每线程一条块链，portal_next 串起来</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">不开锁、不 malloc，上限 8 块</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">写满的块出池，没写满的留池复用</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B"><B>只移动指针</B>：append(IOBuf) / cutn / cut_until / append_to</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B"><B>必须拷贝</B>：append(数据) / push_back / resize / 跨块 copy_to</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">append_user_data：连块头都不复制，直接包住用户内存</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">thread-compatible 但 NOT thread-safe</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">fetch() 返回内部指针，期间不能改 IOBuf</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">Cut 之后原对象状态（cutn / pop_front 语义不同）</FONT>>];
+    l5d [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">abi_check：Debug 下抓两份 IOBuf 混链</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b; s0 -> l0c;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c; s1 -> l1d;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c; s2 -> l2d;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c; s5 -> l5d;
+}

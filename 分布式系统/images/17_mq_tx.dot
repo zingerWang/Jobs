@@ -1,0 +1,34 @@
+digraph mq_transaction {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>事务消息：把「本地事务」和「发消息」绑在一起（RocketMQ）</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">思路与本地消息表相同，只是把「消息表」搬到了 MQ 内部</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① 发送「半消息」（Half Message）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">生产者先把消息投给 MQ，但 MQ <B>不立刻投递给消费者</B>——先"扣在手里"<BR/>这一步只是"占位"，消息对下游不可见</FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② 执行本地事务</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">半消息发送成功后，生产者执行自己的本地事务（写订单库）<BR/>成功 → 向 MQ 发 <B>Commit</B>；失败 → 发 <B>Rollback</B></FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ 回查（关键补偿机制）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">如果 MQ 长时间收不到 Commit/Rollback（生产者崩了、网络断了），MQ 会<b>反查生产者</b>：<BR/>「刚才那条半消息，你的本地事务到底成没成？」<BR/>生产者查自己的数据库（比如"订单是否存在"）后答复 → MQ 据此决定投递还是丢弃<BR/><FONT COLOR="#92400E">回查是这套机制的<b>灵魂</b>：它把"不确定"交给业务自己判断，而不是靠超时猜。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    cmp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>与本地消息表的对比</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>本地消息表</B>：消息与业务在<b>同一个数据库事务</b>里写；投递器自己写。<b>不依赖 MQ 特性</b>，任何 MQ 都能用<BR/>· <B>事务消息</B>：MQ 替你保管"待定消息"并提供回查接口；代码更少，但<b>绑定特定 MQ</b>（RocketMQ / Kafka 有各自的事务实现）<BR/>· 两者都只保证 <B>至少一次</B>，都要求消费端<b>幂等</b><BR/><FONT COLOR="#5B21B6">选型：MQ 不支持事务消息 → 本地消息表；已经在用 RocketMQ → 直接用事务消息更省事。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    s1 -> s2 [label=" 半消息就位"];
+    s2 -> s3 [label=" 生产者失联时"];
+    s3 -> cmp [label=" 最终效果相同", color="#7C3AED", fontcolor="#6D28D9"];
+}

@@ -1,0 +1,41 @@
+digraph layered_architecture {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Linux 网络编程分层架构</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">数据自上而下逐层封装（加头部），对端自下而上逐层剥除</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    app [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>应用层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#3730A3">HTTP · FTP · DNS · SSH 等应用协议</FONT></TD></TR>
+</TABLE>>];
+
+    socket [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>Socket API 层（本文重点）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#BE123C">socket · bind · listen · accept · connect · send · recv · close</FONT></TD></TR>
+</TABLE>>];
+
+    tcp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>传输层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#0F766E">TCP（SOCK_STREAM）：面向连接 · 可靠 · 字节流<BR/>UDP（SOCK_DGRAM）：无连接 · 不可靠 · 保留报文边界</FONT></TD></TR>
+</TABLE>>];
+
+    ip [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>网络层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#0369A1">IP：寻址 · 路由与转发</FONT></TD></TR>
+</TABLE>>];
+
+    link [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="15"><B>链路层</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#334155">以太网 · 网卡驱动</FONT></TD></TR>
+</TABLE>>];
+
+    app -> socket [label="  系统调用", color="#E11D48", fontcolor="#BE123C"];
+    socket -> tcp [label="  加 TCP/UDP 头", color="#0D9488", fontcolor="#0F766E"];
+    tcp -> ip [label="  加 IP 头", color="#0284C7", fontcolor="#0369A1"];
+    ip -> link [label="  加以太网帧头", color="#475569", fontcolor="#334155"];
+}

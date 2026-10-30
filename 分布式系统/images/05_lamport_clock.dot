@@ -1,0 +1,47 @@
+digraph lamport_clock {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.8, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Lamport 时钟的更新规则</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">本地事件 +1；接收时 max(本地, 消息时间戳) + 1</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    ah [label="进程 A", fontcolor="#4F46E5", fontsize=13, shape=plaintext];
+    bh [label="进程 B", fontcolor="#0D9488", fontsize=13, shape=plaintext];
+
+    a1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>事件：写数据</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#3730A3">clock = 0+1 = 1</FONT></TD></TR>
+</TABLE>>];
+    a2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>发送消息（带 t=2）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#3730A3">clock = 1+1 = 2</FONT></TD></TR>
+</TABLE>>];
+
+    b1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>接收消息（t=2）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#0F766E">clock = max(0,2)+1 = 3</FONT></TD></TR>
+</TABLE>>];
+    b2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>事件：处理数据</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#0F766E">clock = 3+1 = 4</FONT></TD></TR>
+</TABLE>>];
+
+    ah -> a1 -> a2 [style=invis];
+    bh -> b1 -> b2 [style=invis];
+    { rank=same; ah; bh; }
+    { rank=same; a1; b1; }
+    { rank=same; a2; b2; }
+
+    a1 -> a2 [color="#4F46E5", fontcolor="#3730A3", label="+1"];
+    b1 -> b2 [color="#0D9488", fontcolor="#0F766E", label="+1"];
+    a2 -> b1 [color="#E11D48", fontcolor="#BE123C", label="消息 t=2", style=dashed];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">关键：接收时 <B>max(本地, 消息 t) + 1</B>，保证「发送时钟 &lt; 接收时钟」</FONT></TD></TR>
+</TABLE>>];
+    b2 -> note [style=invis, constraint=false];
+}

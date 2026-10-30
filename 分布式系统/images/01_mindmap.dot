@@ -1,0 +1,58 @@
+digraph mindmap_01 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：分布式系统概览与核心挑战</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>分布式系统概览<br/>与核心挑战</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么要学</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>什么是分布式系统</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>核心挑战（重点）</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>目标与权衡</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>边界与选型</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">单机三大瓶颈（CPU/内存/磁盘）</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">垂直扩展 vs 水平扩展</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">多台独立机器（无共享内存/时钟）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">通过网络通信（不可靠）</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">对外像一台机器</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">网络不可靠 → 脑裂</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">节点故障</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">时钟漂移（NTP 只能减小）</FONT>>];
+    l3d [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">一致性</FONT>>];
+    l3e [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>部分失败（不确定性根源）</B></FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">可扩展/可用/可靠/一致</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>CAP：C 和 A 不可兼得</B></FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">单机扛得住就别上分布式</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">先垂直、后水平</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c; s3 -> l3d; s3 -> l3e;
+    s4 -> l4a; s4 -> l4b;
+    s5 -> l5a; s5 -> l5b;
+}

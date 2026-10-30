@@ -1,0 +1,40 @@
+digraph listen_queues {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>listen() 维护的两个队列</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">三次握手分两阶段完成，分别对应半连接队列与全连接队列</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    listen [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>监听套接字 lfd（TCP_LISTEN）</B></FONT></TD></TR>
+</TABLE>>];
+
+    synq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>半连接队列（SYN Queue）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#B45309">收到 SYN、已回 SYN+ACK<BR/>但尚未收到 ACK 的连接<BR/><FONT COLOR="#92400E">长度由 tcp_max_syn_backlog 控制</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    acceptq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>全连接队列（Accept Queue）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#0F766E">三次握手已完成<BR/>等待应用 accept() 取走的连接<BR/><FONT COLOR="#134E4A">长度由 backlog 参数控制</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    app [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>应用进程</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#6D28D9">accept() 从队列头部取出连接</FONT></TD></TR>
+</TABLE>>];
+
+    listen -> synq [label="  收到 SYN"];
+    synq -> acceptq [label="  收到 ACK，握手完成"];
+    acceptq -> app [label="  accept() 取出 cfd"];
+
+    overflow [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>全连接队列满了会怎样？</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="9"><FONT POINT-SIZE="12" COLOR="#BE123C">· 默认（tcp_abort_on_overflow = 0）：<BR/>　内核「悄悄」丢弃新 SYN 或握手的最后一个 ACK，<BR/>　连接暂留在半连接队列，客户端超时后重传<BR/>· 若设成 1：内核直接回 RST，<BR/>　客户端立刻报「连接被拒绝 ECONNREFUSED」</FONT></TD></TR>
+</TABLE>>];
+    acceptq -> overflow [style=dashed, color="#E11D48", fontcolor="#BE123C", label="满了？"];
+}

@@ -1,0 +1,77 @@
+digraph iobuf_chain {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.45, ranksep=0.85,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>IOBuf 如何把多个 Block 串成一个「连续缓冲区」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">IOBuf 本体只有 32 字节：要么内联 2 个 BlockRef（SmallView），要么换成动态数组（BigView）</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8, color="#94A3B8"];
+
+    // ---------- 两个视图 ----------
+    subgraph cluster_views {
+        label=<<FONT POINT-SIZE="14" COLOR="#475569"><B>union { BigView _bv; SmallView _sv; }  —  iobuf.h:431</B></FONT>>;
+        fontname="PingFang SC"; color="#CBD5E1"; style="rounded"; bgcolor="#F8FAFC";
+
+        small [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="2" BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>SmallView　refs[2]　（≤ 2 个 ref 时）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">refs[0]</FONT></TD><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">refs[1]</FONT></TD></TR>
+  <TR><TD COLSPAN="2" BGCOLOR="#FFFFFF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#64748B">无额外堆分配 · 判定：_bv.magic &gt;= 0（iobuf_inl.h:149）</FONT></TD></TR>
+</TABLE>>];
+
+        big [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="6" BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>BigView　环形数组（&gt; 2 个 ref 时，magic = −1）</B></FONT></TD></TR>
+  <TR>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">refs[…]</FONT></TD>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">refs[start]</FONT></TD>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">…</FONT></TD>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">refs[…]</FONT></TD>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">空闲</FONT></TD>
+  </TR>
+  <TR><TD COLSPAN="5" BGCOLOR="#FFFFFF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#64748B">nref / cap_mask / nbytes + refs 指针 · 初始 32 槽，满了一倍一倍扩（iobuf.cpp:553）</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    iobuf [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>butil::IOBuf（sizeof = 32）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3">SmallView 与 BigView <B>共用同一块内存</B><BR/>所以从小切大 / 大切小只是换解释方式</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- Blocks ----------
+    b1 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Block #1</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">nshared = 2<BR/>cap 8160<BR/><B>被 2 个 IOBuf 共享</B></FONT></TD></TR>
+</TABLE>>];
+
+    b2 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Block #2</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">nshared = 1<BR/>cap 8160</FONT></TD></TR>
+</TABLE>>];
+
+    b3 [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Block #3</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">nshared = 3<BR/>cap 8160</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- TLS 池 ----------
+    tls [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1" WIDTH="300">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>TLS 块池（每线程一条链）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#334155">用 Block::u.portal_next 串起来<BR/>不开锁、不 malloc<BR/>上限 MAX_BLOCKS_PER_THREAD = 8<BR/>（iobuf_inl.h:594）<BR/>块满即 dec_ref 出池，未满留池复用</FONT></TD></TR>
+</TABLE>>];
+
+
+    iobuf -> small [label="  2 个 ref 以内", color="#0284C7", fontcolor="#0369A1"];
+    iobuf -> big [label="  第 3 个 ref 起", color="#7C3AED", fontcolor="#6D28D9"];
+
+    small -> b1 [label=" refs[0]", color="#E11D48", fontcolor="#BE123C"];
+    small -> b2 [label=" refs[1]", color="#D97706", fontcolor="#B45309"];
+    big -> b2 [label=" refs[start+1]", color="#7C3AED", fontcolor="#6D28D9"];
+    big -> b3 [label=" refs[start+2]", color="#7C3AED", fontcolor="#6D28D9"];
+
+    b3 -> tls [label=" 释放后归池", color="#475569", fontcolor="#334155", style=dashed];
+}

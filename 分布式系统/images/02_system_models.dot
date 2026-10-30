@@ -1,0 +1,36 @@
+digraph system_models {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.45, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>系统模型：关于「时间」的三种假设</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">系统模型决定了「超时」到底能不能当作故障的证据</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.8];
+
+    sync [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>同步（Synchronous）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">消息延迟 ≤ 已知上界 Δ<BR/>时钟漂移有上界<BR/><B>超时可靠：可断定对方挂了</B></FONT></TD></TR>
+</TABLE>>];
+
+    psync [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>部分同步（Partial sync）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">GST 之后永久同步<BR/>之前有有限长异步期<BR/><B>超时通常可靠，异步期会误判</B></FONT></TD></TR>
+</TABLE>>];
+
+    async [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>异步（Asynchronous）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">没有任何时间上界<BR/>消息可以任意慢<BR/><B>超时不可靠：无法区分挂/慢</B></FONT></TD></TR>
+</TABLE>>];
+
+    bottom [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>真实世界 = 部分同步</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#334155">正常延迟低，但偶发 GC 停顿 / 网络分区（异步期）</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; sync; psync; async; }
+
+    psync -> bottom [style=dashed, color="#475569", fontcolor="#334155", label="最贴近现实"];
+    sync -> psync [style=invis];
+}

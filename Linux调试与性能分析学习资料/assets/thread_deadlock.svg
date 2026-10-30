@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1090" viewBox="0 0 1400 1090" role="img" aria-label="图 2  线程共享数据，死锁由等待关系构成">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10" fill="#5a7c92"/></marker></defs>
+<rect width="1400" height="1090" rx="20" fill="#f8fafb"/>
+<text x="48" y="56" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="29" font-weight="700" fill="#18384b" text-anchor="start">图 2  线程共享数据，死锁由等待关系构成</text>
+<text x="48" y="96" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">看见 futex 只说明可能正在同步等待；证明死锁需要找出持有者与闭合的等待环。</text>
+<rect x="48" y="140" width="630" height="170" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="179" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">线程 A：有自己的执行现场</text>
+<text x="70" y="219" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">独立的寄存器与栈</text>
+<text x="70" y="251" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">已持有 lock_a，再申请 lock_b</text>
+<text x="70" y="283" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">barrier 保证双方先取得各自第一把锁</text>
+<rect x="722" y="140" width="630" height="170" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="744" y="179" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">线程 B：有自己的执行现场</text>
+<text x="744" y="219" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">独立的寄存器与栈</text>
+<text x="744" y="251" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">已持有 lock_b，再申请 lock_a</text>
+<text x="744" y="283" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">通过屏障后，两边都无法取得第二把锁</text>
+<rect x="48" y="345" width="1304" height="130" rx="14" fill="#eef5f8" stroke="#cbdbe3" stroke-width="2"/>
+<text x="75" y="385" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#17678d" text-anchor="start">共享地址空间：代码 / 全局变量 / 堆 / 两把互斥锁</text>
+<text x="75" y="427" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">多个线程能看见同一份数据；可见并不代表访问自动安全。普通变量的 counter++ 也不是同步。</text>
+<text x="48" y="525" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">资源分配图：实线表示“线程等待资源”，虚线表示“资源被线程持有”</text>
+<rect x="80" y="585" width="330" height="130" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="102" y="624" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">线程 A</text>
+<text x="102" y="664" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">持有 A，等待 B</text>
+<rect x="990" y="585" width="330" height="130" rx="14" fill="#fff5ec" stroke="#cbdbe3" stroke-width="2"/>
+<text x="1012" y="624" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#ac602d" text-anchor="start">互斥锁 B</text>
+<text x="1012" y="664" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">目前由线程 B 持有</text>
+<rect x="990" y="800" width="330" height="130" rx="14" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="1012" y="839" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">线程 B</text>
+<text x="1012" y="879" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">持有 B，等待 A</text>
+<rect x="80" y="800" width="330" height="130" rx="14" fill="#fff5ec" stroke="#cbdbe3" stroke-width="2"/>
+<text x="102" y="839" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#ac602d" text-anchor="start">互斥锁 A</text>
+<text x="102" y="879" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">目前由线程 A 持有</text>
+<line x1="422" y1="650" x2="978" y2="650" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="700" y="633" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="700" fill="#ac602d" text-anchor="middle">等待 B</text>
+<line x1="1155" y1="728" x2="1155" y2="788" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="1175" y="765" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#21786c" text-anchor="start">持有</text>
+<line x1="978" y1="865" x2="422" y2="865" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="700" y="849" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="700" fill="#ac602d" text-anchor="middle">等待 A</text>
+<line x1="245" y1="788" x2="245" y2="728" stroke="#5a7c92" stroke-width="3" marker-end="url(#arrow)" stroke-dasharray="8 7"/>
+<text x="265" y="765" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#21786c" text-anchor="start">持有</text>
+<text x="700" y="745" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="29" font-weight="700" fill="#ac602d" text-anchor="middle">闭合等待环</text>
+<text x="700" y="786" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#536c7c" text-anchor="middle">双方都无法推进到解锁</text>
+<rect x="48" y="972" width="1304" height="78" rx="14" fill="#edf6f2" stroke="#c2ddd0" stroke-width="2"/>
+<text x="75" y="1005" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="22" font-weight="700" fill="#21786c" text-anchor="start">修复：所有路径统一按 A → B 加锁；持锁后的旧 barrier 必须移除。</text>
+<text x="75" y="1035" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">证据：全部线程栈 + 锁对象地址 + 获取路径；修复版完成 40000 次计数并退出。</text>
+</svg>

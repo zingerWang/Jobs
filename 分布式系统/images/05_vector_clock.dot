@@ -1,0 +1,27 @@
+digraph vector_clock {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>向量时钟：判断「先于」还是「并发」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">逐元素比较：一边 ≤ 另一边 → 先后；两边互有大小 → 并发</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    causal [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>有先后（因果）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">A = [1, 0]<BR/>B = [2, 1]<BR/>A ≤ B → A 先于 B</FONT></TD></TR>
+</TABLE>>];
+
+    concurrent [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>并发（无法比较）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">A = [1, 0]<BR/>B = [0, 1]<BR/>A 有的位大、B 有的位大 → 并发</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; causal; concurrent; }
+    causal -> concurrent [style=invis];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">Lamport 时钟只有单个整数，分不清这两种情况；<BR/>向量时钟靠「逐元素比较」能区分——这正是它的价值</FONT></TD></TR>
+</TABLE>>];
+    concurrent -> note [style=invis, constraint=false];
+}

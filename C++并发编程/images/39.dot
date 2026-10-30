@@ -1,0 +1,37 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.16", ranksep="0.45", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [color="#475569", arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>无锁数据结构的难点</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 39 篇 · 原理推导、失败路径与验证</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 39 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">无锁数据结构的难点：ABA 问题与安全内存<BR/>回收</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>ABA 历史</B></FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+p0_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>相同值不代表中间未变</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_0 [color="#4F46E5"];
+p0_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>节点复用和地址复用</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_1 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>两类问题</B></FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+p1_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>标签检测历史</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_0 [color="#0D9488"];
+p1_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>读者保护保障寿命</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>回收方案</B></FONT></TD></TR></TABLE>>];
+root -> b2 [color="#E11D48"];
+p2_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>Hazard Pointer 与 Epoch</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_0 [color="#E11D48"];
+p2_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>验证退役条件及停滞读者</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_1 [color="#E11D48"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>深入推导</B></FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+p3_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>用链表头的完整历史看懂 ABA</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_0 [color="#7C3AED"];
+p3_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>版本标签检测变化，但有三个前提</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_1 [color="#7C3AED"];
+b4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>边界与验证</B></FONT></TD></TR></TABLE>>];
+root -> b4 [color="#D97706"];
+p4_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>为什么 CAS 还没执行就可能已经出错</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_0 [color="#D97706"];
+p4_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>Hazard Pointer 与 Epoch 的协议和代价</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_1 [color="#D97706"];
+}

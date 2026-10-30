@@ -1,0 +1,37 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.16", ranksep="0.45", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [color="#475569", arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>无锁不等于无等待</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 38 篇 · 原理推导、失败路径与验证</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 38 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">无锁不等于无等待：理解阻塞、Lock-Free<BR/>与 Wait-Free</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>保证层次</B></FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+p0_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>整体进展与个体进展</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_0 [color="#4F46E5"];
+p0_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>算法步骤不等于真实时间</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_1 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>常见误判</B></FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+p1_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>不用 mutex 不等于无锁</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_0 [color="#0D9488"];
+p1_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>atomic 无锁不代表容器无锁</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>实践选择</B></FONT></TD></TR></TABLE>>];
+root -> b2 [color="#E11D48"];
+p2_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>自旋锁依赖持锁者</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_0 [color="#E11D48"];
+p2_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>正确性、回收与尾延迟共同评估</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_1 [color="#E11D48"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>深入推导</B></FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+p3_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>用暂停持锁者的思想实验区分进展保证</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_0 [color="#7C3AED"];
+p3_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>从重试循环推导整体进展与个体饥饿</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_1 [color="#7C3AED"];
+b4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>边界与验证</B></FONT></TD></TR></TABLE>>];
+root -> b4 [color="#D97706"];
+p4_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>无锁原语为什么组成了阻塞算法</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_0 [color="#D97706"];
+p4_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>选型需要把负载与维护成本算进去</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_1 [color="#D97706"];
+}

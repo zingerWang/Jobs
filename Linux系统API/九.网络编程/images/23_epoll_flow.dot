@@ -1,0 +1,45 @@
+digraph epoll_flow {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.5, ranksep=0.35, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>epoll 一次事件的处理流程</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">注册一次 → 阻塞等待 → 数据到达被动回调挂就绪链表 → 直接返回，无需遍历全部 fd</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>① epoll_ctl(ADD) 注册</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">fd 挂进红黑树 + 在等待队列注册回调<BR/>（只登记一次）</FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>② epoll_wait() 阻塞等待</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">只看就绪链表，没有就绪 fd 就睡眠</FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>③ 数据到达</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">cfd 接收缓冲区由「空」变「非空」</FONT></TD></TR>
+</TABLE>>];
+
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>④ 内核被动回调 ep_poll_callback</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">wake_up 唤醒回调 → 查就绪 → 把 cfd<BR/>挂进就绪链表 → 叫醒 epoll_wait</FONT></TD></TR>
+</TABLE>>];
+
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑤ epoll_wait 返回 cfd</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">从就绪链表取出就绪事件 O(1)<BR/>不遍历全部 fd，也不全量拷贝</FONT></TD></TR>
+</TABLE>>];
+
+    s6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑥ 用户处理 cfd</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">read 数据；处理完无需重新注册</FONT></TD></TR>
+</TABLE>>];
+
+    s1 -> s2 -> s3 -> s4 -> s5 -> s6;
+}

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1190" height="1225" viewBox="0 0 1190 1225">
+<defs><marker id="triangle" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 14 8 L 1 15 Z" fill="white" stroke="#42647a" stroke-width="2"/></marker><marker id="open" markerWidth="13" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 11 7 L 1 13" fill="none" stroke="#42647a" stroke-width="2"/></marker><marker id="diamond" markerWidth="24" markerHeight="16" refX="1" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 8 L 11 1 L 21 8 L 11 15 Z" fill="#42647a"/></marker></defs>
+<rect width="1190" height="1225" fill="#f4f8fb"/>
+<text x="65" y="48" font-size="27" font-weight="bold" fill="#264f69">17 中介者 · UML 类图</text>
+<text x="65" y="80" font-size="17" fill="#647d8c">关键成员摘录 · 连线编号对应下方说明 · 按代码实际持有关系绘制</text>
+<rect x="65" y="110" width="740" height="112" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 152 H805 M65 184 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="138" font-size="22" font-weight="bold" fill="#294d63">«interface» Mediator</text>
+<text x="83" y="175" font-size="18" font-weight="normal" fill="#294d63">（无关键属性 / 已省略）</text>
+<text x="83" y="207" font-size="18" font-weight="normal" fill="#294d63">+ notify(event)</text>
+<rect x="65" y="320" width="740" height="150" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 362 H805 M65 416 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="348" font-size="22" font-weight="bold" fill="#294d63">TextField</text>
+<text x="83" y="385" font-size="18" font-weight="normal" fill="#294d63">- mediator_: Mediator&amp;</text>
+<text x="83" y="408" font-size="18" font-weight="normal" fill="#294d63">- value_</text>
+<text x="83" y="439" font-size="18" font-weight="normal" fill="#294d63">+ set(value)</text>
+<text x="83" y="462" font-size="18" font-weight="normal" fill="#294d63">+ value() const</text>
+<rect x="65" y="530" width="740" height="128" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 572 H805 M65 626 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="558" font-size="22" font-weight="bold" fill="#294d63">Button</text>
+<text x="83" y="595" font-size="18" font-weight="normal" fill="#294d63">- mediator_: Mediator&amp;</text>
+<text x="83" y="618" font-size="18" font-weight="normal" fill="#294d63">+ enabled</text>
+<text x="83" y="649" font-size="18" font-weight="normal" fill="#294d63">+ click()</text>
+<rect x="65" y="740" width="740" height="196" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 782 H805 M65 859 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="768" font-size="22" font-weight="bold" fill="#294d63">Form</text>
+<text x="83" y="805" font-size="18" font-weight="normal" fill="#294d63">- field_: TextField</text>
+<text x="83" y="828" font-size="18" font-weight="normal" fill="#294d63">- button_: Button</text>
+<text x="83" y="851" font-size="18" font-weight="normal" fill="#294d63">- submitted_</text>
+<text x="83" y="882" font-size="18" font-weight="normal" fill="#294d63">+ notify(event)</text>
+<text x="83" y="905" font-size="18" font-weight="normal" fill="#294d63">+ enter(text)</text>
+<text x="83" y="928" font-size="18" font-weight="normal" fill="#294d63">+ submit()</text>
+<path d="M805 752 H895 V164 H805" fill="none" stroke="#42647a" stroke-width="2" stroke-dasharray="9 6"  marker-end="url(#triangle)"/>
+<text x="877" y="745" font-size="16" font-weight="bold" fill="#294d63">1</text>
+<path d="M805 759 H950 V374 H805" fill="none" stroke="#42647a" stroke-width="2"  marker-start="url(#diamond)" marker-end="url(#open)"/>
+<text x="932" y="752" font-size="16" font-weight="bold" fill="#294d63">2</text>
+<path d="M805 766 H1005 V584 H805" fill="none" stroke="#42647a" stroke-width="2"  marker-start="url(#diamond)" marker-end="url(#open)"/>
+<text x="987" y="759" font-size="16" font-weight="bold" fill="#294d63">3</text>
+<path d="M805 332 H1060 V182 H805" fill="none" stroke="#42647a" stroke-width="2"   marker-end="url(#open)"/>
+<text x="1042" y="325" font-size="16" font-weight="bold" fill="#294d63">4</text>
+<path d="M805 542 H1115 V200 H805" fill="none" stroke="#42647a" stroke-width="2"   marker-end="url(#open)"/>
+<text x="1097" y="535" font-size="16" font-weight="bold" fill="#294d63">5</text>
+<text x="65" y="955" font-size="22" font-weight="bold" fill="#294d63">关系说明（箭头指向基类、接口或被使用的对象）</text>
+<text x="65" y="995" font-size="18" font-weight="normal" fill="#294d63">1. Form → Mediator：实现接口</text>
+<text x="65" y="1025" font-size="18" font-weight="normal" fill="#294d63">2. Form → TextField：组合 / 生命周期拥有</text>
+<text x="65" y="1055" font-size="18" font-weight="normal" fill="#294d63">3. Form → Button：组合 / 生命周期拥有</text>
+<text x="65" y="1085" font-size="18" font-weight="normal" fill="#294d63">4. TextField → Mediator：关联 / 保存引用</text>
+<text x="65" y="1115" font-size="18" font-weight="normal" fill="#294d63">5. Button → Mediator：关联 / 保存引用</text>
+</svg>

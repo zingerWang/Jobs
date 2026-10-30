@@ -1,0 +1,41 @@
+digraph mindmap_26 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：HDFS</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>分布式文件系统<br/>HDFS</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>架构</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>核心设计</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>读写与容错</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">NameNode：元数据（文件在哪）</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">DataNode：存数据块</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">主从架构</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">大块 128MB（减少元数据）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">默认 3 副本</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">机架感知：2 同机架 + 1 跨机架</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">写：DataNode 流水线写入</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">读：就近读副本</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">容错：副本 + 校验和 + NameNode HA</FONT>>];
+
+    root -> s1; root -> s2; root -> s3;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+}

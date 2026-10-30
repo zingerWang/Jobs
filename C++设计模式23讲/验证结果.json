@@ -1,0 +1,220 @@
+{
+  "language": "C++17",
+  "compiler": "g++.exe (Rev5, Built by MSYS2 project) 16.1.0",
+  "platform": "Windows + MSYS2 UCRT64",
+  "flags": "-std=c++17 -Wall -Wextra -Wpedantic -Werror -O2 -g -pthread; assertions enabled",
+  "count": 23,
+  "patterns": [
+    {
+      "id": 1,
+      "file": "01_factory_method.cpp",
+      "mode": "Factory Method",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "text=hello\njson={\"text\":\"hello\"}\n",
+      "sha256": "513684e0730237b1e4216524a124efdafc4f24406110ce71acfdbe31dbfbe489"
+    },
+    {
+      "id": 2,
+      "file": "02_abstract_factory.cpp",
+      "mode": "Abstract Factory",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "dark button + dark checkbox\nlight button + light checkbox\n",
+      "sha256": "3658295f94d5b6a273190073353b809461d190d55e59877c14af345535d7a5cd"
+    },
+    {
+      "id": 3,
+      "file": "03_builder.cpp",
+      "mode": "Builder",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "GET /orders timeout=1000\ninvalid timeout rejected\n",
+      "sha256": "5f9903a0bd1881d706a78ece36a06f3be4f5987c313b9c7c6774cd9f3affda77"
+    },
+    {
+      "id": 4,
+      "file": "04_prototype.cpp",
+      "mode": "Prototype",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "original=1 copy=2\n",
+      "sha256": "af003ae3c35a8315a1a8977179a7ac016cbd859b4c7c5e7e046aebab11ba43b7"
+    },
+    {
+      "id": 5,
+      "file": "05_singleton.cpp",
+      "mode": "Singleton",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "same=true count=1\n",
+      "sha256": "d6e83b802cf41e279bc3f49ea90c3d809abbd8a567db176274b4d1d5ee77240b"
+    },
+    {
+      "id": 6,
+      "file": "06_adapter.cpp",
+      "mode": "Adapter",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "legacy:hello\n",
+      "sha256": "8ef953efce2751f209eb0de4be58dc788dbffb32f26b876a898725fef7899add"
+    },
+    {
+      "id": 7,
+      "file": "07_bridge.cpp",
+      "mode": "Bridge",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "email:hello\nsms:URGENT:fire\n",
+      "sha256": "be274a0542a4f85d82570fab0f3b43c32ffaded2925a85e0f9e49d9417a0da63"
+    },
+    {
+      "id": 8,
+      "file": "08_composite.cpp",
+      "mode": "Composite",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "total=60\n",
+      "sha256": "99deb7750e69f4991acbc84eeda52ae6b11e7848f4bb8d0243050cda1dcee148"
+    },
+    {
+      "id": 9,
+      "file": "09_decorator.cpp",
+      "mode": "Decorator",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "price=1250 cents\n",
+      "sha256": "246cfac14d48ae02dcb78fd82d4cbaaae22b3348c5dfb53dcbd6a8ce7dba3f62"
+    },
+    {
+      "id": 10,
+      "file": "10_facade.cpp",
+      "mode": "Facade",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "projector -> speakers -> play:demo\n",
+      "sha256": "3fbe4e20dcb025a2a0e71a2e941324a5f1bc6da907acc0120658ed1dd6c6ad91"
+    },
+    {
+      "id": 11,
+      "file": "11_flyweight.cpp",
+      "mode": "Flyweight",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "glyphs=3 styles=2 shared=true\n",
+      "sha256": "739f465d69f11d54f29b9859ce3a2c717acac92cb690c43d7b9e5ed583761b13"
+    },
+    {
+      "id": 12,
+      "file": "12_proxy.cpp",
+      "mode": "Proxy",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "loads=1 picture=photo.png\n",
+      "sha256": "44cb462c7fffa76bc754bfb0c1c35d7ca77526a06f6388c3fd9c253840c57632"
+    },
+    {
+      "id": 13,
+      "file": "13_chain_of_responsibility.cpp",
+      "mode": "Chain of Responsibility",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "500=lead\n5000=manager\n50000=unhandled\n",
+      "sha256": "d2a156bd0dfe3f4df55a899f4e4d275380916f614ff03354f977bb031b2ff22a"
+    },
+    {
+      "id": 14,
+      "file": "14_command.cpp",
+      "mode": "Command",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "after execute=50\nafter undo=10\n",
+      "sha256": "5f82a27c363cc9f85dfd7ef7ca021aec8fc9be45f85b7b1d06629146f70fbed7"
+    },
+    {
+      "id": 15,
+      "file": "15_interpreter.cpp",
+      "mode": "Interpreter",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "take_umbrella=true\nunknown variable rejected\n",
+      "sha256": "7bcc01e0c5f33685d9babb36bda66cbd8b3f03089e36486075581c1710e869c0"
+    },
+    {
+      "id": 16,
+      "file": "16_iterator.cpp",
+      "mode": "Iterator",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "sum=6\n",
+      "sha256": "98b6e37252b870daeae2cd788d058ff3695dd52ef6df4621d60518639f3daf40"
+    },
+    {
+      "id": 17,
+      "file": "17_mediator.cpp",
+      "mode": "Mediator",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "submitted=hello\n",
+      "sha256": "45ace7b455a62a504d05e500cd40446c9fabea65d3d2cdcad99044103ba17cc3"
+    },
+    {
+      "id": 18,
+      "file": "18_memento.cpp",
+      "mode": "Memento",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "before restore=hello world\nafter restore=hello\n",
+      "sha256": "5a29078464b117abc7a371ff99883ced6857ed05e1a1484ecdbf04ff95820997"
+    },
+    {
+      "id": 19,
+      "file": "19_observer.cpp",
+      "mode": "Observer",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "remaining=1 latest=120\n",
+      "sha256": "994354e7bfba979a879988d9cb024c57228351c942fb458f6c21b7b786b0af07"
+    },
+    {
+      "id": 20,
+      "file": "20_state.cpp",
+      "mode": "State",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "illegal transition rejected\nstate=shipped\n",
+      "sha256": "01181122cf500715825e32fe520590eba56d3aefdb0cf47770a8a580567bdf60"
+    },
+    {
+      "id": 21,
+      "file": "21_strategy.cpp",
+      "mode": "Strategy",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "standard=300 express=1100\n",
+      "sha256": "a1a81a57ee90656bc22da7f58126c5d229885b46415fb60f773658bd65586d9a"
+    },
+    {
+      "id": 22,
+      "file": "22_template_method.cpp",
+      "mode": "Template Method",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "BEGIN|csv(data)|END\nBEGIN|[data]|END\n",
+      "sha256": "3b53599cdbf65751b98d80841a2e90a52b28a8b16a82d19934eaca8255334168"
+    },
+    {
+      "id": 23,
+      "file": "23_visitor.cpp",
+      "mode": "Visitor",
+      "compile": "pass",
+      "assertions": "pass",
+      "output": "total=1500\nbook:cpp fruit:apple\n",
+      "sha256": "4b8805ce4bc394ba3e2c005414f040d0200ddb83bdf7c1b632cca0c9a7bf06dd"
+    }
+  ],
+  "limits": [
+    "No claim of Linux, Clang, or MSVC execution.",
+    "Examples are small single-threaded scenarios, not production frameworks or performance benchmarks."
+  ]
+}

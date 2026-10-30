@@ -1,0 +1,97 @@
+digraph network_partition {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>网络分区与脑裂</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">网络断成两半后，两边都活着但联系不上，各自选出自己的领导者</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.8];
+
+    // ===== 分区前 =====
+    before_label [label="分区前：一个集群，一个领导者", fontsize=13, fontcolor="#64748B", shape=plaintext];
+
+    leader1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>领导者</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">节点 A</FONT></TD></TR>
+</TABLE>>];
+    f1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>节点 B</B></FONT></TD></TR>
+</TABLE>>];
+    f2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>节点 C</B></FONT></TD></TR>
+</TABLE>>];
+    f3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>节点 D</B></FONT></TD></TR>
+</TABLE>>];
+    f4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>节点 E</B></FONT></TD></TR>
+</TABLE>>];
+
+    before_label -> leader1 [style=invis];
+
+    // ===== 分区后：两半 =====
+    after_label [label="分区后：裂成两半，各选出自己的领导者（脑裂）", fontsize=13, fontcolor="#64748B", shape=plaintext];
+
+    subgraph cluster_left {
+        label=<<FONT COLOR="#4F46E5" POINT-SIZE="12"><B>左半边（2 个节点）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#4F46E5";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+        l_leader [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>领导者</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">节点 A</FONT></TD></TR>
+</TABLE>>];
+        l_f1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>节点 B</B></FONT></TD></TR>
+</TABLE>>];
+    }
+
+    subgraph cluster_right {
+        label=<<FONT COLOR="#4F46E5" POINT-SIZE="12"><B>右半边（3 个节点）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#4F46E5";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+        r_leader [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>领导者</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="10" COLOR="#0F766E">节点 C</FONT></TD></TR>
+</TABLE>>];
+        r_f1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>节点 D</B></FONT></TD></TR>
+</TABLE>>];
+        r_f2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>节点 E</B></FONT></TD></TR>
+</TABLE>>];
+    }
+
+    // 分区前节点互联
+    leader1 -> f1 -> f2 -> f3 -> f4 [style=invis];
+    { rank=same; leader1; f1; f2; f3; f4; }
+
+    // 分区后两半
+    l_leader -> l_f1 [style=invis];
+    r_leader -> r_f1 -> r_f2 [style=invis];
+
+    // 分区箭头
+    leader1 -> l_leader [label="网络断开", color="#E11D48", fontcolor="#BE123C", style=dashed];
+    f2 -> r_leader [label="网络断开", color="#E11D48", fontcolor="#BE123C", style=dashed];
+
+    // 脑裂警告
+    warn [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>两个领导者同时存在 → 数据冲突</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">两边都以为对方挂了，各自发号施令，集群状态被改乱</FONT></TD></TR>
+</TABLE>>];
+    l_leader -> warn [style=invis, constraint=false];
+}

@@ -1,0 +1,70 @@
+digraph mindmap_06 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.3, ranksep=0.6, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：protobuf 是 bRPC 的骨架</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>protobuf 是 bRPC 的骨架</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么长在 protobuf 上</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>四个基类</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Controller</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Closure 与 done</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Service 与描述符</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>坑与边界</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">IDL 驱动：接口由 .proto 生成，不留手写痕迹</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">描述符自生成 → 才能做 generic call / HTTP 路径映射</FONT>>];
+    l0c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>序列化与 RPC 解耦；协议可插拔</B></FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">RpcController → brpc::Controller</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">Closure → NewCallback / ClosureGuard</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">Service → EchoService + _Stub</FONT>>];
+    l1d [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">Message → 请求 / 响应 / SerializedRequest</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C">controller.h:124　继承 RpcController</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">一次调用的全部上下文：超时 / attachment / LB / 错误</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">_done 存在 Controller 里（controller.h:946）</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">callback.h：FunctionClosureN / MethodClosureN</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">NewCallback 自删除；NewPermanentCallback 不自删</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>done == NULL 同步；!= NULL 异步</B></FONT>>];
+    l3d [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ClosureGuard / DoNothing 的用法</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">AddService 按 descriptor 登记（server.cpp:1373）</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">重载用 full_name / name 建两级索引</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ServiceOwnership 决定谁 delete</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#B45309">异步时对象建在栈上 → 悬空</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#B45309">CallMethod 返回后可能 done 已跑过</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">generic call 要求 method == NULL 且协议支持</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b; s0 -> l0c;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c; s1 -> l1d;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c; s3 -> l3d;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

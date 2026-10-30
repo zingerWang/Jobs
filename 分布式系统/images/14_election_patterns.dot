@@ -1,0 +1,35 @@
+digraph election_patterns {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>选主的三种实现范式</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">同样一件事——「选出一个主」——可以建在共识上、建在外部协调服务上，或建在租约上</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    p1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>① 共识内建：选主就是算法的一部分</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E"><B>Raft / Zab</B>：超时 → term+1 → 拉票 → 多数派当选。<BR/>· 优点：<b>不依赖任何外部组件</b>，选主与日志复制天然一体<BR/>· 缺点：只能在自己的集群内选，选出来的"主"也只在集群内有意义<BR/>· 安全性来源：<b>任期（term）+ 选举限制</b>——见 [09 篇](../02-共识算法/09-Raft算法.md)</FONT></TD></TR>
+</TABLE>>];
+
+    p2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>② 外部协调：抢一个临时节点</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3"><B>ZooKeeper / etcd</B>：所有候选者去创建同一个<b>临时节点</b>，成功者即为主。<BR/>· 优点：业务代码极简单（不用实现 Raft）；能跨多个异构系统做"全局唯一"<BR/>· 缺点：<b>多了一个必须高可用的外部依赖</b>；且"会话过期"会带来假死丢锁（见 14.4）<BR/>· 安全性来源：协调服务本身就是共识系统——<b>本质上是把①外包出去</b>（[10 篇](../02-共识算法/10-ZooKeeper与Zab协议.md)）</FONT></TD></TR>
+</TABLE>>];
+
+    p3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>③ 租约（Lease）：给领导权加一个保质期</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">不是"选一次就永久有效"，而是"<b>在 T 时刻之前我说话算数</b>"。<BR/>· 好处：<b>把"确认领导权"的成本从一轮网络往返降到零</b>（[12 篇 4.2](../02-共识算法/12-共识工程细节（快照、成员变更、线性一致读）.md) 的 Lease Read 就是这么来的）<BR/>· 租约可以从<b>共识</b>里推导（安全），也可以从<b>时钟</b>里推导（快但危险）<BR/>· 最大的坑：<b>租约期内的"假死"</b>——见下一张图</FONT></TD></TR>
+</TABLE>>];
+
+    cmp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>怎么选</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 自己就是一个共识集群（数据库、消息队列）→ <B>①内建</B>，别引入外部依赖<BR/>· 一堆异构组件要选一个全局主（定时任务、分片调度）→ <B>②外部协调</B>，把复杂度外包<BR/>· 只是想让"读请求"别每次都确认领导权 → <B>③租约</B>，但必须想清楚时钟风险</FONT></TD></TR>
+</TABLE>>];
+
+    p1 -> cmp [label=" 有共识引擎时"];
+    p2 -> cmp [label=" 需要跨系统时"];
+    p3 -> cmp [label=" 只想省一轮网络往返时"];
+    { rank=same; p1; p2; p3; }
+}

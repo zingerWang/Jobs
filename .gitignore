@@ -1,0 +1,22 @@
+# ============ 构建产物 ============
+build/
+cmake-build-*/
+compile_commands.json
+*.o
+*.obj
+*.a
+*.so
+*.dylib
+*.dSYM/
+
+# ============ 示例程序的可执行文件（由 Makefile / CMake 生成，可随时重建） ============
+网络编程/tcp_server
+网络编程/tcp_client
+网络编程/epoll_server
+
+# ============ macOS ============
+.DS_Store
+._*
+
+# ============ 编辑器 / 工具本地设置 ============
+.claude/settings.local.json

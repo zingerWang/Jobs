@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1030" viewBox="0 0 1400 1030" role="img" aria-label="图 5  请求很慢，为什么 CPU 却不高？">
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10" fill="#5a7c92"/></marker></defs>
+<rect width="1400" height="1030" rx="20" fill="#f8fafb"/>
+<text x="48" y="56" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="29" font-weight="700" fill="#18384b" text-anchor="start">图 5  请求很慢，为什么 CPU 却不高？</text>
+<text x="48" y="96" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">串行请求示意：先定义边界，再把同一时间轴拆分；并发阶段不能简单相加。</text>
+<text x="48" y="150" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="25" font-weight="700" fill="#17678d" text-anchor="start">一次 1000 ms 请求的简化时间账本</text>
+<rect x="50" y="185" width="78.0" height="70" rx="0" fill="#7095b0" stroke="#7095b0" stroke-width="2"/>
+<rect x="128.0" y="185" width="52.0" height="70" rx="0" fill="#237591" stroke="#237591" stroke-width="2"/>
+<rect x="180.0" y="185" width="130.0" height="70" rx="0" fill="#b38c45" stroke="#b38c45" stroke-width="2"/>
+<text x="245.0" y="230" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">100 ms</text>
+<rect x="310.0" y="185" width="650.0" height="70" rx="0" fill="#b66c50" stroke="#b66c50" stroke-width="2"/>
+<text x="635.0" y="230" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">500 ms</text>
+<rect x="960.0" y="185" width="390.0" height="70" rx="0" fill="#678f7d" stroke="#678f7d" stroke-width="2"/>
+<text x="1155.0" y="230" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">300 ms</text>
+<rect x="50" y="288" width="16" height="16" rx="3" fill="#7095b0" stroke="#7095b0" stroke-width="2"/>
+<text x="76" y="303" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#18384b" text-anchor="start">网络传输 60 ms</text>
+<rect x="316" y="288" width="16" height="16" rx="3" fill="#237591" stroke="#237591" stroke-width="2"/>
+<text x="342" y="303" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#18384b" text-anchor="start">CPU 运行 40 ms</text>
+<rect x="582" y="288" width="16" height="16" rx="3" fill="#b38c45" stroke="#b38c45" stroke-width="2"/>
+<text x="608" y="303" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#18384b" text-anchor="start">就绪排队 100 ms</text>
+<rect x="848" y="288" width="16" height="16" rx="3" fill="#b66c50" stroke="#b66c50" stroke-width="2"/>
+<text x="874" y="303" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#18384b" text-anchor="start">锁 / 条件等待 500 ms</text>
+<rect x="1114" y="288" width="16" height="16" rx="3" fill="#678f7d" stroke="#678f7d" stroke-width="2"/>
+<text x="1140" y="303" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="18" font-weight="400" fill="#18384b" text-anchor="start">I/O 等待 300 ms</text>
+<rect x="48" y="350" width="630" height="225" rx="14" fill="#eef5f8" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="389" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">On-CPU：正在执行的 40 ms</text>
+<text x="70" y="429" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">工具：perf record / perf report</text>
+<text x="70" y="461" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">追问：重复计算？拷贝？分配？热点循环？</text>
+<text x="70" y="493" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">样本聚合成调用路径，宽度 / 占比是统计结果。</text>
+<text x="70" y="525" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">函数占 CPU 样本 80%，</text>
+<text x="70" y="557" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">不代表它占请求总耗时 80%。</text>
+<rect x="722" y="350" width="630" height="225" rx="14" fill="#f5f1eb" stroke="#cbdbe3" stroke-width="2"/>
+<text x="744" y="389" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="23" font-weight="700" fill="#17678d" text-anchor="start">Off-CPU：线程没在 CPU 上执行</text>
+<text x="744" y="429" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">就绪：想运行，但尚未获得 CPU</text>
+<text x="744" y="461" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">阻塞：等待锁、I/O、事件或定时器</text>
+<text x="744" y="493" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">工具：线程栈、调度跟踪、strace、eBPF</text>
+<text x="744" y="525" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">区分“正常空闲”和“请求被耽误”，</text>
+<text x="744" y="557" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#18384b" text-anchor="start">必须关联请求时间与业务状态。</text>
+<text x="48" y="631" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="25" font-weight="700" fill="#17678d" text-anchor="start">从现象到证据，避免跨层直接下结论</text>
+<rect x="48" y="660" width="1304" height="58" rx="5" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="697" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="700" fill="#17678d" text-anchor="start">CPU 高</text>
+<text x="375" y="697" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">先定位线程，再看热点栈</text>
+<text x="845" y="697" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">pidstat -t → perf → 源码</text>
+<rect x="48" y="725" width="1304" height="58" rx="5" fill="#eef3f6" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="762" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="700" fill="#17678d" text-anchor="start">CPU 低，延迟高</text>
+<text x="375" y="762" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">找排队、锁与外部依赖</text>
+<text x="845" y="762" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">全线程栈 → 等待时长 → 请求追踪</text>
+<rect x="48" y="790" width="1304" height="58" rx="5" fill="#fff" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="827" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="700" fill="#17678d" text-anchor="start">磁盘 await 高</text>
+<text x="375" y="827" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">核对队列、同步写与业务耗时</text>
+<text x="845" y="827" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">iostat → pidstat -d → fsync 路径</text>
+<rect x="48" y="855" width="1304" height="58" rx="5" fill="#eef3f6" stroke="#cbdbe3" stroke-width="2"/>
+<text x="70" y="892" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="700" fill="#17678d" text-anchor="start">TCP 重传提示</text>
+<text x="375" y="892" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#18384b" text-anchor="start">核对抓包完整性与双端报文</text>
+<text x="845" y="892" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="19" font-weight="400" fill="#536c7c" text-anchor="start">pcap 完整性 → seq/ack → 路径对比</text>
+<text x="48" y="970" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="700" fill="#21786c" text-anchor="start">只有 40 ms 能被该 CPU 优化直接影响：即使把它缩短一半，总耗时也仅从 1000 ms 降到 980 ms。</text>
+</svg>

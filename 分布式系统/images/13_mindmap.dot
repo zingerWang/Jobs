@@ -1,0 +1,59 @@
+digraph mindmap_11 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：拜占庭容错共识</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>拜占庭<br/>容错共识</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么是 3f+1</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>PBFT 三阶段</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>换主：最难的部分</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三代演进</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>选型建议</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">CFT：交集有节点就够 → 2f+1</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">BFT：交集里必须有诚实节点 → 2q-n ≥ f+1</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>安全性 + 活性一起解，最小可行就是 3f+1</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Pre-Prepare：主节点定序</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Prepare：2f 个一致 → 对「序号↔消息」达成一致</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#3730A3">Commit：2f+1 个一致 → 执行并回复客户端</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">主节点可能是叛徒 → 视图切换（View Change）</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">必须保住「已 prepared 未 commit」的请求</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">PBFT 在这里最复杂，Tendermint 用「锁」简化</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">PBFT：O(n²)，视图切换也是 O(n²)</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Tendermint：轮次同构 + 锁定机制</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">HotStuff：门限签名 + 流水线 → O(n)</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">节点可信 → 用 CFT（Raft），别付 BFT 的代价</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">联盟链/多机构 → PBFT 系（n 通常 4~16）</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">需要无许可 + 大规模 → 换思路（PoW/PoS）</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

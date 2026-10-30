@@ -1,0 +1,89 @@
+digraph mindmap_linux_net {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.30, ranksep=0.85,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>思维导图：Linux 网络编程基本 API 与原理</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">沿着「你是在跟内核打交道」这一条主线，把 API、内核原理与进阶话题串成一棵树</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="10"><FONT POINT-SIZE="15"><B>Linux 网络编程<BR/>基本 API 与原理</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>本质：跟内核打交道</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>服务端流程</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>客户端流程</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>数据传输</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>关闭连接</B></FONT></TD></TR>
+</TABLE>>];
+    s6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>底层原理</B></FONT></TD></TR>
+</TABLE>>];
+    s7 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>进阶话题</B></FONT></TD></TR>
+</TABLE>>];
+    s8 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>实战代码</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">send/recv 只是与内核缓冲区做拷贝</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">fd = 号码牌，真状态全在内核</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#334155">fd → file → socket → sock</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">bind：INADDR_ANY / 端口 0 / SO_REUSEADDR</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">listen：半连接队列 + 全连接队列</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">accept：从全连接队列取出 cfd</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">connect 返回 = 三次握手完成</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">非阻塞 connect → EINPROGRESS → SO_ERROR</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C">失败后必须 close 重建，不能复用</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">返回 ≠ 送达；短写短读是常态</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">循环发送 + 应用层自己定消息边界</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>SIGPIPE → MSG_NOSIGNAL</B></FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">close 减引用计数；fork/dup 会延续连接</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">shutdown 半关闭，不看引用计数</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">SO_LINGER：优雅 / RST / 阻塞等待</FONT>>];
+
+    l6a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">三次握手防历史 SYN；ISN 随机</FONT>>];
+    l6b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">内核缓冲区：阻塞与延迟的根源</FONT>>];
+    l6c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">流控（收方窗口）vs 拥塞控制（cwnd）</FONT>>];
+
+    l7a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">就绪 = 立刻有结果；统一走 poll 方法</FONT>>];
+    l7b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">select / poll / epoll：位图 → 数组 → 树+链表</FONT>>];
+    l7c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ET 必须非阻塞 + 循环读到 EAGAIN</FONT>>];
+    l7d [label=<<FONT POINT-SIZE="11" COLOR="#334155">粘包/拆包 · TIME_WAIT 2MSL · Reactor</FONT>>];
+
+    l8a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">tcp_server / tcp_client：阻塞回显</FONT>>];
+    l8b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">epoll_server：ET + 循环读 + 循环发</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4;
+    root -> s5; root -> s6; root -> s7; root -> s8;
+
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+    s6 -> l6a; s6 -> l6b; s6 -> l6c;
+    s7 -> l7a; s7 -> l7b; s7 -> l7c; s7 -> l7d;
+    s8 -> l8a; s8 -> l8b;
+}

@@ -1,0 +1,75 @@
+digraph poll_pollfd {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.38, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>poll：pollfd 数组结构 + 一次事件的处理流程</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">pollfd 是连续内存里的结构体数组；events 用户填（输入）、revents 内核回填（输出）</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    pollfd_array [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>struct pollfd 数组（连续内存，元素数 = nfds，无 1024 上限）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6">
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+      <TR>
+        <TD BGCOLOR="#FFFFFF" CELLPADDING="5" ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#3730A3"><B>pollfd[0]</B></FONT><BR/><FONT POINT-SIZE="10" COLOR="#1E293B">fd = 4 (lfd)</FONT><BR/><FONT POINT-SIZE="10" COLOR="#3730A3">events = POLLIN</FONT><BR/><FONT POINT-SIZE="10" COLOR="#94A3B8">revents = 0</FONT></TD>
+        <TD BGCOLOR="#FFFFFF" CELLPADDING="5" ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#3730A3"><B>pollfd[1]</B></FONT><BR/><FONT POINT-SIZE="10" COLOR="#1E293B">fd = 10 (cfd)</FONT><BR/><FONT POINT-SIZE="10" COLOR="#3730A3">events = POLLIN</FONT><BR/><FONT POINT-SIZE="10" COLOR="#94A3B8">revents = 0</FONT></TD>
+        <TD BGCOLOR="#FFFFFF" CELLPADDING="5" ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#3730A3"><B>pollfd[2]</B></FONT><BR/><FONT POINT-SIZE="10" COLOR="#1E293B">fd = 12</FONT><BR/><FONT POINT-SIZE="10" COLOR="#3730A3">events = POLLOUT</FONT><BR/><FONT POINT-SIZE="10" COLOR="#94A3B8">revents = 0</FONT></TD>
+        <TD BGCOLOR="#F8FAFC" CELLPADDING="5" ALIGN="CENTER"><FONT POINT-SIZE="11" COLOR="#94A3B8">…</FONT></TD>
+      </TR>
+    </TABLE>
+  </TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#3730A3">每个元素 3 个字段：fd（哪个 fd）、events（<B>输入</B>，用户填关心的事件）、revents（<B>输出</B>，内核回填实际发生的事件）</FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>① 用户态：准备 pollfd 数组</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">每个元素填 fd + events（POLLIN=0x001 / POLLOUT=0x004），revents 先置 0</FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>② poll() 系统调用</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">整个数组从用户态拷贝进内核态</FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>③ 一次事件到来</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">对端发来数据，cfd 接收缓冲区由「空」变「非空」</FONT></TD></TR>
+</TABLE>>];
+
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>④ 内核遍历整个数组逐个 poll</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">对每个元素调用对应 fd 的 poll() 方法，查接收/发送缓冲区（O(n) 主动扫）</FONT></TD></TR>
+</TABLE>>];
+
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑤ 只有 cfd 就绪</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">内核把 pollfd[1].revents 回填为 POLLIN，其余 revents 保持 0，返回就绪个数</FONT></TD></TR>
+</TABLE>>];
+
+    s6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑥ 数组拷贝回用户态</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">poll 返回，就绪结果随数组（revents）带回</FONT></TD></TR>
+</TABLE>>];
+
+    s7 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>⑦ 用户 O(n) 遍历数组</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">检查每个元素的 revents 非 0，找到 cfd 再 read 处理</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>poll 相比 select</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">数组突破 1024 上限；events / revents 分离，内核只写 revents 不改 events，<b>不用像 select 那样每次重新赋值</b>。但仍要全量拷贝 + O(n) 主动遍历 poll</FONT></TD></TR>
+</TABLE>>];
+
+    pollfd_array -> s1 [style=dashed, color="#4F46E5", fontcolor="#3730A3", label="填充 fd 与 events"];
+    s1 -> s2 -> s3 -> s4 -> s5 -> s6 -> s7;
+    s7 -> note [style=dashed, color="#D97706", fontcolor="#B45309"];
+}

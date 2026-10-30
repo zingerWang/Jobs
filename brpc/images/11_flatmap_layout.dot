@@ -1,0 +1,115 @@
+digraph flatmap_layout {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.9, ranksep=0.8,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>三种哈希表的内存布局：bRPC 选了中间那种</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">FlatMap 不是开放寻址，而是「链地址法 + 桶内首节点内联 + 节点块池」——少一次指针跳转，且不牺牲容量</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.8, arrowsize=0.8];
+
+    // ---------------- Column A: std::unordered_map ----------------
+    A_title [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>① std::unordered_map</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#BE123C">桶数组只存指针，元素全在单独 malloc 的节点里</FONT></TD></TR>
+</TABLE>>];
+
+    A_buckets [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+  <TR>
+    <TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#9F1239">桶0<BR/>∅</FONT></TD>
+    <TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#9F1239">桶1<BR/>●</FONT></TD>
+    <TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#9F1239">桶2<BR/>∅</FONT></TD>
+    <TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#9F1239">桶3<BR/>∅</FONT></TD>
+  </TR>
+</TABLE>>];
+
+    A_n1 [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR><TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">next</FONT></TD>
+      <TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">hash</FONT></TD>
+      <TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">key</FONT></TD>
+      <TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">value</FONT></TD></TR>
+</TABLE>>];
+
+    A_n2 [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+  <TR><TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">next</FONT></TD>
+      <TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">hash</FONT></TD>
+      <TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">key</FONT></TD>
+      <TD BGCOLOR="#FFFFFF" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#9F1239">value</FONT></TD></TR>
+</TABLE>>];
+
+    A_note [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10" COLOR="#BE123C">· 每个元素：额外 next + hash + malloc 元数据<BR/>· 命中要两次访存：桶 → 节点（不同缓存行）<BR/>· erase 只摘链、不改地址，指针稳定</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------------- Column B: butil::FlatMap ----------------
+    B_title [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>② butil::FlatMap（bRPC 选择）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">桶数组本身就是节点：首元素内联，溢出节点进块池</FONT></TD></TR>
+</TABLE>>];
+
+    B_buckets [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+  <TR>
+    <TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">桶0<BR/>next=-1<BR/>空槽</FONT></TD>
+    <TD BGCOLOR="#CCFBF1" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">桶1<BR/>next ●<BR/>k,v（内联）</FONT></TD>
+    <TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">桶2<BR/>next=-1<BR/>空槽</FONT></TD>
+    <TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#115E59">桶3<BR/>next=-1<BR/>空槽</FONT></TD>
+  </TR>
+</TABLE>>];
+
+    B_pool [label=<
+<TABLE BORDER="1" COLOR="#D97706" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>SingleThreadedPool 块（只给溢出节点用）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">一次 malloc 一大块，切成 NITEM 个节点，free 时挂回空闲链</FONT></TD></TR>
+</TABLE>>];
+
+    B_note [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10" COLOR="#115E59">· 命中首节点：<B>一次访存</B>（桶格即元素）<BR/>· 空槽标记 next == (Bucket*)-1（不是墓碑）<BR/>· 无冲突时几乎等于「带索引的数组」</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------------- Column C: open addressing ----------------
+    C_title [label=<
+<TABLE BORDER="1" COLOR="#7C3AED" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>③ 开放寻址（对照，bRPC 未采用）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#5B21B6">数组就是元素本身，冲突就往下一个槽找</FONT></TD></TR>
+</TABLE>>];
+
+    C_slots [label=<
+<TABLE BORDER="1" COLOR="#7C3AED" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
+  <TR>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#5B21B6">槽0<BR/>k1,v</FONT></TD>
+    <TD BGCOLOR="#FEF3C7" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">槽1<BR/>k9,v<BR/>（探测落点）</FONT></TD>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#5B21B6">槽2<BR/>墓碑</FONT></TD>
+    <TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#5B21B6">槽3<BR/>k4,v</FONT></TD>
+  </TR>
+</TABLE>>];
+
+    C_note [label=<
+<TABLE BORDER="1" COLOR="#7C3AED" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10" COLOR="#5B21B6">· 无指针，缓存局部性最好，内存最省<BR/>· 删除要留墓碑，否则会截断探测链<BR/>· 装载率一高（&gt;0.7）退化极快，长探测链<BR/>· 扩容要整体搬移，且插入即可能让指针失效</FONT></TD></TR>
+</TABLE>>];
+
+    A_title -> A_buckets [style=invis];
+    A_buckets -> A_n1 [label="桶1 的指针", color="#E11D48", fontcolor="#E11D48"];
+    A_n1 -> A_n2 [label="next", color="#E11D48", fontcolor="#E11D48"];
+    A_n2 -> A_note [style=invis];
+    A_title -> A_note [style=invis];
+
+    B_title -> B_buckets [style=invis];
+    B_buckets -> B_pool [label="溢出链", color="#D97706", fontcolor="#B45309"];
+    B_pool -> B_note [style=invis];
+
+    C_title -> C_slots [style=invis];
+    C_slots -> C_note [style=invis];
+
+    { rank=same; A_title; B_title; C_title; }
+    { rank=same; A_buckets; B_buckets; C_slots; }
+    { rank=same; A_n1; B_pool; }
+    { rank=same; A_n2; }
+    { rank=same; A_note; B_note; C_note; }
+}

@@ -1,0 +1,42 @@
+digraph zab_phases {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Zab 的三个阶段：发现 → 同步 → 广播</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">崩溃恢复（前两个阶段）与消息广播是同一个协议的两半，不能只实现一半</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    d1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>① 发现（Discovery）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">选主（zxid 最大的节点胜出）+ 确定新的 <B>epoch</B><BR/>新 leader 收集各 follower 的 <B>lastZxid</B>，据此确定「哪份 history 是权威版本」</FONT></TD></TR>
+</TABLE>>];
+
+    d2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>② 同步（Synchronization）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">以新 leader 的 history 为唯一标准，把 follower 对齐：<BR/>· <B>DIFF</B>：leader 有、follower 没有的 → 补给它<BR/>· <B>TRUNC</B>：follower 有、leader 没有的 → <B>直接丢弃</B><BR/>· <B>SNAP</B>：差得太多 → 直接传整份快照<BR/>对齐后，leader 把 history 里所有<b>未提交</b>事务<b>补提交</b>，再进入正常态</FONT></TD></TR>
+</TABLE>>];
+
+    d3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>③ 广播（Broadcast）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">正常态，本质是一个<b>简化的两阶段提交</b>：<BR/><B>PROPOSAL</B>（带 zxid）→ follower 落盘后回 <B>ACK</B> → 多数派 ACK → leader 广播 <B>COMMIT</B><BR/>关键约束：<B>COMMIT 必须严格按 zxid 顺序</B>；leader 为每个 follower 维护一个队列，保证它收到的顺序与发出顺序一致</FONT></TD></TR>
+</TABLE>>];
+
+    zxid [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>zxid = (epoch, counter)：Zab 的「逻辑时钟 + 序号」</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>epoch</B>（高位）：主纪元，每换一次 leader 就 +1 —— 一眼看出「这条事务是第几任 leader 提的」<BR/>· <B>counter</B>（低位）：该纪元内的递增序号<BR/>· 整体<b>单调递增</b>，所以 zxid 既能全局排序，也能用来比较「谁的日志更新」——选主时就是比它</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>与 Paxos / Raft 的定位差异</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">Zab 是 <B>primary-backup（主备）+ 全序广播</B>：所有写都必须经过 leader，不存在"多个 proposer 并发"那套机制<BR/>→ 因此它<b>换主时必须停下来做恢复</b>（发现 + 同步），这段时间不对外服务；换来的是协议更简单、顺序更容易保证</FONT></TD></TR>
+</TABLE>>];
+
+    d1 -> d2 [label=" 选出 leader 与 epoch"];
+    d2 -> d3 [label=" history 对齐并补提交"];
+    d3 -> zxid [style=invis];
+    d3 -> note [label=" 正常态下的事务编号", color="#E11D48", fontcolor="#BE123C"];
+    { rank=same; zxid; note; }
+}

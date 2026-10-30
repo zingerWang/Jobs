@@ -1,0 +1,71 @@
+digraph mindmap_07 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.3, ranksep=0.6, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：butil 总览</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>butil：bRPC 为什么要重造轮子</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么不用 STL</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>必读三件</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>模块分类</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>用得再读</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>过时 / 少用</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>怎么读它</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">热路径每秒几十万次 → 不能将就通用实现</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">要零拷贝、无链表指针、cache 友好</FONT>>];
+    l0c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">当年 C++ 标准太老，没有 string_view / atomic / TLS 优化</FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>iobuf.h —— 数据全程的载体</B></FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>arena.h —— 一次性分配统一释放</B></FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>containers/flat_map.h —— 热路径哈希表</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">containers/ 容器 · memory/ 内存</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">strings/ 字符串 · time/ 时间</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">synchronization/ 同步 · threading/ 线程</FONT>>];
+    l2d [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">debug/ 诊断 · posix/ 系统 · third_party/ 搬运</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">object_pool.h / resource_pool.h（对象复用）</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">doubly_buffered_data.h（读多写少）</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">logging.h / macros.h / status.h（天天见）</FONT>>];
+    l3d [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">endpoint.h / string_piece.h（小工具）</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#B45309">synchronous_event.h / observer_list.h —— 全仓库 0 引用</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#B45309">containers/mru_cache.h · pooled_map.h · small_map.h</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">threading/thread_local.h（已有顶层替代版）</FONT>>];
+    l4d [label=<<FONT POINT-SIZE="11" COLOR="#B45309">cancelable_callback.h · numerics/safe_math.h</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#4338CA">先读 README 式的目录清单，建立索引</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#4338CA">用到哪个读哪个，别通读 407 个文件</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#4338CA">读实现前先看文件头的注释（设计意图都写在里面）</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b; s0 -> l0c;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c; s2 -> l2d;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c; s3 -> l3d;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c; s4 -> l4d;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

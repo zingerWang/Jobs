@@ -1,0 +1,37 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.16", ranksep="0.45", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [color="#475569", arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>线程中的对象生命周期</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 5 篇 · 原理推导、失败路径与验证</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 5 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">线程中的对象生命周期：引用、指针与悬空<BR/>访问</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>寿命问题</B></FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+p0_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>引用与指针不拥有对象</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_0 [color="#4F46E5"];
+p0_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>捕获 this 需要关闭协议</B></FONT></TD></TR></TABLE>>];
+b0 -> p0_1 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>所有权选择</B></FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+p1_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>复制、转移、共享、借用</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_0 [color="#0D9488"];
+p1_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>只读快照减少同步需求</B></FONT></TD></TR></TABLE>>];
+b1 -> p1_1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>验证边界</B></FONT></TD></TR></TABLE>>];
+root -> b2 [color="#E11D48"];
+p2_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>引用计数不保护内容</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_0 [color="#E11D48"];
+p2_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>ASan 与 TSan 各有职责</B></FONT></TD></TR></TABLE>>];
+b2 -> p2_1 [color="#E11D48"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>深入推导</B></FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+p3_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>保活、可见性和互斥是三本不同的账</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_0 [color="#7C3AED"];
+p3_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>指针没变，目标对象也可能已经失效</B></FONT></TD></TR></TABLE>>];
+b3 -> p3_1 [color="#7C3AED"];
+b4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>边界与验证</B></FONT></TD></TR></TABLE>>];
+root -> b4 [color="#D97706"];
+p4_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>shared_ptr 的线程安全究竟到哪一层</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_0 [color="#D97706"];
+p4_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>生命周期审查的具体顺序</B></FONT></TD></TR></TABLE>>];
+b4 -> p4_1 [color="#D97706"];
+}

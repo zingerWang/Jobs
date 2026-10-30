@@ -1,0 +1,59 @@
+digraph scale_up_vs_out {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.4, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>单机到分布式：两条路</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">单机撞上 CPU / 内存 / 磁盘的物理上限后，只有两条路可走</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.8];
+
+    subgraph cluster_up {
+        label=<<FONT COLOR="#475569" POINT-SIZE="14"><B>垂直扩展（scale up）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#475569";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFCFD";
+
+        machine [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>一台机器，越买越贵</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#334155">换更强 CPU、更大内存、更快磁盘<BR/><B>优点</B>：简单，程序不用改<BR/><B>缺点</B>：贵，且硬件有天花板</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    subgraph cluster_out {
+        label=<<FONT COLOR="#4F46E5" POINT-SIZE="14"><B>水平扩展（scale out）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#4F46E5";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+
+        m1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>机器 1</B></FONT></TD></TR>
+</TABLE>>];
+        m2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>机器 2</B></FONT></TD></TR>
+</TABLE>>];
+        m3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>机器 3</B></FONT></TD></TR>
+</TABLE>>];
+        mn [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>机器 N</B></FONT></TD></TR>
+</TABLE>>];
+
+        note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3">多台便宜机器，靠网络组成集群<BR/><B>优点</B>：便宜，理论上无限扩展<BR/><B>缺点</B>：带来分布式一系列难题</FONT></TD></TR>
+</TABLE>>];
+
+        { rank=same; m1; m2; m3; mn; }
+        m1 -> m2 -> m3 -> mn [style=invis];
+        mn -> note [style=invis, constraint=false];
+    }
+
+    machine -> m1 [style=invis];
+}

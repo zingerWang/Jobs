@@ -1,0 +1,60 @@
+digraph userspace_kernel {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>谁拥有什么：用户态 vs 内核态</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">你只拿号码牌（fd），内核才拥有「柜子」里的真正状态</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=1.8, arrowsize=0.9];
+
+    subgraph cluster_user {
+        label=<<FONT COLOR="#4F46E5" POINT-SIZE="16"><B>用户态（进程）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#4F46E5";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+        fd [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>fd（一个整数）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">比如 3，只是个号码牌</FONT></TD></TR>
+</TABLE>>];
+        buf [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>你的缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">char buf[1024]</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    subgraph cluster_kernel {
+        label=<<FONT COLOR="#E11D48" POINT-SIZE="16"><B>内核态（真正的 socket）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#E11D48";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FFFDFD";
+        sb [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>发送缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">sk_write_queue</FONT></TD></TR>
+</TABLE>>];
+        rb [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>接收缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">sk_receive_queue</FONT></TD></TR>
+</TABLE>>];
+        sm [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>TCP 状态机</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">LISTEN / ESTABLISHED …</FONT></TD></TR>
+</TABLE>>];
+        q [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>连接 / 重传队列</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">backlog · 重传 · 乱序</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    fd -> buf [style=invis];
+    sb -> rb [style=invis];
+    rb -> sm [style=invis];
+    sm -> q [style=invis];
+}

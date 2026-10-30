@@ -1,0 +1,36 @@
+digraph build_ways {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.7, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>bRPC 的三套构建方式</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">三条路都产出同一个 libbrpc.a + output/include；读源码时优先 CMake（IDE 友好）或 Bazel（依赖省心）</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    shell [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>① Shell 脚本（最老牌）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#334155">入口：<B>config_brpc.sh</B> + <B>Makefile</B><BR/>1. config_brpc.sh --headers=/usr/include \<BR/>      --libs=/usr/lib<BR/>2. make -j$(nproc)<BR/><BR/>产出：<B>libbrpc.a / libbrpc.so</B><BR/>　　　output/include、config.mk<BR/>要 -g：默认就带（<B>--nodebugsymbols</B> 才去掉）</FONT></TD></TR>
+</TABLE>>];
+
+    cmake [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>② CMake（IDE 友好）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#3730A3">入口：<B>CMakeLists.txt</B>（cmake ≥ 3.16）<BR/>1. cmake -S . -B build -DBUILD_SHARED_LIBS=ON<BR/>2. cmake --build build -j$(nproc)<BR/>3. cmake --install build --prefix $PWD/build/output<BR/><BR/>产出：<B>build/output/lib + include</B><BR/>要 -g：<B>WITH_DEBUG_SYMBOLS</B> 默认 ON</FONT></TD></TR>
+</TABLE>>];
+
+    bazel [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>③ Bazel（依赖最省心）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="8"><FONT POINT-SIZE="11" COLOR="#5B21B6">入口：<B>WORKSPACE</B> / <B>MODULE.bazel</B> / <B>BUILD.bazel</B><BR/>1. bazel build //example:echo_c++_server \<BR/>        //example:echo_c++_client<BR/>2. 产物在 bazel-bin/ 下<BR/><BR/>要 -g：<B>bazel build -c dbg</B><BR/>（.bazelrc 里已 <B>--strip=never</B>）</FONT></TD></TR>
+</TABLE>>];
+
+    goal [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>共同目标：带符号表的库 + 能跑通的 echo 例子</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">有了它才能用 gdb 在 Server::AddService / Channel::CallMethod 上打断点（第 03 篇）</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; shell; cmake; bazel; }
+
+    shell -> goal [color="#475569", fontcolor="#334155", label="libbrpc.a"];
+    cmake -> goal [color="#4F46E5", fontcolor="#4338CA", label="libbrpc.a"];
+    bazel -> goal [color="#7C3AED", fontcolor="#6D28D9", label="libbrpc"];
+}

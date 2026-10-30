@@ -1,0 +1,34 @@
+digraph bft_variants {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>BFT 的三代演进：PBFT → Tendermint → HotStuff</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">每一代都在解决上一代的同一个痛点：通信量与换主成本</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    p1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>PBFT（1999）—— 开山之作</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">三阶段（Pre-Prepare / Prepare / Commit）+ 视图切换<BR/>· 正常路径 <B>O(n²)</B> 消息<BR/>· 视图切换也是 <B>O(n²)</B>，而且换主要把所有 prepared 的请求重新提案<BR/>· 优点：第一个把 BFT 从理论做到"能跑"的协议（BFT 的工程起点）</FONT></TD></TR>
+</TABLE>>];
+
+    p2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>Tendermint（2014）—— 用「锁定」简化换主</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">把 PBFT 的"视图切换"改造成<b>与正常路径同构的轮次</b>（Propose → Prevote → Precommit）<BR/>· 核心创新是<b>锁定机制（lock）</b>：节点一旦 prevote 了某个块，就"锁"在它上面；换主后新主节点必须继承这些锁<BR/>· 好处：<b>不需要把未决请求重新提案</b>——用"锁"表达"我已经表过态"<BR/>· 仍是 O(n²)，但实现和理解都简单得多（Cosmos 的共识层）</FONT></TD></TR>
+</TABLE>>];
+
+    p3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>HotStuff（2019）—— 流水线 + 门限签名，线性视图切换</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">两个关键改动：<BR/>· <B>门限签名（threshold signature）</B>：n 个节点的签名可以聚合成 1 个 —— 主节点不必再收集并转发 n 份证书<BR/>· <B>流水线（pipelining）</B>：把"提交"和"下一轮的提案"合并，一轮一次往返<BR/>→ 正常路径与视图切换都变成 <B>O(n)</B>，这是 BFT 性能的分水岭<BR/><FONT COLOR="#115E59">Libra/Diem 的 LibraBFT、以及多数新公链的共识内核都是它的变体。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    cmp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>一张表看清三代差异</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 消息复杂度：PBFT <B>O(n²)</B> → Tendermint <B>O(n²)</B> → HotStuff <B>O(n)</B><BR/>· 换主成本：PBFT 需重提未决请求 → Tendermint 用锁继承 → HotStuff 线性且可流水线<BR/>· 共同前提：<B>n ≥ 3f+1</B>、多数派证书、以及"必须知道成员是谁"（<b>需要成员管理，不是无许可链</b>）</FONT></TD></TR>
+</TABLE>>];
+
+    p1 -> p2 [label=" 简化换主"];
+    p2 -> p3 [label=" 用签名聚合把 O(n²) 压成 O(n)"];
+    p3 -> cmp [label=" 三代对比", color="#7C3AED", fontcolor="#6D28D9"];
+}

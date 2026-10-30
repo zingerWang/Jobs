@@ -1,0 +1,19 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.40", ranksep="0.60", dpi=200, fontname="PingFang SC", labelloc=t,
+label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>身份变化发生在子进程</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">父 shell 继续保持普通身份；子进程 exec 不会修改父进程凭证</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=12, color="#64748B", fontcolor="#475569", arrowsize=0.8, penwidth=1.5];
+shell [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>alice 的 shell</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 1000</FONT></TD></TR></TABLE>>];
+parent [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>父 shell 等待命令结束</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 1000<BR ALIGN="CENTER"/>没有变成 root</FONT></TD></TR></TABLE>>];
+child [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="16"><B>fork 得到子进程</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 1000<BR ALIGN="CENTER"/>开始时继承父进程凭证</FONT></TD></TR></TABLE>>];
+exec [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="16"><B>子进程 exec 特殊权限程序</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 0 | saved 0<BR ALIGN="CENTER"/>假设文件属 root 且 SUID 生效</FONT></TD></TR></TABLE>>];
+exit [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="16"><B>子进程结束</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="13">释放自身资源</FONT></TD></TR></TABLE>>];
+again [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="16"><B>原 shell 继续接收命令</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="13">仍以 alice 的身份运行</FONT></TD></TR></TABLE>>];
+shell -> parent [label="父进程继续", color="#4F46E5", fontcolor="#4F46E5"];
+shell -> child [label="fork", color="#475569", fontcolor="#475569"];
+child -> exec [label="exec", color="#E11D48", fontcolor="#E11D48"];
+exec -> exit [label="运行结束", color="#475569", fontcolor="#475569"];
+parent -> again [label="等待结束后", color="#4F46E5", fontcolor="#4F46E5"];
+exit -> again [label="通知结束", color="#0D9488", fontcolor="#0D9488"];
+{rank=same; parent; child;}
+}

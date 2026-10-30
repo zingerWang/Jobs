@@ -1,0 +1,59 @@
+digraph mindmap_08 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：ZooKeeper 与 Zab 协议</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>ZooKeeper<br/>与 Zab</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Zab 的三阶段</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>数据模型</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三个原语</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>典型用法</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>边界与坑</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">发现：选 zxid 最大的当 leader，定新 epoch</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">同步：DIFF 补齐 / TRUNC 丢弃 / SNAP 传快照</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">广播：PROPOSAL → 多数派 ACK → COMMIT（严格按 zxid 顺序）</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">znode 树；每节点有数据 + 版本号（可做 CAS）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">四类型：持久 / 临时 / 顺序 / 临时顺序</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#334155">单节点数据上限 1MB，全量驻内存</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">临时节点：会话过期自动删除 → 上下线感知</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">顺序节点：服务端编号 → 排队、避免惊群</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">watch：一次性通知，触发后必须重新注册</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">选主：抢建同一临时节点</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">分布式锁：临时顺序节点 + 只 watch 前一个</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C">配置中心 / 服务注册：watch 做推送</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">不是数据库：写要走 Zab 广播，别做高频写</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">读不保证最新：要强读需 sync() 或读 leader</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">换主期间不可用（primary-backup 的代价）</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

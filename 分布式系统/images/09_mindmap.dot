@@ -1,0 +1,59 @@
+digraph mindmap_07 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：Raft 算法</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>Raft<br/>算法</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>状态与任期</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>选主</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>日志复制</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>安全性的四条规则</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程件</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">三态：Follower / Candidate / Leader</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">term 单调递增：一个 term 最多一个 leader</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#334155">term 即提案编号，省掉 Paxos 自造编号的麻烦</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">超时 → term+1 → 投自己 → 拉票</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">随机化超时打破对称，避免票被瓜分</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">一个 term 只投一票 → 不会出现双主</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">AppendEntries 兼做心跳，带 prevLogIndex/Term</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">检查失败就回退 nextIndex，找到匹配点再覆盖</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">多数派落盘才算提交；apply 必须按序</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">选举限制：候选人日志至少一样新</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">只提交当前任期的条目（Figure 8）</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>持久化必须在回 ACK 之前</B></FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">成员变更：joint consensus / 单节点变更</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">快照：日志压缩 + InstallSnapshot</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">线性一致读：ReadIndex / LeaseRead</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

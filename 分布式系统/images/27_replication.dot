@@ -1,0 +1,50 @@
+digraph replication {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>副本放置与机架感知</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">3 副本：2 个在同机架（快），1 个在另一机架（容灾）</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    subgraph cluster_rack1 {
+        label=<<FONT COLOR="#4F46E5" POINT-SIZE="13"><B>机架 1</B></FONT>>;
+        fontname="PingFang SC";
+        color="#4F46E5";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+
+        dn1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>DataNode 1</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#0F766E">副本 1</FONT></TD></TR>
+</TABLE>>];
+        dn2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>DataNode 2</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#0F766E">副本 2</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    subgraph cluster_rack2 {
+        label=<<FONT COLOR="#E11D48" POINT-SIZE="13"><B>机架 2</B></FONT>>;
+        fontname="PingFang SC";
+        color="#E11D48";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FFFDFD";
+
+        dn3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>DataNode 3</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="4"><FONT POINT-SIZE="11" COLOR="#0F766E">副本 3</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    dn1 -> dn2 [style=invis];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">同机架写入快（副本 1、2），跨机架容灾（副本 3）<BR/>整个机架 1 断电，机架 2 还有数据</FONT></TD></TR>
+</TABLE>>];
+    dn1 -> note [style=invis, constraint=false];
+}

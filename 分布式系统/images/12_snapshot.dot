@@ -1,0 +1,53 @@
+digraph snapshot {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>快照与日志压缩：日志不能无限长</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">快照是「状态机在某个 index 的照片」，它让之前的日志可以被安全删掉</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    log [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>一条不断增长的日志</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="6"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="3" CELLPADDING="5">
+    <TR>
+      <TD BGCOLOR="#EEF2FF"><FONT POINT-SIZE="11">1</FONT></TD>
+      <TD BGCOLOR="#EEF2FF"><FONT POINT-SIZE="11">2</FONT></TD>
+      <TD BGCOLOR="#EEF2FF"><FONT POINT-SIZE="11">…</FONT></TD>
+      <TD BGCOLOR="#EEF2FF"><FONT POINT-SIZE="11">1000</FONT></TD>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11">1001</FONT></TD>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11">1002</FONT></TD>
+      <TD BGCOLOR="#FFF1F2"><FONT POINT-SIZE="11">1003</FONT></TD>
+    </TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#3730A3">↑ 已经被 apply 过的（可以压缩）　　　　　↑ 还在用的　　　↑ 刚来还没提交</FONT></TD></TR>
+</TABLE>>];
+
+    snap [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>快照里必须存的四样东西</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">· <B>lastIncludedIndex</B>：这份快照拍到哪一条为止<BR/>· <B>lastIncludedTerm</B>：该条目的任期（日志匹配要用，缺了会算错）<BR/>· <B>状态机数据</B>：业务数据的完整镜像<BR/>· <B>当时的集群配置</B>：否则恢复后不知道该找谁投票</FONT></TD></TR>
+</TABLE>>];
+
+    install [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>InstallSnapshot：给掉队太远的 follower 补课</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">当 follower 需要的日志<b>已经被 leader 删掉</b>时，没法再发 AppendEntries<BR/>→ 直接分块传快照（几百 MB 的快照分片发，传完 follower 才切换状态机）</FONT></TD></TR>
+</TABLE>>];
+
+    order [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>顺序搞反 = 数据空洞</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">✅ 正确：<B>先把快照落盘（fsync）→ 再截断它覆盖的那段日志</B><BR/>❌ 错误：先截断日志，中途崩溃 → 日志没了、快照也没写成 → <B>这段历史永久丢失</B><BR/>另外：快照本身也要带校验（CRC），否则坏块会被当成正常快照加载</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程上的三个取舍</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>快照频率</B>：太稀 → 日志膨胀、重启重放慢、内存旧版本堆积；太密 → IO 抖动拖慢主循环（etcd 默认 10 万条 apply 一次）<BR/>· <B>快照粒度</B>：整体快照简单但会有大停顿；增量快照复杂但平滑<BR/>· <B>谁来做</B>：放在主循环里最简单但会阻塞心跳；放独立线程要处理并发读状态机的一致性问题（etcd 用"临时冻结 + 后台写"折中）</FONT></TD></TR>
+</TABLE>>];
+
+    log -> snap [label=" 定期打包"];
+    snap -> install [label=" 掉队太远时直接传"];
+    snap -> order [label=" 落盘顺序"];
+    order -> note [style=invis];
+    { rank=same; install; order; }
+}

@@ -1,0 +1,48 @@
+digraph src_map {
+    rankdir=LR;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.35, ranksep=1.1, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>bRPC src 目录地图</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">要读的源码全在 src/ 下；四大目录各司其职，另有两栋「小楼」管序列化转换</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.7, color="#94A3B8"];
+
+    src [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#1E293B" COLOR="white" ALIGN="CENTER" CELLPADDING="10"><FONT POINT-SIZE="15"><B>src/</B></FONT></TD></TR>
+</TABLE>>];
+
+    brpc [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>brpc/　框架主体（187 文件）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3">server.cpp / channel.cpp / controller.cpp<BR/>socket.cpp / socket_map.cpp / event_dispatcher.cpp<BR/>input_messenger.cpp / stream.cpp / protocol.cpp<BR/><BR/>　├ policy/　协议·LB·命名服务的「实现」（102 文件）<BR/>　├ builtin/　内置运维页面（status/vars/connections）<BR/>　└ details/　内部实现细节</FONT></TD></TR>
+</TABLE>>];
+
+    butil [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>butil/　基础库（144 文件）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0369A1">iobuf.cpp / arena.cpp / flat_map.h<BR/>object_pool.h / atomicops.h / endian.h<BR/>containers/ memory/ strings/ threading/ time/ …</FONT></TD></TR>
+</TABLE>>];
+
+    bthread [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>bthread/　M:N 线程引擎（54 文件）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">task_control.cpp / task_group.cpp<BR/>work_stealing_queue.h / task_meta.h<BR/>butex.cpp / stack.cpp / timer_thread.cpp<BR/>mutex.cpp / rwlock.cpp / condition_variable.cpp</FONT></TD></TR>
+</TABLE>>];
+
+    bvar [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>bvar/　监控（24 文件）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">variable.cpp / window.h<BR/>latency_recorder.cpp / reducer.h<BR/>histogram.cpp / multi_dimension.h</FONT></TD></TR>
+</TABLE>>];
+
+    json [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>json2pb/ · mcpack2pb/</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10.5" COLOR="#334155">可选的序列化转换层<BR/>JSON / mcpack ↔ protobuf</FONT></TD></TR>
+</TABLE>>];
+
+    src -> brpc [color="#4F46E5"];
+    src -> butil [color="#0284C7"];
+    src -> bthread [color="#E11D48"];
+    src -> bvar [color="#D97706"];
+    src -> json [color="#475569"];
+}

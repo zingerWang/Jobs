@@ -1,0 +1,99 @@
+digraph butil_map {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.45, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>butil 模块地图</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">src/butil/ 顶层 144 个文件 + 13 个子目录；按主题归置，不是随意堆放</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.7, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>src/butil/　bRPC 自带的「标准库」</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">顶层 144 文件 · 13 个子目录 · 407 个文件（含 third_party）<BR/>谁都可以依赖它，它只依赖系统调用</FONT></TD></TR>
+</TABLE>>];
+
+    c1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>containers/ 容器</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#BE123C">flat_map.h（FlatSet/FlatMap 都在这里）<BR/>doubly_buffered_data.h<BR/>bounded_queue / mpsc_queue / linked_list</FONT></TD></TR>
+</TABLE>>];
+
+    c2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>memory/ 与内存池</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0369A1">arena.h（一次性分配）<BR/>object_pool.h（对象复用）<BR/>resource_pool.h / scoped_ptr / singleton</FONT></TD></TR>
+</TABLE>>];
+
+    c3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>iobuf　缓冲</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0F766E">iobuf.h / iobuf.cpp / iobuf_inl.h<BR/>非连续、零拷贝缓冲区<BR/>全框架数据流的公共载体</FONT></TD></TR>
+</TABLE>>];
+
+    c4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>strings/ 字符串</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#6D28D9">strings/string_piece.h<BR/>string_split / string_util<BR/>顶层 string_printf.h / string_splitter.h</FONT></TD></TR>
+</TABLE>>];
+
+    c5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>synchronization/ 同步</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">condition_variable.h<BR/>seqlock.h / spin_wait.h / lock.h<BR/>waitable_event / cancellation_flag</FONT></TD></TR>
+</TABLE>>];
+
+    c6 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>threading/ 线程</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#B45309">顶层 thread_local.h（主力）<BR/>simple_thread / watchdog<BR/>thread_checker / thread_local_storage</FONT></TD></TR>
+</TABLE>>];
+
+    c7 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>time/ 与时间</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#334155">顶层 time.h：gettimeofday_us /<BR/>cpuwide_time_us / monotonic_time_us<BR/>time/clock / default_clock / tick_clock</FONT></TD></TR>
+</TABLE>>];
+
+    c8 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>posix/ 与网络</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#334155">顶层 endpoint.h（IP+端口）<BR/>fd_utility / unix_socket / errno<BR/>posix/global_descriptors</FONT></TD></TR>
+</TABLE>>];
+
+    c9 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>debug/ 诊断</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#6D28D9">stack_trace / crash_logging<BR/>proc_maps_linux / debugger<BR/>leak_tracker / asan 注解</FONT></TD></TR>
+</TABLE>>];
+
+    c10 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>编解码与 third_party/</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0F766E">base64 / crc32c / raw_pack<BR/>snappy / murmurhash3 / rapidjson<BR/>modp_b64 / dmg_fp / symbolize</FONT></TD></TR>
+</TABLE>>];
+
+    c11 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>基础设施（顶层）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#3730A3">logging.h / macros.h<BR/>atomicops.h / status.h<BR/>hash.h / fast_rand.h / bits.h</FONT></TD></TR>
+</TABLE>>];
+
+    c12 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>numbers / 杂项</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#BE123C">numerics/safe_math.h<BR/>files/ 文件工具<BR/>mac/ 平台适配（macOS）</FONT></TD></TR>
+</TABLE>>];
+
+    { rank=same; c1; c2; c3; c4; }
+    { rank=same; c5; c6; c7; c8; }
+    { rank=same; c9; c10; c11; c12; }
+
+    // 用不可见边把 12 张卡片压成 3 行
+    c1 -> c2 [style=invis]; c2 -> c3 [style=invis]; c3 -> c4 [style=invis];
+    c5 -> c6 [style=invis]; c6 -> c7 [style=invis]; c7 -> c8 [style=invis];
+    c9 -> c10 [style=invis]; c10 -> c11 [style=invis]; c11 -> c12 [style=invis];
+    c4 -> c5 [style=invis];
+    c8 -> c9 [style=invis];
+
+    root -> c1; root -> c2; root -> c3; root -> c4;
+    root -> c5; root -> c6; root -> c7; root -> c8;
+    root -> c9; root -> c10; root -> c11; root -> c12;
+}

@@ -1,0 +1,43 @@
+digraph categories {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.45, ranksep=0.8, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>bRPC 高频惯用法分类</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">按「它解决什么问题」分类记忆，比按出现顺序死记硬背有效得多</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.6, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>源码里反复出现的写法</B></FONT></TD></TR>
+</TABLE>>];
+
+    c1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>诊断与日志</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">LOG / PLOG / VLOG / RPC_VLOG<BR/>CHECK / CHECK_EQ / DCHECK<BR/>BRPC_VALIDATE_GFLAG</FONT></TD></TR>
+</TABLE>>];
+
+    c2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>编译期工具宏</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3">DISALLOW_COPY_AND_ASSIGN<BR/>BAIDU_CASSERT / arraysize<BR/>BAIDU_LIKELY / BAIDU_UNLIKELY</FONT></TD></TR>
+</TABLE>>];
+
+    c3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>基础值类型</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0369A1">butil::Status（ok / error_cstr）<BR/>butil::EndPoint（endpoint2str）<BR/>butil::StringPiece（不拥有）<BR/>butil::StringPrintf</FONT></TD></TR>
+</TABLE>>];
+
+    c4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>所有权与回调</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">SocketUniquePtr（引用计数）<BR/>Closure + NewCallback<BR/>ClosureGuard（RAII 调 Run）<BR/>ChannelOwnership（谁 delete）</FONT></TD></TR>
+</TABLE>>];
+
+    c5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>并发与配置</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">DEFINE_* / DECLARE_*（gflags）<BR/>BAIDU_SCOPED_LOCK（RAII 锁）<BR/>bthread_mutex / bthread_usleep</FONT></TD></TR>
+</TABLE>>];
+
+    root -> c1; root -> c2; root -> c3; root -> c4; root -> c5;
+}

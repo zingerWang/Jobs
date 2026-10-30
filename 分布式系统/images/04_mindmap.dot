@@ -1,0 +1,51 @@
+digraph mindmap_04 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：弱一致性模型</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>弱一致性模型<br/>最终一致 / 因果一致</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>最终一致</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>因果一致</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>会话保证</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>选型</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9"><B>定义：停止写入后最终收敛</B></FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">三处不保证：多久 / 读到什么 / 读到自己写的</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">有因果保序，无因果可乱序</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">消除「因果倒置」（评论先于原帖）</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">来源：程序顺序 / 读后写 / 传递性</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">读己之写：写完自己能读到</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">单调读：读到的值不倒退</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">单调写：自己的写按序生效</FONT>>];
+    l3d [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">写后读：读过的值在别人眼里也先出现</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">能容忍旧值 → 最终一致</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">怕因果倒置 → 因果一致</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">怕本人视角错乱 → 会话保证</FONT>>];
+    l4d [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>一分不能错 → 回去用强一致</B></FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4;
+    s1 -> l1a; s1 -> l1b;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c; s3 -> l3d;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c; s4 -> l4d;
+}

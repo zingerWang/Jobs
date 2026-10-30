@@ -1,0 +1,59 @@
+digraph mindmap_09 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：共识的工程实现（etcd）</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>共识的<br/>工程实现</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>分层结构</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Ready / Advance</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>WAL 与快照</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>线性一致读</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程坑</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">raft 模块 = 纯状态机：不碰磁盘、不碰网络</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">WAL + Snapshot + 状态机（bbolt）三层存储</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#334155">解耦的收益：可确定性重放测试，也能被复用</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Step/Propose 只入队，返回 ≠ 成功</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Ready() 取待办：HardState/Entries/Messages/Committed</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>顺序铁律：先持久化 → 再发消息 → 最后 apply</B></FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">记录 = 长度 + CRC + 数据，识别半截写入</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">重放遇到坏记录就停，宁可少恢复也不猜</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">修复（截断到有效边界）后才能继续追加</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">走日志最稳，但每读一次一次共识</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ReadIndex：一轮心跳确认领导权 + 等 apply</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">Lease Read：最快，但依赖时钟漂移假设</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">fsync 是延迟大头：批量 + 流水线才能提吞吐</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">快照太大 / 太频繁都会拖慢整个集群</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">磁盘坏道会伪装成"正常"：CRC 是最后防线</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

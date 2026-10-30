@@ -1,0 +1,42 @@
+digraph raft_log {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>日志复制：一条命令怎么变成「已提交」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">AppendEntries 既是心跳也是复制；一致性检查失败就回退，直到找到匹配点</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    step1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① leader 接到写请求</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">先追加到<b>自己的本地日志</b>（记成 <B>(index, term, cmd)</B>）<BR/>注意：此时它还只是「未提交」——本地写 != 生效</FONT></TD></TR>
+</TABLE>>];
+
+    step2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② 并发发 AppendEntries 给所有 follower</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">报文里带 4 样东西：<B>prevLogIndex / prevLogTerm</B>（上一条的位置与任期）、<B>entries[]</B>、<B>leaderCommit</B><BR/>follower 先做<b>一致性检查</b>：自己的 prevLogIndex 处 term 是否等于 prevLogTerm？<BR/>· 匹配 → 追加 entries，并把冲突的旧后缀<b>截断覆盖</b><BR/>· 不匹配 → 拒绝；leader 把该 follower 的 <B>nextIndex 回退一位</B>重试，直到找到匹配点</FONT></TD></TR>
+</TABLE>>];
+
+    step3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ 多数派落盘 → 提交</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">leader 的 commitIndex 前移，并<b>在下一次 AppendEntries 里带上 leaderCommit</b><BR/>follower 收到后也把 commitIndex 跟上，然后才能 <B>apply 到状态机</B></FONT></TD></TR>
+</TABLE>>];
+
+    prop [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>日志匹配性质（Raft 的基石）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">如果两份日志在某个 index 上的 <B>term 相同</B>，那么它们<b>该位置及其之前的全部条目都完全相同</b>。<BR/>证明靠归纳：leader 在一个 term 内只会在一处追加一条；Follower 只有在一致性检查通过时才接受。<BR/>→ 所以「回退找匹配点」这个动作一定能收敛，也所以「term 相同 ⇒ 内容相同」。</FONT></TD></TR>
+</TABLE>>];
+
+    rule [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>提交规则里的那个坑（Figure 8）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">「多数派有这个条目」<B>不等于</B> 可以提交：一个<b>旧任期</b>的条目即使已在多数派上，也可能被后续 leader 覆盖。<BR/>Raft 的规定：<B>leader 只能通过提交「自己当前任期」的条目，来间接提交之前的旧条目</B>（新 leader 上任先提交一条 no-op 就是这个用途）。</FONT></TD></TR>
+</TABLE>>];
+
+    step1 -> step2 [label=" 记账"];
+    step2 -> step3 [label=" 多数派 ACK"];
+    step3 -> prop [label=" 为什么回退一定收敛"];
+    step3 -> rule [label=" 但提交不能只看票数"];
+    { rank=same; prop; rule; }
+}

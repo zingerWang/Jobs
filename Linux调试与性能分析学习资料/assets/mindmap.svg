@@ -1,0 +1,146 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1330" viewBox="0 0 1800 1330" role="img" aria-labelledby="title desc">
+  <title id="title">Linux 排障总结思维导图</title>
+  <desc id="desc">中心为 Linux 排障。六个分支是问题定义与证据、GDB 与线程、抓包与 TCP、系统资源、perf 与等待、验证闭环。每个分支列出四个动作及对应命令或易错点。</desc>
+  <defs>
+    <style>
+      text{font-family:"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",sans-serif;fill:#20364b}
+      .main-title{font-size:34px;font-weight:700}.subtitle{font-size:19px;fill:#60778b}
+      .branch-title{font-size:26px;font-weight:700}.item{font-size:22px;font-weight:600}
+      .detail{font-size:18px;fill:#536b80}.number{font-size:21px;font-weight:700;fill:#fff}
+      .connector{fill:none;stroke-width:4;stroke-linecap:round;opacity:.63}
+      .divider{stroke:#dce6ed;stroke-width:1}
+      .root-title{font-size:38px;font-weight:700;fill:white}.root-sub{font-size:22px;fill:#dceaf4}
+    </style>
+  </defs>
+  <rect width="1800" height="1330" rx="24" fill="#f4f7fa"/>
+  <text x="60" y="49" class="main-title">一张图串起完整排障过程</text>
+  <text x="1740" y="47" text-anchor="end" class="subtitle">先提出问题 → 用证据定位 → 用相同条件验证</text>
+
+  <!-- 所有分支线先绘制，避免遮挡内容。 -->
+  <path d="M730 590 C685 590 715 255 660 255" class="connector" stroke="#497ea1"/>
+  <path d="M730 650 L660 650" class="connector" stroke="#438b86"/>
+  <path d="M730 710 C685 710 715 1035 660 1035" class="connector" stroke="#6b77a5"/>
+  <path d="M1070 590 C1115 590 1085 255 1140 255" class="connector" stroke="#497ea1"/>
+  <path d="M1070 650 L1140 650" class="connector" stroke="#438b86"/>
+  <path d="M1070 710 C1115 710 1085 1035 1140 1035" class="connector" stroke="#6b77a5"/>
+
+  <!-- 左上：定义 -->
+  <g id="branch-1" data-card="true">
+    <rect x="40" y="95" width="620" height="320" rx="18" fill="#fff" stroke="#b9cfdf" stroke-width="2"/>
+    <path d="M58 95 H642 Q660 95 660 113 V159 H40 V113 Q40 95 58 95" fill="#e4eff6"/>
+    <circle cx="77" cy="127" r="18" fill="#497ea1"/><text x="77" y="134" text-anchor="middle" class="number">1</text>
+    <text x="110" y="136" class="branch-title">问题定义与证据</text>
+    <text x="66" y="190" class="item">把“很慢”写成可测量现象</text>
+    <text x="66" y="216" class="detail">时间、范围、触发输入、P99 与错误率</text>
+    <line x1="66" y1="229" x2="634" y2="229" class="divider"/>
+    <text x="66" y="255" class="item">让不同证据指向同一次请求</text>
+    <text x="66" y="281" class="detail">请求 ID ＋日志＋抓包；跨机器先核对时钟</text>
+    <line x1="66" y1="294" x2="634" y2="294" class="divider"/>
+    <text x="66" y="320" class="item">由低开销观察逐步深入</text>
+    <text x="66" y="346" class="detail">系统指标 → 进程 / 线程 → 代码与报文</text>
+    <line x1="66" y1="359" x2="634" y2="359" class="divider"/>
+    <text x="66" y="385" class="item">保存版本、输入、符号与原始证据</text>
+  </g>
+
+  <!-- 左中：调试 -->
+  <g id="branch-2" data-card="true">
+    <rect x="40" y="485" width="620" height="320" rx="18" fill="#fff" stroke="#bad8d5" stroke-width="2"/>
+    <path d="M58 485 H642 Q660 485 660 503 V549 H40 V503 Q40 485 58 485" fill="#e3f1ee"/>
+    <circle cx="77" cy="517" r="18" fill="#438b86"/><text x="77" y="524" text-anchor="middle" class="number">2</text>
+    <text x="110" y="526" class="branch-title">GDB 与线程</text>
+    <text x="66" y="580" class="item">崩溃：调用路径＋错误数据</text>
+    <text x="66" y="606" class="detail">bt full · frame N · print *ptr</text>
+    <line x1="66" y1="619" x2="634" y2="619" class="divider"/>
+    <text x="66" y="645" class="item">卡住：先看所有线程，再找等待环</text>
+    <text x="66" y="671" class="detail">info threads · thread apply all bt</text>
+    <line x1="66" y1="684" x2="634" y2="684" class="divider"/>
+    <text x="66" y="710" class="item">数据变坏：追踪写入与对象生命周期</text>
+    <text x="66" y="736" class="detail">watch；竞争问题用 ThreadSanitizer 辅助</text>
+    <line x1="66" y1="749" x2="634" y2="749" class="divider"/>
+    <text x="66" y="775" class="item">易错：GDB 线程号 ≠ Linux TID</text>
+  </g>
+
+  <!-- 左下：网络 -->
+  <g id="branch-3" data-card="true">
+    <rect x="40" y="875" width="620" height="320" rx="18" fill="#fff" stroke="#c7cce2" stroke-width="2"/>
+    <path d="M58 875 H642 Q660 875 660 893 V939 H40 V893 Q40 875 58 875" fill="#ebedf7"/>
+    <circle cx="77" cy="907" r="18" fill="#6b77a5"/><text x="77" y="914" text-anchor="middle" class="number">3</text>
+    <text x="110" y="916" class="branch-title">抓包与 TCP</text>
+    <text x="66" y="970" class="item">先选接口、命名空间与过滤范围</text>
+    <text x="66" y="996" class="detail">tcpdump -i lo -nn -s 0 -w trace.pcap</text>
+    <line x1="66" y1="1009" x2="634" y2="1009" class="divider"/>
+    <text x="66" y="1035" class="item">按连接阶段定位等待</text>
+    <text x="66" y="1061" class="detail">握手 → 请求 → 应用等待 → 响应；tcp.stream</text>
+    <line x1="66" y1="1074" x2="634" y2="1074" class="divider"/>
+    <text x="66" y="1100" class="item">用 socket 与两端证据解释异常</text>
+    <text x="66" y="1126" class="detail">ss -tinp；核对重传、零窗口、抓包丢失</text>
+    <line x1="66" y1="1139" x2="634" y2="1139" class="divider"/>
+    <text x="66" y="1165" class="item">易错：TCP ACK ≠ 业务处理完成</text>
+  </g>
+
+  <!-- 右上：资源 -->
+  <g id="branch-4" data-card="true">
+    <rect x="1140" y="95" width="620" height="320" rx="18" fill="#fff" stroke="#b9cfdf" stroke-width="2"/>
+    <path d="M1158 95 H1742 Q1760 95 1760 113 V159 H1140 V113 Q1140 95 1158 95" fill="#e4eff6"/>
+    <circle cx="1177" cy="127" r="18" fill="#497ea1"/><text x="1177" y="134" text-anchor="middle" class="number">4</text>
+    <text x="1210" y="136" class="branch-title">系统资源</text>
+    <text x="1166" y="190" class="item">CPU：整机 → 核 → 进程 → 线程</text>
+    <text x="1166" y="216" class="detail">vmstat · mpstat -P ALL · pidstat -t</text>
+    <line x1="1166" y1="229" x2="1734" y2="229" class="divider"/>
+    <text x="1166" y="255" class="item">内存：可用量、交换、增长趋势</text>
+    <text x="1166" y="281" class="detail">free -h；RSS 增长不直接等于泄漏</text>
+    <line x1="1166" y1="294" x2="1734" y2="294" class="divider"/>
+    <text x="1166" y="320" class="item">磁盘：延迟、队列、吞吐一起看</text>
+    <text x="1166" y="346" class="detail">iostat -xz -y 1；await 包含排队时间</text>
+    <line x1="1166" y1="359" x2="1734" y2="359" class="divider"/>
+    <text x="1166" y="385" class="item">补充：PSI 压力与容器 cgroup 限额</text>
+  </g>
+
+  <!-- 右中：性能 -->
+  <g id="branch-5" data-card="true">
+    <rect x="1140" y="485" width="620" height="320" rx="18" fill="#fff" stroke="#bad8d5" stroke-width="2"/>
+    <path d="M1158 485 H1742 Q1760 485 1760 503 V549 H1140 V503 Q1140 485 1158 485" fill="#e3f1ee"/>
+    <circle cx="1177" cy="517" r="18" fill="#438b86"/><text x="1177" y="524" text-anchor="middle" class="number">5</text>
+    <text x="1210" y="526" class="branch-title">perf 与等待</text>
+    <text x="1166" y="580" class="item">先测总体成本，再追踪热点栈</text>
+    <text x="1166" y="606" class="detail">perf stat · perf record -g · perf report</text>
+    <line x1="1166" y1="619" x2="1734" y2="619" class="divider"/>
+    <text x="1166" y="645" class="item">CPU 不忙时，检查线程为何不能运行</text>
+    <text x="1166" y="671" class="detail">strace -ff -tt -T；线程栈、eBPF 等待分析</text>
+    <line x1="1166" y1="684" x2="1734" y2="684" class="divider"/>
+    <text x="1166" y="710" class="item">区分执行、可运行排队、阻塞等待</text>
+    <text x="1166" y="736" class="detail">CPU 采样不能独自解释全部请求耗时</text>
+    <line x1="1166" y1="749" x2="1734" y2="749" class="divider"/>
+    <text x="1166" y="775" class="item">易错：火焰图宽度是样本占比</text>
+  </g>
+
+  <!-- 右下：闭环 -->
+  <g id="branch-6" data-card="true">
+    <rect x="1140" y="875" width="620" height="320" rx="18" fill="#fff" stroke="#c7cce2" stroke-width="2"/>
+    <path d="M1158 875 H1742 Q1760 875 1760 893 V939 H1140 V893 Q1140 875 1158 875" fill="#ebedf7"/>
+    <circle cx="1177" cy="907" r="18" fill="#6b77a5"/><text x="1177" y="914" text-anchor="middle" class="number">6</text>
+    <text x="1210" y="916" class="branch-title">验证闭环</text>
+    <text x="1166" y="970" class="item">假设必须能被证据支持或推翻</text>
+    <text x="1166" y="996" class="detail">明确：看到什么才算验证成功？</text>
+    <line x1="1166" y1="1009" x2="1734" y2="1009" class="divider"/>
+    <text x="1166" y="1035" class="item">优先减少重复工作与无效等待</text>
+    <text x="1166" y="1061" class="detail">统一锁序、缩小持锁范围、避免重复计算</text>
+    <line x1="1166" y1="1074" x2="1734" y2="1074" class="divider"/>
+    <text x="1166" y="1100" class="item">固定输入、并发、版本与资源限制</text>
+    <text x="1166" y="1126" class="detail">先验证结果正确，再比较 P99、吞吐和错误率</text>
+    <line x1="1166" y1="1139" x2="1734" y2="1139" class="divider"/>
+    <text x="1166" y="1165" class="item">保存：触发条件 → 证据 → 根因 → 复测</text>
+  </g>
+
+  <!-- 中心 -->
+  <g id="root">
+    <rect x="730" y="540" width="340" height="220" rx="26" fill="#173d59"/>
+    <text x="900" y="596" text-anchor="middle" class="root-title">Linux 排障</text>
+    <line x1="775" y1="620" x2="1025" y2="620" stroke="#5b7c95"/>
+    <text x="900" y="656" text-anchor="middle" class="root-sub">代码 · 线程 · 网络</text>
+    <text x="900" y="690" text-anchor="middle" class="root-sub">资源 · 时间 · 证据</text>
+    <text x="900" y="729" text-anchor="middle" font-size="18" fill="#c7dceb" style="fill:#c7dceb">症状 → 假设 → 验证</text>
+  </g>
+  <rect x="40" y="1230" width="1720" height="58" rx="12" fill="#e8eff4"/>
+  <text x="900" y="1267" text-anchor="middle" font-size="22" fill="#365973">贯穿全程：保留原始现场 · 记录工具开销 · 用多个观察点交叉验证 · 避免从单个指标直接下结论</text>
+</svg>

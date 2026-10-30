@@ -1,0 +1,48 @@
+digraph paxos_derivation {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>两阶段是怎么「逼」出来的：P1 → P2c 的推导链</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">每一步都在修补上一步的反例，最后落到一个「可执行」的规则上</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    p1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>起点 P1：acceptor 必须接受收到的第一个提案</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">❌ 反例：5 个 acceptor 各收到<b>不同</b>的提案并各自接受 → 谁都没拿到多数派 → 永远选不出值</FONT></TD></TR>
+</TABLE>>];
+
+    p2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>P2：若 (n, v) 被选中，则所有编号更大且被选中的提案，值也必须是 v</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">acceptor 必须能接受<b>多个</b>提案（编号更大的），否则没法收敛</FONT></TD></TR>
+</TABLE>>];
+
+    p2a [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>P2a：…则所有编号更大、被任何 acceptor 接受的提案，值也必须是 v</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">把约束从「被选中」收紧到「被接受」（因为被选中的前提是被接受）</FONT></TD></TR>
+</TABLE>>];
+
+    p2b [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>P2b：…则所有编号更大、被任何 proposer 提出的提案，值也必须是 v</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">再把约束前移到「提出」——因为「接受」的前提是「有人提出」</FONT></TD></TR>
+</TABLE>>];
+
+    p2c [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>P2c（可落地版）：提出 (n, v) 之前，proposer 必须先找到某个多数派 S</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">满足下面<b>任意一条</b>即可：<BR/>· ① S 里<b>没有任何人</b>接受过编号 &lt; n 的提案（说明此前没人开过头，可以用自己的值）<BR/>· ② v 就是 S 中「已接受提案里编号最大」的那个值（说明已经有人开过头，必须沿用他的值）</FONT></TD></TR>
+</TABLE>>];
+
+    concl [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>于是：两阶段协议</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9"><B>Phase 1</B> 就是去问出 ①/② 的信息（Prepare → Promise）<BR/><B>Phase 2</B> 才是按 P2c 定下的值正式提交（Accept → Accepted）</FONT></TD></TR>
+</TABLE>>];
+
+    p1 -> p2 [label=" 为了能收敛，放宽为可接受多个提案"];
+    p2 -> p2a [label=" 收紧到「被接受」"];
+    p2a -> p2b [label=" 再前移到「被提出」"];
+    p2b -> p2c [label=" 转成 proposer 可执行的检查条件"];
+    p2c -> concl [label=" 分成两步做：先问后提", color="#7C3AED", fontcolor="#6D28D9"];
+}

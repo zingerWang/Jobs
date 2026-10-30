@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="620" viewBox="0 0 1400 620" role="img" aria-label="总览：23 种模式分别在解决什么问题？">
+<defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0L9 4.5L0 9Z" fill="#63859d"/></marker></defs>
+<rect width="1400" height="620" rx="20" fill="#f4f7fa"/>
+<text x="48" y="60" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="30" font-weight="700" fill="#20394e" text-anchor="start">总览：23 种模式分别在解决什么问题？</text>
+<text x="48" y="102" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="20" font-weight="400" fill="#61778a" text-anchor="start">先判断创建、对象关系还是行为协作在变化，再进入对应章节。</text>
+<rect x="48" y="155" width="405" height="365" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="48" y="155" width="405" height="62" rx="14" fill="#e5edf7" stroke="#c7d9e5" stroke-width="2"/>
+<text x="70" y="195" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">创建型 · 5 种</text>
+<text x="70" y="263" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">工厂方法：创建一个产品</text>
+<text x="70" y="298" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">抽象工厂：创建相关产品族</text>
+<text x="70" y="333" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">生成器：逐步构建产品</text>
+<text x="70" y="368" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">原型：复制实际类型</text>
+<text x="70" y="403" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">单例：受控实例入口</text>
+<rect x="498" y="155" width="405" height="365" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="498" y="155" width="405" height="62" rx="14" fill="#e3f0ee" stroke="#c7d9e5" stroke-width="2"/>
+<text x="520" y="195" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">结构型 · 7 种</text>
+<text x="520" y="263" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">适配器、桥接</text>
+<text x="520" y="298" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">组合、装饰器</text>
+<text x="520" y="333" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">外观、享元、代理</text>
+<text x="520" y="368" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start"></text>
+<text x="520" y="403" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">对象关系与职责边界</text>
+<rect x="948" y="155" width="405" height="365" rx="14" fill="#fff" stroke="#c7d9e5" stroke-width="2"/>
+<rect x="948" y="155" width="405" height="62" rx="14" fill="#e9e9f4" stroke="#c7d9e5" stroke-width="2"/>
+<text x="970" y="195" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="24" font-weight="700" fill="#20394e" text-anchor="start">行为型 · 11 种</text>
+<text x="970" y="263" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">责任链、命令、解释器</text>
+<text x="970" y="298" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">迭代器、中介者、备忘录</text>
+<text x="970" y="333" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">观察者、状态、策略</text>
+<text x="970" y="368" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">模板方法、访问者</text>
+<text x="970" y="403" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">请求、算法、事件与生命周期</text>
+<text x="48" y="578" font-family="Microsoft YaHei,Noto Sans CJK SC,Arial,sans-serif" font-size="21" font-weight="400" fill="#20394e" text-anchor="start">类比帮助理解，代码证明协作方式；是否采用模式，最终取决于真实变化和维护成本。</text>
+</svg>

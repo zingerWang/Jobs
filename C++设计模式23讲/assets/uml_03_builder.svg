@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="685" viewBox="0 0 1160 685">
+<defs><marker id="triangle" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 14 8 L 1 15 Z" fill="white" stroke="#42647a" stroke-width="2"/></marker><marker id="open" markerWidth="13" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 11 7 L 1 13" fill="none" stroke="#42647a" stroke-width="2"/></marker><marker id="diamond" markerWidth="24" markerHeight="16" refX="1" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 8 L 11 1 L 21 8 L 11 15 Z" fill="#42647a"/></marker></defs>
+<rect width="1160" height="685" fill="#f4f8fb"/>
+<text x="65" y="48" font-size="27" font-weight="bold" fill="#264f69">03 生成器（建造者） · UML 类图</text>
+<text x="65" y="80" font-size="17" fill="#647d8c">关键成员摘录 · 连线编号对应下方说明 · 按代码实际持有关系绘制</text>
+<rect x="65" y="110" width="740" height="151" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 152 H805 M65 229 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="138" font-size="22" font-weight="bold" fill="#294d63">Request</text>
+<text x="83" y="175" font-size="18" font-weight="normal" fill="#294d63">+ url</text>
+<text x="83" y="198" font-size="18" font-weight="normal" fill="#294d63">+ method</text>
+<text x="83" y="221" font-size="18" font-weight="normal" fill="#294d63">+ timeoutMs</text>
+<text x="83" y="252" font-size="18" font-weight="normal" fill="#294d63">（无关键操作 / 已省略）</text>
+<rect x="65" y="320" width="740" height="151" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 362 H805 M65 394 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="348" font-size="22" font-weight="bold" fill="#294d63">RequestBuilder</text>
+<text x="83" y="385" font-size="18" font-weight="normal" fill="#294d63">- request_: Request</text>
+<text x="83" y="417" font-size="18" font-weight="normal" fill="#294d63">+ timeout(ms)</text>
+<text x="83" y="440" font-size="18" font-weight="normal" fill="#294d63">+ method(value)</text>
+<text x="83" y="463" font-size="18" font-weight="normal" fill="#294d63">+ build() const</text>
+<path d="M805 332 H895 V164 H805" fill="none" stroke="#42647a" stroke-width="2"  marker-start="url(#diamond)" marker-end="url(#open)"/>
+<text x="877" y="325" font-size="16" font-weight="bold" fill="#294d63">1</text>
+<text x="65" y="535" font-size="22" font-weight="bold" fill="#294d63">关系说明（箭头指向基类、接口或被使用的对象）</text>
+<text x="65" y="575" font-size="18" font-weight="normal" fill="#294d63">1. RequestBuilder → Request：组合 / 生命周期拥有</text>
+</svg>

@@ -1,0 +1,15 @@
+digraph G { graph [rankdir=LR, bgcolor="white", pad="0.4", nodesep="0.45", ranksep="0.8", dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">创建、替换与回收</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">示例 PID 仅用于区分进程；父子执行先后由调度决定</FONT>>]; node [shape=plaintext, fontname="PingFang SC", fontsize=14]; edge [color="#64748B", arrowsize=0.8, penwidth=1.5, fontname="PingFang SC", fontsize=12];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>父进程：PID 4200</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">调用 fork()</TD></TR></TABLE></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>父进程：PID 4200</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">返回 4201</TD></TR><TR><TD ALIGN="LEFT">继续原程序，调用 waitpid()</TD></TR></TABLE></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>子进程：PID 4201</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">返回 0</TD></TR><TR><TD ALIGN="LEFT">准备参数与文件描述符</TD></TR></TABLE></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>新程序：仍为 PID 4201</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">exec 成功，原程序被替换</TD></TR><TR><TD ALIGN="LEFT">新程序运行后退出</TD></TR></TABLE></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>父进程完成等待</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">waitpid() 返回子进程 PID</TD></TR><TR><TD ALIGN="LEFT">读取退出状态，完成回收</TD></TR></TABLE></TD></TR></TABLE>>];
+f [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>exec 失败</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">返回 -1，报告错误</TD></TR><TR><TD ALIGN="LEFT">子进程调用 _exit()</TD></TR></TABLE></TD></TR></TABLE>>];
+a -> b [label="父分支"];
+a -> c [label="子分支"];
+c -> d [label="exec 成功"];
+c -> f [label="exec 失败"];
+b -> e [label="等待结束"];
+d -> e [label="退出后被回收"];
+f -> e [label="退出后被回收"];
+}

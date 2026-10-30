@@ -1,0 +1,34 @@
+digraph fencing {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Fencing Token：让资源自己拒绝过期持有者</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">锁只能"尽量"保证互斥；真正的正确性要靠被保护的那一方守住</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    flow [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工作流程：三步，token 全程随行</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">① <B>加锁</B>：锁服务返回一个<b>全局单调递增</b>的 token（etcd 用 revision、ZooKeeper 用 zxid、自研就用递增计数器）<BR/>② <B>带 token 写资源</B>：客户端把 token 一起发给存储/下游服务<BR/>③ <B>资源侧校验</B>：<B>只接受 token ≥ 已见过的最大值</B>的写；更小的一律拒绝</FONT></TD></TR>
+</TABLE>>];
+
+    effect [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>效果：假死客户端"醒了也没用"</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E" FACE="Menlo">A 拿锁(token=1) → A 假死 → 锁过期 → B 拿锁(token=2) → B 写资源(token=2) ✓<BR/>　　　　　　　　　　　　　　　　　　→ A 醒来，写资源(token=1) ✗ 被拒（1 &lt; 2）<BR/></FONT><FONT POINT-SIZE="11" COLOR="#115E59">关键：<B>不需要 A「自己醒悟」</B>——它永远不会醒悟。防线在资源侧，与被保护的数据放在一起。</FONT></TD></TR>
+</TABLE>>];
+
+    where [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>token 从哪来：三种常见来源</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">· <B>etcd 的 revision</B>：每次写事务全局递增，天然可做 token（最省事）<BR/>· <B>ZooKeeper 的 zxid / 顺序节点号</B>：Zab 的事务编号，全局单调<BR/>· <B>自研锁服务</B>：用一个单调递增的整数计数器（<b>注意必须持久化</b>，重启后不能回退）<BR/><FONT COLOR="#92400E">反例：<b>不要用时间戳当 token</b>——时钟会回拨，回拨后"过期持有者"的 token 反而变大。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    scope [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>什么时候"必须"上 fencing</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">· 临界区里有<b>不可回滚</b>的副作用：发消息、调支付、写外部系统<BR/>· 两个持有者同时写会<b>造成数据损坏</b>（不是"重复计算一下"那么简单）<BR/>· <B>能容忍极小概率</B>的场景（定时任务防重复触发）→ 可以不上，但要想清楚"最坏会怎样"<BR/><FONT COLOR="#9F1239">判断标准很简单：<b>"如果互斥失败一次，我要不要半夜起来修数据？"</b> 要，就必须上。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    flow -> effect [label=" 假死场景下"];
+    effect -> where [label=" token 的实现细节"];
+    where -> scope [label=" 适用边界"];
+}

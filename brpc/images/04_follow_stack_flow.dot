@@ -1,0 +1,47 @@
+digraph flow {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>跟调用栈的决策流程：每一步只回答三个问题</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">「现在在哪一层？这层归谁管？还该继续往下吗？」——答不出来就停下，回去补地图</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.8, arrowsize=0.8];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>1. 在用户 API 处下断点</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">break brpc::Channel::CallMethod</FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>2. 打 bt，读栈、认门牌号</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">每帧属于 brpc / butil / bthread / bvar 哪座大厦？</FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>3. step / next / finish 逐帧走</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">进函数用 step，过函数用 next，出函数用 finish</FONT></TD></TR>
+</TABLE>>];
+
+    dec [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>4. 到达「已知边界」了吗？</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">系统调用 / 模板展开 / protobuf 生成码 / 第三方库</FONT></TD></TR>
+</TABLE>>];
+
+    stop [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>是 → 到此为止，记录下来</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">「这里交给 X，X 的职责是 Y」——这一层就算读完了</FONT></TD></TR>
+</TABLE>>];
+
+    go [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>否 → 回到第 3 步继续</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">用 watch / print 观察关键成员变量，别硬啃每一行</FONT></TD></TR>
+</TABLE>>];
+
+    s1 -> s2 -> s3 -> dec;
+    dec -> stop [color="#0D9488", fontcolor="#0F766E", label="是"];
+    dec -> go [color="#E11D48", fontcolor="#BE123C", label="否"];
+    go -> s3 [color="#7C3AED", fontcolor="#6D28D9", style=dashed, label="循环"];
+}

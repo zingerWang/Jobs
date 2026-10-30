@@ -1,0 +1,59 @@
+digraph mindmap_15 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：最终一致方案</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>最终一致<br/>方案</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>要解决的问题</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>本地消息表</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>事务消息</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三层保证</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>其他方案</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">先写库后发消息 → 丢消息</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">先发消息后写库 → 脏数据</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>MQ 大多不支持 XA，2PC 走不通</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">业务表 + outbox 表写在同一个本地事务</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">投递器扫 PENDING → 投递 → 改状态</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#3730A3">CDC 变体：订阅 binlog 把 outbox 读出去</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">半消息：先扣在 MQ 手里，下游不可见</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">执行本地事务后 Commit / Rollback</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">MQ 回查：生产者查库后答复（灵魂机制）</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">① 可靠投递 → 至少一次</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">② 消费幂等 → 吃掉重复（去重表/唯一键/CAS）</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">③ 定时对账 + 补偿 → 兜住业务级偏差</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">最大努力通知：只保证"尽力重试 N 次"+ 查询接口</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">TCC / Saga：需要业务补偿（见 16 篇）</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">共同点：最终一致 + 消费端必须幂等</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

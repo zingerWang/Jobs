@@ -1,0 +1,14 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.40", ranksep="0.60", dpi=200, fontname="PingFang SC", labelloc=t,
+label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>三个 UID 如何变化</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">假设调用者 UID=1000，执行可生效的 root 所有 SUID 程序</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=12, color="#64748B", fontcolor="#475569", arrowsize=0.8, penwidth=1.5];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>普通用户进程</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 1000 | saved 1000</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="16"><B>exec 进入特殊权限程序</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 0 | saved 0<BR ALIGN="CENTER"/>有效身份取文件所有者 UID</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="16"><B>暂时切回普通有效身份</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 1000 | saved 0<BR ALIGN="CENTER"/>saved UID 仍保存 0</FONT></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="16"><B>恢复特殊有效身份</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="13">RUID 1000 | EUID 0 | saved 0<BR ALIGN="CENTER"/>程序显式调用接口，不是自动恢复</FONT></TD></TR></TABLE>>];
+a -> b [label="exec：SUID 位生效", color="#E11D48", fontcolor="#E11D48"];
+b -> c [label="seteuid(1000) 成功", color="#D97706", fontcolor="#D97706"];
+c -> d [label="seteuid(0) 成功", color="#0D9488", fontcolor="#0D9488"];
+
+}

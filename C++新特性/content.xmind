@@ -1,0 +1,90 @@
+mindmap
+  root((C++新标准特性 面试版))
+    C++11【现代C++奠基｜重点】
+      类型系统
+        auto / decltype 类型推导
+        nullptr 空指针
+        enum class 强类型枚举
+        using 类型别名
+        char16_t / char32_t
+      语法增强
+        右值引用 &&、移动语义、std::forward完美转发
+        Lambda表达式
+        范围for循环 for(:)
+        统一初始化{}、std::initializer_list
+        =default / =delete
+        override / final
+        noexcept
+        static_assert
+        尾置返回类型 auto f()->T
+        alignas / alignof
+        用户定义字面量UDL
+        原始字符串 R"(...)"
+        委托构造、类内成员初始化
+      标准库
+        std::thread、std::mutex、std::atomic
+        std::bind、std::function
+        std::tuple
+        std::array、std::forward_list
+        std::regex、<random>
+        std::ref / std::cref
+        std::begin / std::end
+    C++14【小迭代，补全】
+      语言特性
+        auto 泛型Lambda
+        Lambda捕获初始化
+        二进制字面量 0b
+        函数返回值auto推导
+        变量模板 variable template
+      标准库
+        std::get<T> 按类型取tuple
+        std::make_unique
+        std::shared_timed_mutex
+        std::integer_sequence
+    C++17【大更新，高频考点】
+      语言特性
+        结构化绑定 auto [a,b]
+        if / switch 初始化语句
+        constexpr if 编译期分支
+        折叠表达式 fold expression
+        类模板参数推导CTAD
+        inline 内联变量
+        强制拷贝消除
+        [[nodiscard]] [[fallthrough]] [[maybe_unused]]属性
+      标准库
+        std::optional
+        std::variant
+        std::any
+        std::filesystem
+        std::string_view
+        std::apply
+        std::gcd / std::lcm
+        并行算法 std::execution
+    C++20【里程碑，协程+概念】
+      语言特性
+        Concepts 概念约束
+        协程 coroutine(co_await/co_yield/co_return)
+        模块 module / import
+        范围库 ranges
+        constexpr 大幅增强（虚函数、分配、字符串）
+        designated initializer 指定初始化
+        三向比较 <=> 飞船运算符
+        [[no_unique_address]]
+      标准库
+        std::format
+        std::span
+        std::atomic 增强
+        std::barrier、std::latch、std::semaphore
+    C++23【最新，进阶加分项】
+      语言特性
+        简化隐式this (*this)
+        静态operator[]
+        if consteval 直接编译期执行
+        多标签static_assert
+        扩展字面量、属性增强
+      标准库
+        std::expected
+        std::mdspan 多维视图
+        std::generator（协程生成器）
+        ranges 补齐更多算法
+        std::print

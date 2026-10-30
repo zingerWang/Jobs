@@ -1,0 +1,38 @@
+digraph framing {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.4, ranksep=0.5,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>用 IOBuf 把「粘包 + 半包」切成一个个完整包</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">read_buf 永远只持有「还没成包」的字节；成包的立刻 cutn 走人，且不复制 payload</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.9, color="#475569"];
+
+    read [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="4" BGCOLOR="#0284C7" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>① 一次 readv 读进来的字节流（Socket::read_buf，IOPortal 自动分块装下）</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="150" BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11"><B>包 1 完整</B><BR/>12 + N1 字节</FONT></TD>
+    <TD WIDTH="150" BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11"><B>包 2 完整</B><BR/>12 + N2 字节</FONT></TD>
+    <TD WIDTH="150" BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="11"><B>包 3 半包</B><BR/>只到了前一半</FONT></TD>
+    <TD WIDTH="40" BGCOLOR="#FFFFFF" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="10" COLOR="#64748B">…</FONT></TD>
+  </TR>
+  <TR><TD COLSPAN="4" BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">TCP 是字节流，没有任何「包」的边界 —— 一次 readv 可能读到 0.3 个包，也可能读到 3.7 个包</FONT></TD></TR>
+</TABLE>>];
+
+    parse [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="2" BGCOLOR="#4F46E5" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>② ParseRpcMessage 被反复调用，每次只看头部 12 字节就能决定「够了没」</B></FONT></TD></TR>
+  <TR><TD WIDTH="360" BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#3730A3"><B>copy_to(header_buf, 12)</B> —— 只看包头，不需要把整个包拷出来<BR/>校验 "PRPC" → 不对就 TRY_OTHERS（换别的协议试）<BR/><B>length() &lt; 12 + body_size</B> ⇒ NOT_ENOUGH_DATA，直接 return<BR/>攒够之后才 <B>pop_front(12)</B> + <B>cutn(&amp;meta, …)</B> + <B>cutn(&amp;payload, …)</B></FONT></TD></TR>
+  <TR><TD COLSPAN="2" BGCOLOR="#FFFFFF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#64748B">对应 brpc/policy/baidu_rpc_protocol.cpp:105 的 ParseRpcMessage —— 这就是一个协议「切包函数」的标准形状</FONT></TD></TR>
+</TABLE>>];
+
+    out [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="2" BGCOLOR="#0D9488" COLOR="white" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="13"><B>③ 切完之后的账：包 1 / 包 2 已是独立 IOBuf，包 3 的原字节仍留在 read_buf</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="330" BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E"><B>MostCommonMessage::meta　+　.payload</B><BR/>两条 IOBuf，各自持有若干 BlockRef，<BR/>Block 的 nshared 加 1 —— <B>payload 零拷贝</B></FONT></TD>
+    <TD WIDTH="330" BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309"><B>read_buf（IOPortal）里只剩包 3 的半截</B><BR/>下一轮 epoll 可读事件来了，append 到后面<BR/>凑齐后再调一次 ParseRpcMessage —— 循环直到切不出包为止</FONT></TD></TR>
+</TABLE>>];
+
+    read -> parse [label="  数据到达", color="#0284C7", fontcolor="#0369A1"];
+    parse -> out [label="  切包结果", color="#0D9488", fontcolor="#0F766E"];
+}

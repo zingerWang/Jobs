@@ -1,0 +1,1716 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Linux 调试、抓包与性能分析实战 · 通俗图解版</title><style>
+:root{--ink:#182c40;--muted:#5f6f7e;--blue:#145d89;--line:#dfe5e9;--paper:#fff;--ground:#f3f5f6}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:24px}body{margin:0;background:var(--ground);color:var(--ink);font-family:"Microsoft YaHei","Noto Sans CJK SC","PingFang SC",system-ui,sans-serif;font-size:16px;line-height:1.95}
+a{color:var(--blue);text-decoration-thickness:1px;text-underline-offset:3px}a:hover{color:#a64d20}
+.layout{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:270px minmax(0,1fr);gap:42px;padding:46px 36px 80px}
+aside{position:sticky;top:24px;height:calc(100vh - 48px);overflow:auto;padding-right:8px;font-size:13px;line-height:1.55}
+.brand{font-weight:700;letter-spacing:2px;color:var(--blue);font-size:12px;margin:0 0 18px}.nav-title{color:var(--muted);font-size:12px;margin:22px 0 10px}
+nav a{display:flex;gap:10px;text-decoration:none;color:#425669;border-left:2px solid transparent;padding:8px 8px 8px 10px;margin-bottom:3px}nav a:hover{border-color:var(--blue);background:#e8edf1;color:var(--blue)}nav span{font-family:Consolas,monospace;opacity:.7;flex-shrink:0}
+main{min-width:0;background:var(--paper);padding:46px 50px 55px;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 25px #20364906}
+.eyebrow{font-size:12px;letter-spacing:2px;color:var(--blue);font-weight:700}h1{font-size:36px;line-height:1.5;letter-spacing:-.5px;margin:14px 0 16px;font-weight:750}.subtitle{font-size:18px;color:var(--muted);margin:0 0 20px}.meta{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:24px;border-bottom:1px solid var(--line);margin-bottom:28px}.meta span{font-size:12px;color:#496276;background:#edf3f6;border-radius:4px;padding:4px 9px}
+p{margin:0 0 19px}strong{font-weight:700}.section-lead{margin-top:44px;padding-top:26px;border-top:1px solid var(--line)}.section-lead>strong{font-size:21px;line-height:1.65;color:#123d59;display:block;margin-bottom:14px}.section-number{font-family:Consolas,monospace;color:#688497;font-size:16px;margin-right:10px}
+code{font-family:Consolas,"Cascadia Code","Microsoft YaHei",monospace;font-size:.88em;overflow-wrap:anywhere}p code,li code,td code{background:#eef2f4;border:1px solid #e0e7eb;border-radius:4px;padding:1px 4px}
+pre{background:#142b3c;color:#e6eff6;border:1px solid #203e52;border-radius:8px;padding:18px 20px;margin:20px 0 24px;overflow-x:auto;line-height:1.7;tab-size:4}pre code{font-size:13px;overflow-wrap:normal;white-space:pre}
+table{border-collapse:collapse;width:100%;font-size:14px;line-height:1.65;margin:22px 0 26px}th,td{text-align:left;padding:12px 10px;border:1px solid var(--line);overflow-wrap:anywhere}th{background:#edf3f6;color:#1c465e}td code{font-size:12px}ul,ol{padding-left:25px;margin-bottom:22px}li{margin-bottom:8px}
+.foot{margin-top:34px;border-top:1px solid var(--line);padding-top:18px;color:var(--muted);font-size:12px}.note{font-size:12px;color:var(--muted);line-height:1.8;padding:16px 12px;background:#eaf0f3;border-radius:7px;margin-top:18px}
+@media(max-width:1050px){.layout{grid-template-columns:220px minmax(0,1fr);gap:24px;padding:25px 20px}main{padding:32px}h1{font-size:30px}aside{font-size:12px}}
+@media(max-width:780px){.layout{display:block;padding:12px}aside{position:static;height:auto;max-height:310px;padding:14px 10px;margin-bottom:15px}main{padding:26px 20px;border-radius:8px}h1{font-size:27px}.section-lead>strong{font-size:20px}body{font-size:15px}.meta{gap:5px}th,td{padding:8px 6px;font-size:12px}pre{padding:14px}pre code{font-size:12px}}
+@media print{@page{size:A4;margin:17mm}body{background:#fff;font-size:10.5pt;line-height:1.75}.layout{display:block;padding:0;margin:0;max-width:none}aside{display:none}main{padding:0;border:0;box-shadow:none}h1{font-size:25pt}.section-lead>strong{font-size:15pt;break-after:avoid}.section-lead{margin-top:25px;padding-top:15px}pre{background:#f2f4f6;color:#182c40;border-color:#dbe1e6;white-space:pre-wrap;break-inside:avoid}pre code{white-space:pre-wrap;font-size:8.3pt}a{color:#185a80;text-decoration:none}tr{break-inside:avoid}thead{display:table-header-group}.meta span{background:#f0f3f5}}
+
+h2{font-size:24px;color:#123d59;line-height:1.6;margin:46px 0 22px;border-top:1px solid #dfe5e9;padding-top:28px;scroll-margin-top:20px}
+article>h2:first-of-type{font-size:27px}.diagram{margin:25px 0 12px}.diagram-open{display:block;width:100%;padding:0;border:1px solid #d5e1e9;border-radius:10px;background:#f6f9fc;overflow:hidden;cursor:zoom-in;text-align:center}.diagram-open img{display:block;width:100%;height:auto}.diagram-open span{display:block;font:12px 'Microsoft YaHei',sans-serif;color:#41677e;padding:9px;background:#eaf1f5}.diagram figcaption{font-size:13px;color:#536c7c;line-height:1.7;margin-top:8px}.diagram+p{font-size:13px;color:#607180}.meta{margin-bottom:20px}.toc-hint{padding:16px 20px;background:#eef5f8;border-left:4px solid #1b6b91;border-radius:4px;margin-bottom:25px}.toc-hint a{margin-right:18px}.top-link{font-size:12px;text-decoration:none}
+dialog{width:96vw;height:94vh;max-width:none;max-height:none;padding:0;border:0;border-radius:12px;box-shadow:0 12px 70px #0008;background:#f2f6f8;color:#18384b}dialog::backdrop{background:#0d2638c9}.zoom-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:12px 16px;background:#fff;border-bottom:1px solid #d5e1e9}.zoom-toolbar strong{flex:1;font-size:15px;min-width:180px}.zoom-toolbar button{padding:7px 12px;border:1px solid #bfcfd9;background:#f5f8fa;color:#184963;border-radius:5px;cursor:pointer}.zoom-scroll{height:calc(100% - 64px);overflow:auto;padding:20px}.zoom-scroll img{display:block;margin:auto;max-width:none;height:auto;box-shadow:0 2px 14px #1233}
+@media(max-width:780px){aside{display:none}h2{font-size:21px}.layout{padding:8px}main{padding:24px 17px}dialog{width:98vw;height:94vh}.zoom-scroll{padding:10px}.zoom-toolbar strong{font-size:12px}.zoom-toolbar button{padding:6px 8px}.diagram figcaption{font-size:12px}}
+@media print{h2{font-size:16pt;break-after:avoid}.diagram{break-inside:avoid}.diagram-open{border:0}.diagram-open span{display:none}dialog{display:none}.toc-hint{background:#f4f7f8}}
+</style></head><body>
+<div class="layout"><aside aria-label="文章目录"><div class="brand">LINUX · 通俗图解版</div><div class="nav-title"><a href="#contents">完整目录</a> · <a href="#part-16">总结导图</a></div><nav><a href="#part-01"><span>01</span>从一个慢请求开始：先找出时间花在哪一步</a><a href="#part-02"><span>02</span>准备一个能反复运行的实验环境</a><a href="#part-03"><span>03</span>实验一：从空指针崩溃找到遗漏的检查</a><a href="#part-04"><span>04</span>学会让程序停在真正有价值的位置</a><a href="#part-05"><span>05</span>实验二：制造并定位一个确定发生的双线程死锁</a><a href="#part-06"><span>06</span>多线程调试最重要的三个细节</a><a href="#part-07"><span>07</span>实验三：证明 HTTP 慢请求不一定是网络慢</a><a href="#part-08"><span>08</span>真正抓包时，接口、范围和完整性决定结论</a><a href="#part-09"><span>09</span>读懂 TCP 和 Wireshark，避免“看见红色就下结论”</a><a href="#part-10"><span>10</span>用连接与路径信息补全网络证据</a><a href="#part-11"><span>11</span>性能诊断从整体向局部收敛</a><a href="#part-12"><span>12</span>实验四：找到重复计算，让优化有证据</a><a href="#part-13"><span>13</span>CPU 不忙时，追踪线程到底在等什么</a><a href="#part-14"><span>14</span>把一次慢请求排查闭环</a><a href="#part-15"><span>15</span>Q&amp;A：常见问题与解答</a><a href="#part-16"><span>16</span>思维导图总结：用证据选择下一步</a></nav><div class="note">先理解机制，再完成实验。图中教学时间均为示意；实际结果请以自己的测量为准。</div></aside>
+<main><header><div class="eyebrow">原理 × 图解 × 实验 × 证据</div><h1>Linux 调试、抓包<br>与性能分析实战</h1><p class="subtitle">通俗图解版：先建立直觉，再理解机制与操作</p><div class="meta"><span>约 21500 中文字</span><span>16 节完整目录</span><span>1 张开篇流程图 + 5 张原理图 + 1 张思维导图</span><span>4 个实验 · 6 份源码</span></div><div class="toc-hint"><a href="#contents">查看完整目录 ↓</a><a href="#part-16">查看总结思维导图 ↓</a><span>所有图可点击放大，文件可离线阅读。</span></div></header><article><p>适合读者：掌握基本 Linux 命令、能阅读简单 C 代码，希望开始独立排查程序问题的开发者。正文围绕 GDB、多线程、网络抓包和性能诊断展开，配套源码位于 <code>examples/</code>。所有终端命令均针对 Linux Bash；带 <code>(gdb)</code> 的行在 GDB 内输入，不要复制提示符。文中的 PID、接口名和远端地址需要按实际环境替换。</p>
+<blockquote>
+<p><strong>排障主线：记录现象 → 定位慢阶段 → 选择工具 → 修改验证。</strong></p>
+<p><strong>第一次阅读：</strong> 先读 01—02，再按 03（崩溃）、05（死锁）、07（慢请求）、12（CPU 热点）完成四个实验。</p>
+<p><strong>复习或遇到具体问题：</strong> 先看 15 的常见误区，再用 16 的“现象—证据—工具”表格和文字思维树选择下一步。</p>
+</blockquote>
+<p><strong>操作标签。</strong> “实验环境”指配套程序和可重建的 Linux 测试环境；“现场采集”需要按业务可接受的暂停、资源开销和权限确定范围。</p>
+<p><a id="contents"></a></p>
+<h2>目录</h2>
+<p>按顺序阅读可以完成四个实验；已有具体问题时，可以直接跳到相应章节。</p>
+<p><strong>先读懂这几个词，后面的命令会容易很多。</strong></p>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>可以先这样理解</th>
+<th>在本文中怎么看</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>进程 / 线程</td>
+<td>一间厨房 / 厨房里的多个厨师</td>
+<td>进程有资源，线程负责执行；线程之间共享许多数据</td>
+</tr>
+<tr>
+<td>PID / TID</td>
+<td>进程编号 / 内核中的线程编号</td>
+<td>Linux 的 TID 与所在 PID 命名空间有关；GDB 第一列线程号不等于 TID，对照 <code>LWP xxx</code> 查看</td>
+</tr>
+<tr>
+<td>调用栈 / 栈帧</td>
+<td>当前办事路线 / 路线中的一站</td>
+<td><code>bt</code> 看谁调用谁，<code>frame</code> 选择哪一层查看</td>
+</tr>
+<tr>
+<td>指针 / NULL</td>
+<td>对象的地址 / 没有对象地址</td>
+<td><code>0x0</code> 不是一个可以随意读取的用户对象</td>
+</tr>
+<tr>
+<td>锁 / 死锁</td>
+<td>共用钥匙 / 互相等对方交出钥匙</td>
+<td>等一下可能正常，互相永远等下去才是问题</td>
+</tr>
+<tr>
+<td>RTT / TTFB</td>
+<td>一次来回时间 / 请求开始到首个响应字节</td>
+<td>两者衡量不同阶段，不能混为一谈</td>
+</tr>
+<tr>
+<td>延迟 / 吞吐</td>
+<td>一个顾客等多久 / 每秒服务多少顾客</td>
+<td>同时看速度、处理量和错误率</td>
+</tr>
+<tr>
+<td>采样 / core</td>
+<td>定时抽查 / 进程状态快照</td>
+<td>core 可来自崩溃或显式转储；普通 core 只能静态检查，不能继续原执行过程</td>
+</tr>
+</tbody></table>
+<p><strong>复制命令前先看标签。</strong> Bash 代码在 Linux 终端运行；GDB 命令在调试器里运行，不要复制 <code>(gdb)</code> 提示符。<code>12345</code> 是需要替换的示例 PID，不是固定值。目录名称有空格时，给路径加引号，例如 <code>cd &quot;学习资料所在目录&quot;</code>。</p>
+<p><strong>多行命令怎样复制？</strong> Bash 行末的反斜杠 <code>\</code> 表示命令下一行继续，反斜杠后不能再有空格。复制完整代码块，不要把一条续行命令拆开逐行执行；排版自动折行和真正的换行也不是一回事。遇到粘贴异常，先在编辑器中核对，不要反复执行残缺命令。</p>
+<p><strong>第一部分：问题与环境</strong></p>
+<ul>
+<li><a href="#part-01">01｜从一个慢请求开始：先找出时间花在哪一步</a></li>
+<li><a href="#part-02">02｜准备一个能反复运行的实验环境</a></li>
+</ul>
+<p><strong>第二部分：GDB 与多线程</strong></p>
+<ul>
+<li><a href="#part-03">03｜实验一：从空指针崩溃找到遗漏的检查</a></li>
+<li><a href="#part-04">04｜学会让程序停在真正有价值的位置</a></li>
+<li><a href="#part-05">05｜实验二：制造并定位一个确定发生的双线程死锁</a></li>
+<li><a href="#part-06">06｜多线程调试最重要的三个细节</a></li>
+</ul>
+<p><strong>第三部分：抓包与网络</strong></p>
+<ul>
+<li><a href="#part-07">07｜实验三：证明 HTTP 慢请求不一定是网络慢</a></li>
+<li><a href="#part-08">08｜真正抓包时，接口、范围和完整性决定结论</a></li>
+<li><a href="#part-09">09｜读懂 TCP 和 Wireshark，避免“看见红色就下结论”</a></li>
+<li><a href="#part-10">10｜用连接与路径信息补全网络证据</a></li>
+</ul>
+<p><strong>第四部分：性能与排障闭环</strong></p>
+<ul>
+<li><a href="#part-11">11｜性能诊断从整体向局部收敛</a></li>
+<li><a href="#part-12">12｜实验四：找到重复计算，让优化有证据</a></li>
+<li><a href="#part-13">13｜CPU 不忙时，追踪线程到底在等什么</a></li>
+<li><a href="#part-14">14｜把一次慢请求排查闭环</a></li>
+</ul>
+<p><strong>第五部分：常见问题、总结与速查</strong></p>
+<ul>
+<li><a href="#part-15">15｜Q&amp;A：常见问题与解答</a></li>
+<li><a href="#part-16">16｜思维导图总结：用证据选择下一步</a></li>
+</ul>
+<p><strong>插图索引</strong></p>
+<ul>
+<li><p><a href="#part-01">开篇图：订单请求与工具观察范围</a></p>
+</li>
+<li><p><a href="#part-04">图 1：GDB 控制、符号与调用栈</a></p>
+</li>
+<li><p><a href="#part-06">图 2：线程与死锁资源等待环</a></p>
+</li>
+<li><p><a href="#part-07">图 3：TCP / HTTP 分阶段时序</a></p>
+</li>
+<li><p><a href="#part-08">图 4：抓包观察点与卸载</a></p>
+</li>
+<li><p><a href="#part-11">图 5：请求时间与性能工具</a></p>
+</li>
+<li><p><a href="#part-16">图 6：总结思维导图</a></p>
+</li>
+</ul>
+<p><strong>推荐路线：</strong> 初学先读 01→02 和术语表，再依次完成 03、05、07、12 四个实验；复习可直接查看 <a href="#part-16">第 16 节思维导图</a>。</p>
+<h2 id="part-01">01｜从一个慢请求开始：先找出时间花在哪一步</h2>
+<p>假设你写了一个查询订单的服务。平时打开订单页面，约 0.2 秒就有结果；今天却要等 5 秒。你准备找出原因，这个过程就叫“排查问题”，简称“排障”。下面的数字是用来帮助理解的假设，不是实验测量结果。</p>
+<p>你可能会猜：“是不是网络慢了？”这只是一个可能。要弄清楚原因，先看一次查询需要经过哪些步骤：</p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大开篇图：订单请求经过哪里、用什么工具观察" data-title="开篇图：订单请求经过哪里、用什么工具观察"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjEwMTAiIHZpZXdCb3g9IjAgMCAxNDAwIDEwMTAiPg0KPGRlZnM+PG1hcmtlciBpZD0iYXJyb3ciIG1hcmtlcldpZHRoPSIxMiIgbWFya2VySGVpZ2h0PSIxMiIgcmVmWD0iMTAiIHJlZlk9IjYiIG9yaWVudD0iYXV0byI+PHBhdGggZD0iTTEgMSBMMTAgNiBMMSAxMSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMzk2Yjg5IiBzdHJva2Utd2lkdGg9IjIiLz48L21hcmtlcj48L2RlZnM+DQo8cmVjdCB3aWR0aD0iMTQwMCIgaGVpZ2h0PSIxMDEwIiBmaWxsPSIjZjRmOGZiIi8+DQo8dGV4dCB4PSI2MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMzEiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMyNDRlNjkiPuS4gOasoeiuouWNleafpeivou+8muivt+axgue7j+i/h+WTqumHjO+8jOeUqOS7gOS5iOW3peWFt+inguWvn++8nzwvdGV4dD4NCjx0ZXh0IHg9IjYwIiB5PSI5MiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5oyJIOKRoCDihpIg4pGhIOKGkiDikaIg4oaSIOKRoyDpmIXor7vvvJvkvY3nva7lkozml7bplb/ku4XkuLrljp/nkIbnpLrmhI88L3RleHQ+DQo8cmVjdCB4PSI3MCIgeT0iMTMwIiB3aWR0aD0iNDYwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjOWJiNmM4IiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjkzIiB5PSIxNjgiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMyNDRlNjkiPuS9oOeahOeUteiEkSAvIOWuouaIt+errzwvdGV4dD4NCjx0ZXh0IHg9IjkzIiB5PSIyMDYiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMyNDRlNjkiPuWPkei1t+afpeivou+8jOetieW+heW5tuaYvuekuue7k+aenDwvdGV4dD4NCjxyZWN0IHg9Ijg3MCIgeT0iMTMwIiB3aWR0aD0iNDYwIiBoZWlnaHQ9IjEwMCIgcng9IjEyIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjOWJiNmM4IiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9Ijg5MyIgeT0iMTY4IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjQ0ZTY5Ij7ov5DooYzorqLljZXmnI3liqHnmoTmnI3liqHlmag8L3RleHQ+DQo8dGV4dCB4PSI4OTMiIHk9IjIwNiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5o6l5pS26K+35rGC77yM5p+l6K+i5pWw5o2u77yM55Sf5oiQ5ZON5bqUPC90ZXh0Pg0KPHBhdGggZD0iTTMwMCAyNTAgVjY0MCBNMTEwMCAyNTAgVjY0MCIgc3Ryb2tlPSIjYjJjN2Q0IiBzdHJva2Utd2lkdGg9IjMiIHN0cm9rZS1kYXNoYXJyYXk9IjggOCIvPg0KPHRleHQgeD0iNzAiIHk9IjI4NSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzI0NGU2OSI+4pGgIOWPkei1t+KAnOafpeivouiuouWNlSA0MuKAnTwvdGV4dD4NCjxwYXRoIGQ9Ik0zMjAgMzE1IEgxMDg1IiBmaWxsPSJub25lIiBzdHJva2U9IiMzOTZiODkiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4NCjx0ZXh0IHg9IjU4NSIgeT0iMjk2IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMjQ0ZTY5Ij7or7fmsYLliLDovr7mnI3liqHlmag8L3RleHQ+DQo8cmVjdCB4PSI4NjUiIHk9IjM1MCIgd2lkdGg9IjQ2NSIgaGVpZ2h0PSIxNTIiIHJ4PSIxMiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iIzliYjZjOCIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI4ODgiIHk9IjM4OCIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzI0NGU2OSI+4pGhIOacjeWKoeerr+aOpeaUtuW5tuWkhOeQhjwvdGV4dD4NCjx0ZXh0IHg9Ijg4OCIgeT0iNDI2IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMjQ0ZTY5Ij7mn6Xmib7orqLljZXjgIHnrYnlvoXkvp3otZbjgIHnlJ/miJDnu5Pmnpw8L3RleHQ+DQo8dGV4dCB4PSI4ODgiIHk9IjQ1OCIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+6L+Z5LiA5q615Y+v6IO95Zyo6K6h566X77yM5Lmf5Y+v6IO95Zyo562J5b6FPC90ZXh0Pg0KPHBhdGggZD0iTTEwODAgNTUwIEgzMjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzM5NmI4OSIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPg0KPHRleHQgeD0iNTU1IiB5PSI1MzMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMyNDRlNjkiPuKRoiDov5Tlm57mn6Xor6Lnu5Pmnpw8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNjA1IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjQ0ZTY5Ij7ikaMg5pS25Yiw57uT5p6c77yM5pi+56S66aG16Z2iPC90ZXh0Pg0KPHRleHQgeD0iNjAiIHk9IjY5NyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzI0NGU2OSI+5bel5YW36KeC5a+f6IyD5Zu077ya5YWI6Zeu5riF5qWa6Zeu6aKY77yM5YaN5oyR5bel5YW3PC90ZXh0Pg0KPHJlY3QgeD0iNjAiIHk9IjcyNSIgd2lkdGg9IjQwNSIgaGVpZ2h0PSIyMDUiIHJ4PSIxMiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iIzliYjZjOCIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI4MyIgeT0iNzYzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjQ0ZTY5Ij5jdXJs77ya5LuO5a6i5oi356uv55yL5oC76L+H56iLPC90ZXh0Pg0KPHRleHQgeD0iODMiIHk9IjgwMSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5Y+R6K+35rGC77yM6K6w5b2V5bu66L+e5ZKM6aaW5a2X6IqC5pe26Ze0PC90ZXh0Pg0KPHRleHQgeD0iODMiIHk9IjgzMyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5Zue562U77ya562J5b6F5Li76KaB5Zyo5ZOq5Liq6Zi25q6177yfPC90ZXh0Pg0KPHRleHQgeD0iODMiIHk9Ijg2NSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5LiN6IO955u05o6l57uZ5Ye65pyN5Yqh5Zmo5ZOq5LiA6KGM5oWiPC90ZXh0Pg0KPHJlY3QgeD0iNDk1IiB5PSI3MjUiIHdpZHRoPSI0MDUiIGhlaWdodD0iMjA1IiByeD0iMTIiIGZpbGw9IndoaXRlIiBzdHJva2U9IiM5YmI2YzgiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iNTE4IiB5PSI3NjMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMyNDRlNjkiPnRjcGR1bXAgLyBXaXJlc2hhcmvvvJrnnIvpgJrkv6E8L3RleHQ+DQo8dGV4dCB4PSI1MTgiIHk9IjgwMSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+6K6w5b2V5bm25YiG5p6Q6K+35rGC44CB5ZON5bqU57uP6L+H5pe25Yi7PC90ZXh0Pg0KPHRleHQgeD0iNTE4IiB5PSI4MzMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMyNDRlNjkiPuWbnuetlO+8muaVsOaNruS9leaXtuWIsOi+vuinguWvn+eCue+8nzwvdGV4dD4NCjx0ZXh0IHg9IjUxOCIgeT0iODY1IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMjQ0ZTY5Ij7kuI3og73lj6rlh60gQUNLIOWIpOWumuS4muWKoeW3suWujOaIkDwvdGV4dD4NCjxyZWN0IHg9IjkzMCIgeT0iNzI1IiB3aWR0aD0iNDEwIiBoZWlnaHQ9IjIwNSIgcng9IjEyIiBmaWxsPSJ3aGl0ZSIgc3Ryb2tlPSIjOWJiNmM4IiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9Ijk1MyIgeT0iNzYzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMjQ0ZTY5Ij5HREIgLyBwZXJm77ya6L+b5pyN5Yqh5Zmo55yL56iL5bqPPC90ZXh0Pg0KPHRleHQgeD0iOTUzIiB5PSI4MDEiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMyNDRlNjkiPkdEQiDnnIvku6PnoIHkvY3nva7jgIHlj5jph4/lkoznur/nqIs8L3RleHQ+DQo8dGV4dCB4PSI5NTMiIHk9IjgzMyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+cGVyZiDph4fmoLfnnIvov5DooYzml7bnmoTng63ngrnot6/lvoQ8L3RleHQ+DQo8dGV4dCB4PSI5NTMiIHk9Ijg2NSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5YaN55So5pel5b+X5YWz6IGU5Yiw5ZCM5LiA5p2h6K+35rGCPC90ZXh0Pg0KPHRleHQgeD0iNjAiIHk9Ijk3NSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzI0NGU2OSI+5YWI5Yy65YiG77ya6K+35rGC5rKh5Yiw44CB5pyN5Yqh5aSE55CG5oWi44CB5ZON5bqU6L+U5Zue5oWi44CC5a6i5oi356uv5oSf6KeJ5Yiw55qE562J5b6F5YyF5ZCr5pW05Liq6L+H56iL44CCPC90ZXh0Pg0KPC9zdmc+" alt="开篇图：订单请求经过哪里、用什么工具观察" loading="lazy"><span>点击放大查看</span></button><figcaption>开篇图：订单请求经过哪里、用什么工具观察</figcaption></figure>
+<p><em>从上往下读：发送请求 → 服务端接收和处理 → 返回结果。图下方标明工具能看到的范围；这不是实际抓包记录。</em></p>
+<p><strong>你感受到的 5 秒，是整个过程的耗时。</strong> 请求可能迟迟没送到，服务器可能处理得慢，也可能服务器早已处理完，但结果没有及时回到你的电脑。这几种情况的处理办法不同，所以先找出慢在哪一步。</p>
+<p><strong>第一步：把你看到的现象记清楚。</strong> 不用先背专业指标，只要写出别人能够照着检查的描述。例如：</p>
+<pre><code class="language-text">什么时候：今天 10:30 左右。
+做了什么：查询订单 42。
+等了多久：平时约 0.2 秒，这次约 5 秒。
+能否重现：连续查询 10 次，有 3 次超过 3 秒。
+影响范围：查询订单慢，打开首页正常。
+</code></pre>
+<p>这份记录能帮你缩小范围。如果只有查询订单慢，就先检查这条请求经过的代码和依赖；如果所有页面都慢，再检查共同使用的服务和机器。这里不需要立即猜出答案，先把发生了什么说清楚。</p>
+<p><strong>第二步：沿着这次请求，寻找两个时间点。</strong> 一个是服务器什么时候收到请求，另一个是什么时候准备好返回结果。可以先看服务日志；日志记录不足时，再结合后文的抓包和调试方法。</p>
+<p>假设你找到下面两条日志：</p>
+<pre><code class="language-text">10:30:00.000  request_id=abc123  开始处理订单 42
+10:30:04.800  request_id=abc123  已生成查询结果
+</code></pre>
+<p>两条日志之间相差约 4.8 秒，说明主要等待出现在这两处日志之间。接下来就应该细查这段处理流程：是在计算、等锁，还是等数据库返回？<code>request_id</code> 是这次请求的编号，两条日志必须属于同一次查询，才能这样比较。日志没有出现，也不能直接证明请求没到；可能只是日志没有在那个位置记录。</p>
+<p><strong>第三步：根据已经看到的情况，选择工具。</strong> 现在再认识本文的几类工具，就容易理解它们各自解决什么问题了：</p>
+<table>
+<thead>
+<tr>
+<th>你想弄清楚什么</th>
+<th>用什么工具</th>
+<th>可以理解为</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>请求和响应什么时候经过某台机器？</td>
+<td>tcpdump、Wireshark</td>
+<td>给网络通信做带时间的记录，这叫“抓包”</td>
+</tr>
+<tr>
+<td>程序执行到哪一行？变量是什么？哪个线程在等待？</td>
+<td>GDB</td>
+<td>暂停程序，查看当前代码位置和数据</td>
+</tr>
+<tr>
+<td>哪个线程正在忙？CPU 时间主要花在哪些函数？</td>
+<td>top、pidstat、perf</td>
+<td>先看谁忙，再统计它主要忙什么</td>
+</tr>
+</tbody></table>
+<p>例如，若服务器在那 4.8 秒里持续使用很多 CPU，就进一步查看正在运行的线程和热点函数；若 CPU 不忙，却一直没有结果，就检查它是否在等锁、磁盘或其他服务。CPU 高低只是线索，最后还要用代码位置、调用耗时等证据确认原因。后面的章节会一步步教你怎么做。</p>
+<p><strong>第四步：改完以后，用相同的查询再试。</strong> 如果你发现查询重复计算了同一份数据，修改后就再查订单 42，检查结果是否仍然正确、耗时是否下降。还要多试几次，避免把偶然的一次变快当成问题已经解决。</p>
+<p>学习本文时，可以一直带着这条顺序：<strong>先说清楚现象 → 找到慢的阶段 → 用合适的工具细查 → 修改后重新验证。</strong> 先完成后面的四个小实验，不需要一开始就记住所有命令。</p>
+<h3>先认识工具：每个工具帮你回答什么</h3>
+<p><strong>GDB 是程序调试器。</strong> 它像能暂停、查看和控制程序执行的检查台：让程序停在某行，查看变量，查看“谁调用了谁”，切换线程。它既能运行待调试程序，也能附加已有进程或读取 core。它不会自动告诉你根因；你要根据停下来的位置和数据继续推理。比如程序查询用户 404 后崩溃，GDB 可以帮助确认 show_user 收到的是空指针，接着追问为什么调用方没有处理“查无此人”。</p>
+<p><strong>GCC 与 GDB 不是同一种工具。</strong> GCC 把 C 源码编译成可执行程序，GDB 再调试这个程序。源码是说明书，可执行文件是机器实际运行的结果，调试信息是两者之间的地址对照资料。</p>
+<table>
+<thead>
+<tr>
+<th>工具</th>
+<th>通俗理解与具体作用</th>
+<th>本文什么时候用</th>
+<th>它不能独自证明什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GCC（gcc）</td>
+<td>把 C 源码编译成程序，并给出编译诊断</td>
+<td>生成 crash、deadlock、cpu_hotspot</td>
+<td>编译成功不代表逻辑正确</td>
+</tr>
+<tr>
+<td>GDB（gdb）</td>
+<td>控制执行，查看调用栈、变量和线程</td>
+<td>崩溃找坏参数，卡住查等待关系</td>
+<td>一次暂停的状态不等于完整执行历史</td>
+</tr>
+<tr>
+<td>Python 3（python3）</td>
+<td>运行 Python 脚本</td>
+<td>启动本机 HTTP 教学服务</td>
+<td>该脚本不是生产服务器</td>
+</tr>
+<tr>
+<td>curl</td>
+<td>发起请求并显示请求阶段的计时</td>
+<td>对照 fast 与 slow</td>
+<td>客户端总等待不等于服务端计算时间</td>
+</tr>
+<tr>
+<td>tcpdump</td>
+<td>从指定网络接口捕获并保存报文</td>
+<td>保存 HTTP 请求和响应的时间线</td>
+<td>捕获不完整时，缺包不等于链路丢包</td>
+</tr>
+<tr>
+<td>Wireshark</td>
+<td>图形界面分析抓包文件、连接和协议</td>
+<td>找 HTTP 流、看握手与响应</td>
+<td>分析提示不是根因判决</td>
+</tr>
+<tr>
+<td>TShark（tshark）</td>
+<td>在终端中解码和筛选抓包文件</td>
+<td>无图形界面时读取实验 pcap</td>
+<td>HTTPS 不会因此自动变成明文</td>
+</tr>
+<tr>
+<td>ip、ss</td>
+<td>查看接口、路由、socket 状态与队列</td>
+<td>核对抓哪个网卡、服务监听哪里</td>
+<td>连接存在不代表业务处理成功</td>
+</tr>
+<tr>
+<td>top、ps</td>
+<td>查看进程与线程状态，top 可动态刷新</td>
+<td>找持续忙的线程、查看 TID</td>
+<td>CPU 高低只是线索</td>
+</tr>
+<tr>
+<td>sysstat 工具集</td>
+<td>mpstat 看各 CPU，pidstat 看任务，iostat 看设备</td>
+<td>从机器缩小到线程或磁盘</td>
+<td>单个利用率不能说明全部等待</td>
+</tr>
+<tr>
+<td>vmstat、free、uptime</td>
+<td>看运行队列、内存、交换和负载概况</td>
+<td>判断资源调查方向</td>
+<td>free 小不等于泄漏，负载不等于 CPU 百分比</td>
+</tr>
+<tr>
+<td>perf</td>
+<td>统计性能事件，采样执行位置和调用栈</td>
+<td>查 checksum 等 CPU 热点</td>
+<td>CPU 热点不能覆盖全部阻塞时间</td>
+</tr>
+<tr>
+<td>time</td>
+<td>记录命令的墙钟时间及 CPU 时间</td>
+<td>没有采样权限时先做时间对照</td>
+<td>不直接指出哪一行慢</td>
+</tr>
+<tr>
+<td>strace</td>
+<td>跟踪系统调用、返回值及耗时</td>
+<td>查网络调用失败、读写与等待</td>
+<td>等待长不代表一直在使用 CPU</td>
+</tr>
+<tr>
+<td>ThreadSanitizer</td>
+<td>编译插桩后检测测试中的数据竞争</td>
+<td>可复现的多线程测试</td>
+<td>未报告不等于证明无竞争</td>
+</tr>
+<tr>
+<td>BCC、bpftrace</td>
+<td>按内核事件追踪调度、I/O、网络等</td>
+<td>栈和指标还不能解释等待时</td>
+<td>需要明确事件、范围和权限</td>
+</tr>
+<tr>
+<td>iperf3、ping</td>
+<td>主动产生传输或连通性测试流量</td>
+<td>获准的网络对照测试</td>
+<td>不能代替真实接口的性能验证</td>
+</tr>
+</tbody></table>
+<p><strong>下面的命令表怎样读？</strong> “输入什么”是要输入的命令；“为什么输入”解释本步目标；“观察什么”告诉你读哪一项结果。先确认代码块属于 Bash 还是 GDB，再照顺序执行；表格中的完整命令只是解释，不需要重复执行一遍。</p>
+<h2 id="part-02">02｜准备一个能反复运行的实验环境</h2>
+<p>建议使用 Linux 虚拟机或开发机。基础实验只需要 GCC、GDB、Python 3 和 curl；抓包需要 tcpdump，终端协议分析使用 TShark，系统指标使用 sysstat，CPU 采样使用 perf。Debian/Ubuntu 的常见安装方式如下：</p>
+<pre><code class="language-bash">sudo apt update
+sudo apt install build-essential gdb python3 curl
+sudo apt install tcpdump tshark sysstat strace iperf3
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo apt update</code></td>
+<td>刷新 APT 的软件包索引。</td>
+<td>更新的是安装目录信息，不是直接升级全部程序。</td>
+</tr>
+<tr>
+<td><code>sudo apt install build-essential gdb python3 curl</code></td>
+<td>安装本行列出的工具或工具包。</td>
+<td>build-essential 提供构建工具；sysstat 提供 pidstat/mpstat/iostat；perf 包按发行版选择，不能把所有安装分支都执行。</td>
+</tr>
+<tr>
+<td><code>sudo apt install tcpdump tshark sysstat strace iperf3</code></td>
+<td>安装本行列出的工具或工具包。</td>
+<td>build-essential 提供构建工具；sysstat 提供 pidstat/mpstat/iostat；perf 包按发行版选择，不能把所有安装分支都执行。</td>
+</tr>
+</tbody></table>
+<p><strong>perf 要按“确认系统 → 检查命令 → 安装所需包 → 验证”的顺序处理。</strong> </p>
+<p>先确认发行版和正在运行的内核：</p>
+<pre><code class="language-bash">cat /etc/os-release
+uname -r
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>cat /etc/os-release</code></td>
+<td>读取发行版身份文件。</td>
+<td>看 ID、VERSION_ID，再选对应安装规则。</td>
+</tr>
+<tr>
+<td><code>uname -r</code></td>
+<td>显示正在运行的内核版本。</td>
+<td>按内核打包时，用它核对需要的工具包。</td>
+</tr>
+</tbody></table>
+<p><code>/etc/os-release</code> 用于识别 Debian、Ubuntu 等发行版；<code>uname -r</code> 显示当前正在运行的内核版本。不要只凭电脑安装过哪个内核包来猜当前内核。</p>
+<p>再检查当前 Shell 能否找到 perf：</p>
+<pre><code class="language-bash">command -v perf
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>command -v perf</code></td>
+<td>让 shell 查找 perf 命令的位置。</td>
+<td>路径说明能找到入口，不说明能采样；无输出也要检查 PATH。</td>
+</tr>
+</tbody></table>
+<p>如果输出一个路径，只说明当前 Shell 找到了这个命令，还不能证明它能正常运行。如果没有输出，说明它不在当前 Shell 的命令查找范围中：常见原因是尚未安装，也可能是安装位置没有加入 <code>PATH</code>。<code>PATH</code> 就是 Shell 查找可执行程序时使用的目录列表。</p>
+<p><strong>确实需要安装时，按实际发行版选择下面一组命令，不要两组都执行。</strong> 以下示例适用于使用 APT、且相应软件包在已配置仓库中可用的系统。</p>
+<p>Debian 的常见安装方式：</p>
+<pre><code class="language-bash">sudo apt update
+sudo apt install linux-perf
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo apt update</code></td>
+<td>刷新 APT 的软件包索引。</td>
+<td>更新的是安装目录信息，不是直接升级全部程序。</td>
+</tr>
+<tr>
+<td><code>sudo apt install linux-perf</code></td>
+<td>安装本行列出的工具或工具包。</td>
+<td>build-essential 提供构建工具；sysstat 提供 pidstat/mpstat/iostat；perf 包按发行版选择，不能把所有安装分支都执行。</td>
+</tr>
+</tbody></table>
+<p>对于 Ubuntu 22.04 / 24.04 中采用按内核打包的常见环境，安装公共入口和当前内核对应的工具包：</p>
+<pre><code class="language-bash">sudo apt update
+sudo apt install linux-tools-common &quot;linux-tools-$(uname -r)&quot;
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo apt update</code></td>
+<td>刷新 APT 的软件包索引。</td>
+<td>更新的是安装目录信息，不是直接升级全部程序。</td>
+</tr>
+<tr>
+<td><code>sudo apt install linux-tools-common &quot;linux-tools-$(uname -r)&quot;</code></td>
+<td>安装本行列出的工具或工具包。</td>
+<td>build-essential 提供构建工具；sysstat 提供 pidstat/mpstat/iostat；perf 包按发行版选择，不能把所有安装分支都执行。</td>
+</tr>
+</tbody></table>
+<p>这里的 <code>$(uname -r)</code> 会被 Shell 替换为当前内核版本。例如当前版本为 <code>6.8.0-xx-generic</code>，对应的包名就是 <code>linux-tools-6.8.0-xx-generic</code>；<code>xx</code> 只是说明用的占位符，不要照抄这个包名。在这种打包方式下，Ubuntu 的公共入口可能已经存在，但与当前内核对应的实际工具仍未安装，因此仅看 <code>command -v perf</code> 的结果不够。</p>
+<p><strong>不要把上述 Ubuntu 示例推广到所有版本。</strong> 例如 Ubuntu 25.10 的官方手册将 perf 列为由 <code>linux-perf</code> 包提供。较新版本、其他内核分支或衍生发行版，应先查询该版本的官方软件包目录，再选择包名。<a target="_blank" rel="noopener noreferrer" href="https://manpages.ubuntu.com/manpages/questing/man1/perf.1.html">Ubuntu 25.10 perf 手册及提供软件包</a></p>
+<p>如果 APT 提示找不到软件包，先核对发行版、仓库配置和 <code>uname -r</code> 的输出。自编译内核、某些云内核或已不再由当前仓库提供的旧内核，可能没有这个精确包名；应按该内核供应方的说明获取工具，不能保证换装一个任意版本的包就能解决。Debian 与 Ubuntu 的包组织不同，也不要把 Ubuntu 的按内核命名方式照搬到所有发行版。<a target="_blank" rel="noopener noreferrer" href="https://packages.debian.org/stable/linux-perf">Debian linux-perf 软件包</a>、<a target="_blank" rel="noopener noreferrer" href="https://packages.ubuntu.com/noble/linux-tools-common">Ubuntu linux-tools-common 软件包</a></p>
+<p><strong>按内核打包的环境，更新后要重新核对。</strong> 重启进入新内核后，再运行 <code>uname -r</code>；若 perf 入口报告缺少当前内核工具，需要安装该版本对应的 tools 包。云内核、HWE 或自编译内核应按供应方和发行版的包规则检查，不要随便挑一个其他版本来替代。工具与内核并非在所有发行版都必须逐字同版本，但事件、接口和栈展开能力必须实际验证；入门实验优先在受控测试机完成。</p>
+<p>安装后，或系统原本已有 perf 时，再执行：</p>
+<pre><code class="language-bash">perf --version
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>perf --version</code></td>
+<td>启动已有 perf 并显示版本。</td>
+<td>命令可启动不代表有事件权限或硬件 PMU。</td>
+</tr>
+</tbody></table>
+<p>成功打印版本号，只说明 perf 命令可以启动；若入口提示缺少当前内核工具，仍需补齐安装。<strong>perf --version 成功 ≠ 可以采样。</strong> 虚拟机可能不暴露硬件 PMU，权限策略也可能阻止 <code>perf_event_open</code>。软件事件仍受相应权限限制，不能保证改用软件事件就一定成功。第 12 节将按软件事件、程序计时和 <code>time</code> 逐步验证，不要求读者为了完成实验降低整机安全参数。<a target="_blank" rel="noopener noreferrer" href="https://docs.kernel.org/admin-guide/perf-security.html">perf 安全与权限说明</a></p>
+<p>解压配套实验包后，在含有 <code>examples/</code> 的目录执行命令。配套 HTTP 实验绑定 <code>127.0.0.1:18080</code>，不需要外部服务器。后文的远端网络检查属于工程用法示意，需要替换地址。实验程序不用于生产服务。示例输出展示应观察的形态，地址、线程编号、时间和内部函数名以实际机器为准。</p>
+<p>调试构建可考虑 <code>-g -Og</code>：<code>-g</code> 生成调试信息，<code>-Og</code> 是面向调试体验的优化选项。本教程的崩溃和死锁实验用 <code>-O0</code> 简化观察，性能实验用 <code>-O2</code>。<strong>不要用 -O0 实验的线程时序和变量表现，直接推断线上 -O2 程序的行为。</strong> 改变优化会改变生成代码和时序；涉及数据竞争等未定义行为时，更没有稳定表现可依赖。</p>
+<p><strong>-g 可以与 -O2 共用，也可以用于生产构建。</strong> 是否将符号随程序分发由发布策略决定，工程上可单独保存匹配的调试符号包。线上分析应使用故障现场的原始二进制、共享库与对应符号；“文件名相同”不代表匹配，可结合 Build ID 核对。重新构建的程序不一定不匹配，但未经确认不能拿它替代原件。<a target="_blank" rel="noopener noreferrer" href="https://gcc.gnu.org/onlinedocs/gcc/Debugging-Options.html">GCC 调试选项</a></p>
+<p><a id="compiler-options"></a></p>
+<h3>编译选项速查：通用含义只在这里说明</h3>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>具体作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>-g</code></td>
+<td>生成调试信息，帮助 GDB 将地址对应到源码与变量</td>
+</tr>
+<tr>
+<td><code>-O0</code> / <code>-O2</code></td>
+<td>分别关闭大多数优化 / 开启一组优化；本文用前者简化入门观察，用后者做性能对照</td>
+</tr>
+<tr>
+<td><code>-Wall -Wextra</code></td>
+<td>启用更多编译诊断，帮助发现可疑写法</td>
+</tr>
+<tr>
+<td><code>-o 名称</code></td>
+<td>指定生成的可执行文件名</td>
+</tr>
+<tr>
+<td><code>-pthread</code></td>
+<td>设置线程相关的编译和链接支持</td>
+</tr>
+<tr>
+<td><code>-fno-omit-frame-pointer</code></td>
+<td>请求保留帧指针，辅助基于帧指针的调用栈展开；不保证所有栈都完整</td>
+</tr>
+</tbody></table>
+<p>后面的命令表只解释本次编译的目标及关键差异，通用选项可回看本表。</p>
+<h2 id="part-03">03｜实验一：从空指针崩溃找到遗漏的检查</h2>
+<h3>1. 实验目标</h3>
+<p><strong>实验环境。</strong> 用一个不存在的用户编号触发空指针问题，练习从调用栈找参数来源，最后验证正确处理错误输入。</p>
+<p>配套 <code>examples/crash.c</code> 模拟用户查询：编号 1 存在，编号 404 不存在。错误版没有检查查询结果，就读取用户编号与姓名。完整代码如下，也可以直接保存为 <code>examples/crash.c</code>：</p>
+<pre><code class="language-c">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+typedef struct {
+    int id;
+    const char *name;
+} User;
+
+static User alice = {1, &quot;Alice&quot;};
+
+static const User *find_user(int id)
+{
+    return id == alice.id ? &amp;alice : NULL;
+}
+
+static void show_user(const User *user)
+{
+    /* Intentional bug: find_user() can return NULL. */
+    printf(&quot;id=%d, name=%s\n&quot;, user-&gt;id, user-&gt;name);
+}
+
+int main(int argc, char **argv)
+{
+    /* Keep argument parsing simple; use 1 or 404 for this lab. */
+    int id = argc &gt; 1 ? atoi(argv[1]) : 404;
+    const User *user = find_user(id);
+    show_user(user);
+    return 0;
+}
+</code></pre>
+<h3>2. 编译命令</h3>
+<p>先编译，再准备调试输入：</p>
+<pre><code class="language-bash">gcc -g -O0 -Wall -Wextra examples/crash.c -o crash
+./crash 1
+gdb --args ./crash 404
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gcc -g -O0 -Wall -Wextra examples/crash.c -o crash</code></td>
+<td>把错误版源码编译成 crash，准备比较正常输入与崩溃输入。</td>
+<td><code>-g -O0</code> 便于本实验单步和查看变量；通用选项见<a href="#compiler-options">编译选项速查</a>。</td>
+</tr>
+<tr>
+<td><code>./crash 1</code></td>
+<td>直接运行错误版的正常输入 1，作为对照。</td>
+<td>应显示 Alice；它不能覆盖不存在用户的错误路径。</td>
+</tr>
+<tr>
+<td><code>gdb --args ./crash 404</code></td>
+<td>用 GDB 加载 ./crash，并将 404 设置为被调试程序的参数。</td>
+<td>进入 (gdb) 后输入 run 才启动；404 用于触发“用户不存在”。</td>
+</tr>
+</tbody></table>
+<h3>3. 复现步骤</h3>
+<p>上面的正常输入用于对照；进入 GDB 后执行：</p>
+<pre><code class="language-text">(gdb) run
+(gdb) bt
+(gdb) frame 0
+(gdb) info args
+(gdb) info locals
+(gdb) print user
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) run</code></td>
+<td>按已设置的参数真正启动程序。</td>
+<td>本实验随后崩溃或卡住；加载程序本身不等于启动。</td>
+</tr>
+<tr>
+<td><code>(gdb) bt</code></td>
+<td>打印当前线程的调用栈（backtrace）。</td>
+<td>从 #0 往外看谁调用了出错函数。</td>
+</tr>
+<tr>
+<td><code>(gdb) frame 0</code></td>
+<td>切换到指定编号的栈帧，准备检查该层的数据。</td>
+<td>编号取自 bt；0 通常为最内层，示例 1 不一定是你的业务帧。</td>
+</tr>
+<tr>
+<td><code>(gdb) info args</code></td>
+<td>显示当前栈帧的函数参数及可恢复的值。</td>
+<td>在 show_user 对应帧确认 user 是否为 0x0。</td>
+</tr>
+<tr>
+<td><code>(gdb) info locals</code></td>
+<td>显示当前栈帧的局部变量。</td>
+<td>结合函数源码检查输入经过了什么处理；没有变量也可能正常。</td>
+</tr>
+<tr>
+<td><code>(gdb) print user</code></td>
+<td>求值并显示变量 user。</td>
+<td>本实验应为 0x0，说明没有找到用户对象。</td>
+</tr>
+</tbody></table>
+<h3>4. 观察输出要点</h3>
+<p>在通常的 Linux 环境中，错误输入触发 <code>SIGSEGV</code>，表示程序访问了不允许访问的内存。<code>bt</code> 是调用路径；<code>frame 0</code> 选择最内层栈帧；参数和局部变量帮助解释触发条件。应在解引用所在的栈帧看到 <code>user</code> 为 <code>0x0</code>。如果当前帧是运行库，沿调用栈切换到自己的函数。</p>
+<p>应看到类似下面的结果。地址会变化，但空指针和调用关系不会因地址随机化而改变：</p>
+<pre><code class="language-text">Program received signal SIGSEGV, Segmentation fault.
+show_user (user=0x0) at examples/crash.c:19
+#0  show_user (user=0x0) ...
+#1  main (...) ...
+</code></pre>
+<h3>5. 关键结论</h3>
+<p>不要停在“空指针”三个字。继续问：谁应该处理“用户不存在”？当前接口应该返回错误、使用默认值，还是拒绝请求？修复版 <code>examples/crash_fixed.c</code> 在调用 <code>show_user</code> 前加入以下检查，保留正常输入的行为，对不存在的用户给出明确错误，并返回非零退出状态：</p>
+<pre><code class="language-c">if (user == NULL) {
+    fprintf(stderr, &quot;user %d not found\n&quot;, id);
+    return 2;
+}
+</code></pre>
+<h3>6. 修复验证</h3>
+<p>在 GDB 中输入 <code>quit</code>，按提示确认结束实验进程，回到终端后编译并运行修复版：</p>
+<pre><code class="language-bash">gcc -g -O0 -Wall -Wextra examples/crash_fixed.c -o crash_fixed
+./crash_fixed 1
+./crash_fixed 404
+echo $?
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gcc -g -O0 -Wall -Wextra examples/crash_fixed.c -o crash_fixed</code></td>
+<td>把修复版编译成 crash_fixed，用于验证空指针检查。</td>
+<td>与错误版保持相同编译设置，重点比较正常、错误输入及退出状态。</td>
+</tr>
+<tr>
+<td><code>./crash_fixed 1</code></td>
+<td>运行修复版，1 与 404 分别检查正常和不存在的用户。</td>
+<td>1 应成功，404 应输出 not found 并返回 2，无段错误。</td>
+</tr>
+<tr>
+<td><code>./crash_fixed 404</code></td>
+<td>运行修复版，1 与 404 分别检查正常和不存在的用户。</td>
+<td>1 应成功，404 应输出 not found 并返回 2，无段错误。</td>
+</tr>
+<tr>
+<td><code>echo $?</code></td>
+<td>显示上一条命令的退出状态。</td>
+<td>紧接 crash_fixed 404 执行应为 2；插入别的命令会改变结果。</td>
+</tr>
+</tbody></table>
+<p>验证目标是：编号 1 输出 <code>id=1, name=Alice</code>，编号 404 输出 <code>user 404 not found</code>，紧接着的 <code>echo $?</code> 输出 <code>2</code>，没有段错误。错误输入返回非零是正确行为，不代表修复失败。示例为聚焦指针问题使用了简单的 <code>atoi</code>；真实工程还要使用更严格的输入解析并覆盖边界值和上游失败。仅把指针随意改成一个非空地址，并没有解决问题。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Backtrace.html">GDB 调用栈文档</a></p>
+<h2 id="part-04">04｜学会让程序停在真正有价值的位置</h2>
+<p>每次都从入口逐行执行会很慢。先在可疑函数设断点，检查输入，再向数据出错的位置缩小范围。</p>
+<pre><code class="language-text">(gdb) break main
+(gdb) run
+(gdb) next
+(gdb) step
+(gdb) finish
+(gdb) continue
+(gdb) info breakpoints
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) break main</code></td>
+<td>在 main 入口附近设置断点。</td>
+<td>出现断点编号；后续 run 才会运行并在此停止。</td>
+</tr>
+<tr>
+<td><code>(gdb) run</code></td>
+<td>按已设置的参数真正启动程序。</td>
+<td>本实验随后崩溃或卡住；加载程序本身不等于启动。</td>
+</tr>
+<tr>
+<td><code>(gdb) next</code></td>
+<td>执行到下一源码位置，通常越过当前行的函数调用。</td>
+<td>检查本行执行后的数据变化；其他线程可能仍会运行。</td>
+</tr>
+<tr>
+<td><code>(gdb) step</code></td>
+<td>单步执行，允许进入有调试信息的被调用函数。</td>
+<td>观察控制流进入哪一个函数。</td>
+</tr>
+<tr>
+<td><code>(gdb) finish</code></td>
+<td>继续执行到当前函数返回。</td>
+<td>查看返回值及回到调用方的位置；不是立即跳出。</td>
+</tr>
+<tr>
+<td><code>(gdb) continue</code></td>
+<td>从暂停处恢复运行，直到再次停止或结束。</td>
+<td>可能命中断点、观察点或异常。</td>
+</tr>
+<tr>
+<td><code>(gdb) info breakpoints</code></td>
+<td>列出断点、观察点及启用状态。</td>
+<td>按实际编号选择要禁用或删除的项目。</td>
+</tr>
+</tbody></table>
+<p><code>next</code> 通常越过当前行中的函数调用；<code>step</code> 可以进入有调试信息的函数；<code>finish</code> 执行到当前函数返回；<code>continue</code> 恢复运行。它们可以简写为 <code>n</code>、<code>s</code>、<code>fin</code>、<code>c</code>。断点还可以指定文件行号和条件：</p>
+<pre><code class="language-text">(gdb) break server.c:120 if request_id == 42
+(gdb) disable 2
+(gdb) enable 2
+(gdb) delete 2
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) break server.c:120 if request_id == 42</code></td>
+<td>在示例文件行号处设置带条件的断点。</td>
+<td>文件、行号和 request_id 必须存在于你的工程；条件判断也有开销。</td>
+</tr>
+<tr>
+<td><code>(gdb) disable 2</code></td>
+<td>分别禁用、启用或删除指定编号的断点/观察点。</td>
+<td>编号以 info breakpoints 为准；delete 后需重新设置才能恢复。</td>
+</tr>
+<tr>
+<td><code>(gdb) enable 2</code></td>
+<td>分别禁用、启用或删除指定编号的断点/观察点。</td>
+<td>编号以 info breakpoints 为准；delete 后需重新设置才能恢复。</td>
+</tr>
+<tr>
+<td><code>(gdb) delete 2</code></td>
+<td>分别禁用、启用或删除指定编号的断点/观察点。</td>
+<td>编号以 info breakpoints 为准；delete 后需重新设置才能恢复。</td>
+</tr>
+</tbody></table>
+<p>以上 <code>server.c</code> 是工程用法示意，条件中的变量必须在该位置可见。高频位置的条件断点也可能产生明显开销，因为程序可能反复停下来判断条件。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Set-Breaks.html">GDB 断点文档</a></p>
+<p>常用显示设置可以先加上：</p>
+<pre><code class="language-text">(gdb) set pagination off
+(gdb) set print pretty on
+(gdb) info args
+(gdb) info locals
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) set pagination off</code></td>
+<td>关闭 GDB 输出分页。</td>
+<td>长线程栈不再反复等待回车。</td>
+</tr>
+<tr>
+<td><code>(gdb) set print pretty on</code></td>
+<td>将适用的结构体值分行缩进显示。</td>
+<td>只改显示方式，不修改被调试对象。</td>
+</tr>
+<tr>
+<td><code>(gdb) info args</code></td>
+<td>显示当前栈帧的函数参数及可恢复的值。</td>
+<td>在 show_user 对应帧确认 user 是否为 0x0。</td>
+</tr>
+<tr>
+<td><code>(gdb) info locals</code></td>
+<td>显示当前栈帧的局部变量。</td>
+<td>结合函数源码检查输入经过了什么处理；没有变量也可能正常。</td>
+</tr>
+</tbody></table>
+<p><code>set pagination off</code> 关闭分页，查看长调用栈时无需不断按回车；<code>set print pretty on</code> 让适用的结构体等值分行缩进显示，便于阅读，不改变程序数据。<code>info args</code> 显示<strong>当前所选栈帧的函数参数</strong>；<code>info locals</code> 显示该帧的局部变量。两者都受符号和优化影响；查看程序启动参数则是另一件事，可用 <code>show args</code>。</p>
+<p>看数据时，<code>print *ptr</code> 解释对象，<code>print/x flags</code> 看十六进制，<code>x/32bx buffer</code> 按字节查看内存。<code>x/s message</code> 把地址当作字符串，使用前应确认内容可访问且有结束符。优化代码可能显示 <code>&lt;optimized out&gt;</code>，也可能出现行号跳跃，此时应结合 <code>disassemble /m function_name</code> 与 <code>x/10i $pc</code> 查看机器指令。</p>
+<p>如果知道数据什么时候变坏，却不知道是谁修改，可以使用观察点：</p>
+<pre><code class="language-text">(gdb) watch counter
+(gdb) watch -l obj-&gt;state
+(gdb) continue
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) watch counter</code></td>
+<td>观察指定表达式的值何时被写成不同值；-l 按对象所在内存位置观察。</td>
+<td>继续执行后检查旧值、新值和写入线程；需确认对象仍有效。</td>
+</tr>
+<tr>
+<td><code>(gdb) watch -l obj-&gt;state</code></td>
+<td>观察指定表达式的值何时被写成不同值；-l 按对象所在内存位置观察。</td>
+<td>继续执行后检查旧值、新值和写入线程；需确认对象仍有效。</td>
+</tr>
+<tr>
+<td><code>(gdb) continue</code></td>
+<td>从暂停处恢复运行，直到再次停止或结束。</td>
+<td>可能命中断点、观察点或异常。</td>
+</tr>
+</tbody></table>
+<p>普通 <code>watch</code> 在写入导致表达式值变化时停止，<strong>不保证每次写入相同值都停</strong>。<code>rwatch</code> 监测读取，<code>awatch</code> 监测读写访问，依赖硬件支持。常见 x86 有四个地址断点槽位，调试器可用数量还受硬件断点占用、地址宽度和对齐等因素影响；一次复杂监测可能占多个槽位，不能理解为“任意四个变量”。</p>
+<p>软件观察点靠反复单步检查值，可能严重拖慢程序；多线程时还可能漏掉非当前线程的修改，不适合拿来证明“其他线程没写过”。硬件观察点本身的监测成本较低，但高频命中、暂停与交互仍会明显干扰业务。现场附加应少量、短时使用；对象释放后地址可被复用，也要先确认生命周期。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Set-Watchpoints.html">GDB 观察点文档</a></p>
+<p><strong>普通 core 不能“回放大量 watch”。</strong> core 没有后续执行过程，只能检查保存的栈、寄存器和内存。要追查后续写入，应在可复现的活进程中设置观察点；执行录制与回放属于另外的能力，不能与普通 core 混为一谈。</p>
+<p><strong>理解调试器的工作机制。</strong> 软件断点就像在代码路口放一块“停车牌”。GDB 保存目标位置的原指令，再替换为能触发异常的特殊指令；CPU 执行到这里，调试器便获得控制。恢复时还要处理原指令并重新布置断点，具体实现随架构变化。因此断点有实际执行成本，高频条件断点也可能改变线程相遇的时机。硬件观察点则让处理器监测指定地址的访问，适合追查“谁改了这几个字节”，但监测数量、宽度都有限。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Set-Breaks.html">GDB 断点机制</a></p>
+<p>先把调用栈想成“当前办事路线”：<code>main</code> 找 <code>show_user</code> 办事，后者出错时，GDB 顺着路线往回看。<code>bt</code> 展示的是当前仍能还原的调用关系，不是完整历史录像。GDB 从当前寄存器、栈内存以及展开规则推回调用者。栈帧表示一次函数调用的上下文；参数可能在寄存器中，变量也不保证都在栈上。DWARF 可以先理解为编译器附带的“地址对照表”，提供地址与源码行、变量位置等映射，调用帧信息帮助恢复上一层状态。优化后变量可能被消除或只在部分指令区间有可恢复位置，<code>-g</code> 无法让已经消失的值重新出现。看到栈异常，依次核对二进制版本、符号、展开方式，再检查内存破坏。<a target="_blank" rel="noopener noreferrer" href="https://dwarfstd.org/doc/Debugging%20using%20DWARF-2012.pdf">DWARF 格式介绍</a></p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大图 1：GDB 的执行控制、符号映射和调用栈" data-title="图 1：GDB 的执行控制、符号映射和调用栈"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjkxMCIgdmlld0JveD0iMCAwIDE0MDAgOTEwIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IuWbviAxICBHREIg5oCO5qC35oqK5py65Zmo54q25oCB6L+Y5Y6f5Li65rqQ56CB546w5Zy6Ij4NCjxkZWZzPjxtYXJrZXIgaWQ9ImFycm93IiBtYXJrZXJXaWR0aD0iMTAiIG1hcmtlckhlaWdodD0iMTAiIHJlZlg9IjgiIHJlZlk9IjUiIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIiBmaWxsPSIjNWE3YzkyIi8+PC9tYXJrZXI+PC9kZWZzPg0KPHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iOTEwIiByeD0iMjAiIGZpbGw9IiNmOGZhZmIiLz4NCjx0ZXh0IHg9IjQ4IiB5PSI1NiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjkiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5Zu+IDEgIEdEQiDmgI7moLfmiormnLrlmajnirbmgIHov5jljp/kuLrmupDnoIHnjrDlnLo8L3RleHQ+DQo8dGV4dCB4PSI0OCIgeT0iOTYiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjNTM2YzdjIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPueQhuino+WcsOWdgOOAgeiwg+ivleS/oeaBr+S4juaJp+ihjOaOp+WItu+8jOaJjeiDveWIpOaWreKAnOWBnOWcqOi/meS4gOihjOKAneeptuern+aEj+WRs+edgOS7gOS5iOOAgjwvdGV4dD4NCjxyZWN0IHg9IjQ4IiB5PSIxNDAiIHdpZHRoPSIzNjUiIGhlaWdodD0iMTcwIiByeD0iMTQiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2NiZGJlMyIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI3MCIgeT0iMTc5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij7ikaAg57yW6K+R5Lqn54mpPC90ZXh0Pg0KPHRleHQgeD0iNzAiIHk9IjIxOSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5Y+v5omn6KGM5paH5Lu277ya5py65Zmo5oyH5Luk5LiO56ym5Y+3PC90ZXh0Pg0KPHRleHQgeD0iNzAiIHk9IjI1MSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+LWfvvJrnlJ/miJDosIPor5Xkv6Hmga/vvIjluLjop4EgRFdBUkbvvIk8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iMjgzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7mmKDlsITvvJrlnLDlnYAg4oaUIOaWh+S7tuOAgeihjOWPt+OAgeWPmOmHjzwvdGV4dD4NCjxyZWN0IHg9IjUxNSIgeT0iMTQwIiB3aWR0aD0iMzY1IiBoZWlnaHQ9IjE3MCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iNTM3IiB5PSIxNzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuKRoSBHREIg6LCD6K+V5ZmoPC90ZXh0Pg0KPHRleHQgeD0iNTM3IiB5PSIyMTkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuiuvue9ruaWreeCueOAgeivu+WPluWvhOWtmOWZqOS4juWGheWtmDwvdGV4dD4NCjx0ZXh0IHg9IjUzNyIgeT0iMjUxIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lgJ/liqnnrKblj7fkuI7lsZXlvIDkv6Hmga/op6Pph4rnirbmgIE8L3RleHQ+DQo8dGV4dCB4PSI1MzciIHk9IjI4MyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+YnQgLyBmcmFtZSAvIHByaW50IC8geDwvdGV4dD4NCjxyZWN0IHg9Ijk4MiIgeT0iMTQwIiB3aWR0aD0iMzcwIiBoZWlnaHQ9IjE3MCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iMTAwNCIgeT0iMTc5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij7ikaIg6KKr6LCD6K+V6L+b56iLPC90ZXh0Pg0KPHRleHQgeD0iMTAwNCIgeT0iMjE5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7mr4/kuKrnur/nqIvvvJrlr4TlrZjlmajjgIHosIPnlKjmoIg8L3RleHQ+DQo8dGV4dCB4PSIxMDA0IiB5PSIyNTEiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPui/m+eoi+WFseS6q++8muS7o+eggeOAgeWghuOAgeWFqOWxgOaVsOaNrjwvdGV4dD4NCjx0ZXh0IHg9IjEwMDQiIHk9IjI4MyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+TGludXgg5bi46YCa6L+HIHB0cmFjZSDmjqfliLbnm67moIc8L3RleHQ+DQo8bGluZSB4MT0iNDE4IiB5MT0iMjIwIiB4Mj0iNTA1IiB5Mj0iMjIwIiBzdHJva2U9IiM1YTdjOTIiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4NCjx0ZXh0IHg9IjQ2MiIgeT0iMjAyIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNyIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzUzNmM3YyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+6K+75Y+WPC90ZXh0Pg0KPGxpbmUgeDE9Ijg4NSIgeTE9IjIyMCIgeDI9Ijk3MiIgeTI9IjIyMCIgc3Ryb2tlPSIjNWE3YzkyIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+DQo8dGV4dCB4PSI5MjciIHk9IjIwMiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTYiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiM1MzZjN2MiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuaOp+WItiAvIOivu+WPljwvdGV4dD4NCjxyZWN0IHg9IjQ4IiB5PSIzNTAiIHdpZHRoPSI2MzAiIGhlaWdodD0iMjA1IiByeD0iMTQiIGZpbGw9IiNlZWY1ZjgiIHN0cm9rZT0iI2NiZGJlMyIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI3MCIgeT0iMzg5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij7osIPnlKjmoIjlm57nrZTigJzku47lk6rph4zosIPnlKjov4fmnaXigJ08L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNDI5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij4jMCAgc2hvd191c2VyKHVzZXI9MHgwKSAg4oaQIOW9k+WJjeaVhemanOS9jee9rjwvdGV4dD4NCjx0ZXh0IHg9IjcwIiB5PSI0NjEiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPiMxICBtYWluKC4uLikgICAgICAgICAgICAgICAgIOKGkCDkuIrkuIDlsYLosIPnlKjogIU8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNDkzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7moIjluKflubbkuI3kv53or4HkuI7mupDnoIHlh73mlbDkuIDkuIDlr7nlupTvvJo8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNTI1IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lhoXogZTjgIHlsL7osIPnlKjjgIHkvJjljJbkvJrmlLnlj5jlj6/op4Hnu5PmnoTjgII8L3RleHQ+DQo8cmVjdCB4PSI3MTAiIHk9IjM1MCIgd2lkdGg9IjY0MiIgaGVpZ2h0PSIyMDUiIHJ4PSIxNCIgZmlsbD0iI2VlZjVmOCIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjczMiIgeT0iMzg5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij7mlbDmja7mo4Dmn6Xlm57nrZTigJzkuLrku4DkuYjkvJrlpLHotKXigJ08L3RleHQ+DQo8dGV4dCB4PSI3MzIiIHk9IjQyOSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+UEPvvJrlvZPliY3mjIfku6TlnLDlnYDvvJvmjIfpkojvvJrlj6/og73kvY3kuo7lr4TlrZjlmajmiJblhoXlrZg8L3RleHQ+DQo8dGV4dCB4PSI3MzIiIHk9IjQ2MSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+dXNlciA9PSAweDAg4oaSIOS4jeWtmOWcqOWPr+ivu+WPlueahCBVc2VyIOWvueixoTwvdGV4dD4NCjx0ZXh0IHg9IjczMiIgeT0iNDkzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lnLDlnYDlj5jmiJDmupDku6PnoIHkvY3nva7vvIzpnIDopoHljLnphY3nmoTnrKblj7flkoznqIvluo/jgII8L3RleHQ+DQo8dGV4dCB4PSI3MzIiIHk9IjUyNSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+Jmx0O29wdGltaXplZCBvdXQmZ3Q7IOS4jeetieS6juWPmOmHj+WAvOS4uiAw44CCPC90ZXh0Pg0KPHRleHQgeD0iNDgiIHk9IjYxMCIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+5YW45Z6L6L2v5Lu25pat54K55rWB56iL77yI5LulIHg4Ni9MaW51eCDkuLrkvovvvJvlkI7nq6/lrp7njrDlj6/kuI3lkIzvvIk8L3RleHQ+DQo8cmVjdCB4PSI0OCIgeT0iNjQwIiB3aWR0aD0iMzA0IiBoZWlnaHQ9IjE0MCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iNzAiIHk9IjY3OSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+MSAg5biD572u5pat54K5PC90ZXh0Pg0KPHRleHQgeD0iNzAiIHk9IjcxOSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTkiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5L+d5a2Y55uu5qCH5aSE5Y6f5oyH5LukPC90ZXh0Pg0KPHRleHQgeD0iNzAiIHk9Ijc1MSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTkiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5YaZ5YWl6Zm36Zix5oyH5Luk77yI5aaCIGludDPvvIk8L3RleHQ+DQo8bGluZSB4MT0iMzU2IiB5MT0iNzEwIiB4Mj0iMzcyIiB5Mj0iNzEwIiBzdHJva2U9IiM1YTdjOTIiIHN0cm9rZS13aWR0aD0iMyIgbWFya2VyLWVuZD0idXJsKCNhcnJvdykiLz4NCjxyZWN0IHg9IjM4MCIgeT0iNjQwIiB3aWR0aD0iMzA0IiBoZWlnaHQ9IjE0MCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iNDAyIiB5PSI2NzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPjIgIOWRveS4reW5tuaaguWBnDwvdGV4dD4NCjx0ZXh0IHg9IjQwMiIgeT0iNzE5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij5DUFUg5omn6KGM6Zm36Zix5oyH5LukPC90ZXh0Pg0KPHRleHQgeD0iNDAyIiB5PSI3NTEiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWGheaguOmAmuefpeiwg+ivleWZqDwvdGV4dD4NCjxsaW5lIHgxPSI2ODgiIHkxPSI3MTAiIHgyPSI3MDQiIHkyPSI3MTAiIHN0cm9rZT0iIzVhN2M5MiIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPg0KPHJlY3QgeD0iNzEyIiB5PSI2NDAiIHdpZHRoPSIzMDQiIGhlaWdodD0iMTQwIiByeD0iMTQiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2NiZGJlMyIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI3MzQiIHk9IjY3OSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+MyAg6K+75Y+W546w5Zy6PC90ZXh0Pg0KPHRleHQgeD0iNzM0IiB5PSI3MTkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuafpeeci+e6v+eoi+OAgeagiOWSjOWPmOmHjzwvdGV4dD4NCjx0ZXh0IHg9IjczNCIgeT0iNzUxIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij5hbGwtc3RvcCDluLjmmoLlgZzmiYDmnInnur/nqIs8L3RleHQ+DQo8bGluZSB4MT0iMTAyMCIgeTE9IjcxMCIgeDI9IjEwMzYiIHkyPSI3MTAiIHN0cm9rZT0iIzVhN2M5MiIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPg0KPHJlY3QgeD0iMTA0NCIgeT0iNjQwIiB3aWR0aD0iMzA0IiBoZWlnaHQ9IjE0MCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iMTA2NiIgeT0iNjc5IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij40ICDmgaLlpI3miafooYw8L3RleHQ+DQo8dGV4dCB4PSIxMDY2IiB5PSI3MTkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWkhOeQhuWOn+aMh+S7pOeahOaJp+ihjDwvdGV4dD4NCjx0ZXh0IHg9IjEwNjYiIHk9Ijc1MSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTkiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5oGi5aSN5pat54K55ZCO57un57ut6L+Q6KGMPC90ZXh0Pg0KPHRleHQgeD0iNDgiIHk9IjgzNSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMyMTc4NmMiIHRleHQtYW5jaG9yPSJzdGFydCI+56Gs5Lu26KeC5a+f54K577ya55uR5rWL54m55a6a5Zyw5Z2A55qE6K6/6Zeu77yb5pmu6YCaIHdhdGNoIOS4u+imgeWcqOihqOi+vuW8j+WAvOWPmOWMluaXtuaKpeWRiuOAgjwvdGV4dD4NCjx0ZXh0IHg9IjQ4IiB5PSI4NzEiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjNTM2YzdjIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWunumZheW9seWTje+8muaaguWBnOS8muaUueWPmOe6v+eoi+aXtuW6j++8m+S8mOWMluS8muaUueWPmOa6kOeggeWPr+ingeaAp++8m2NvcmUg5Y+q5L+d5a2Y5b+r54Wn77yM5LiN6IO957un57ut6L+Q6KGM44CCPC90ZXh0Pg0KPC9zdmc+" alt="图 1：GDB 的执行控制、符号映射和调用栈" loading="lazy"><span>点击放大查看</span></button><figcaption>图 1：GDB 的执行控制、符号映射和调用栈</figcaption></figure>
+<p><em>图 1：GDB 的执行控制、符号映射和调用栈。图中软件断点以典型 x86/Linux 流程说明；具体后端实现可以不同</em></p>
+<h2 id="part-05">05｜实验二：制造并定位一个确定发生的双线程死锁</h2>
+<h3>1. 实验目标</h3>
+<p><strong>实验环境。</strong> 稳定构造一次双锁等待环，从全部线程栈和代码持锁顺序证明死锁，再验证统一加锁顺序后的结果。</p>
+<p>死锁可以理解为“两个人分别拿着对方需要的钥匙，谁都不肯先放手”。本实验有锁 A、锁 B：线程 1 先拿 A 再拿 B，线程 2 先拿 B 再拿 A。</p>
+<p>只使用 <code>sleep</code> 制造时机并不可靠，所以 <code>examples/deadlock.c</code> 使用 <code>pthread_barrier_t</code>：两个线程分别拿到第一把锁后，在屏障处集合，双方到齐才一起往下走。于是两把锁必定已被不同线程持有，随后必然互相等待。以下是完整源码的关键顺序，省略了错误检查和启动代码：</p>
+<pre><code class="language-c">/* 线程 A */
+pthread_mutex_lock(&amp;lock_a);
+pthread_barrier_wait(&amp;both_locked);
+pthread_mutex_lock(&amp;lock_b);
+
+/* 线程 B */
+pthread_mutex_lock(&amp;lock_b);
+pthread_barrier_wait(&amp;both_locked);
+pthread_mutex_lock(&amp;lock_a);
+</code></pre>
+<pre><code class="language-text">线程 1：持有 A ──等待──▶ B（线程 2 持有）
+线程 2：持有 B ──等待──▶ A（线程 1 持有）
+</code></pre>
+<p><strong>屏障只为稳定复现服务。</strong> <code>pthread_barrier_t</code> 在这里是教学装置，刻意让双方同时持有第一把锁；真实死锁通常没有这种集合点，可能只在少量特定时序下出现。不能因为不容易复现，就断言不存在死锁。</p>
+<h3>2. 编译命令</h3>
+<pre><code class="language-bash">gcc -g -O0 -Wall -Wextra -pthread examples/deadlock.c -o deadlock
+gdb ./deadlock
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gcc -g -O0 -Wall -Wextra -pthread examples/deadlock.c -o deadlock</code></td>
+<td>编译故意制造死锁的双线程程序。</td>
+<td>本实验增加 <code>-pthread</code> 支持线程编译与链接；仍用 <code>-g -O0</code> 便于调试。</td>
+</tr>
+<tr>
+<td><code>gdb ./deadlock</code></td>
+<td>加载死锁实验程序进入 GDB。</td>
+<td>它暂未开始运行；run 后再按 Ctrl+C 暂停以检查全部线程。</td>
+</tr>
+</tbody></table>
+<h3>3. 复现步骤</h3>
+<pre><code class="language-text">(gdb) run
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) run</code></td>
+<td>按已设置的参数真正启动程序。</td>
+<td>本实验随后崩溃或卡住；加载程序本身不等于启动。</td>
+</tr>
+</tbody></table>
+<p>看到两个线程分别输出获得第一把锁后，程序不再结束。在 GDB 所在终端按 <code>Ctrl+C</code>，然后执行：</p>
+<pre><code class="language-text">(gdb) set pagination off
+(gdb) info threads
+(gdb) thread apply all bt
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) set pagination off</code></td>
+<td>关闭 GDB 输出分页。</td>
+<td>长线程栈不再反复等待回车。</td>
+</tr>
+<tr>
+<td><code>(gdb) info threads</code></td>
+<td>列出线程及其当前停止位置。</td>
+<td>第一列是 GDB 线程号；LWP 通常对应 Linux TID。</td>
+</tr>
+<tr>
+<td><code>(gdb) thread apply all bt</code></td>
+<td>对全部线程分别打印调用栈。</td>
+<td>找工作线程在哪里等待，再结合源码建立持有/等待关系。</td>
+</tr>
+</tbody></table>
+<h3>4. 观察输出要点</h3>
+<p>通常能看到主线程等待 <code>pthread_join</code>，两个工作线程各自停在第二次加锁的路径中。内部栈可能出现 <code>pthread_mutex_lock</code>、<code>futex</code> 等函数，但名称随系统实现变化。切换工作线程，找到自己的源码栈帧，结合源码中第一次加锁和第二次加锁的位置建立等待关系。</p>
+<pre><code class="language-text">(gdb) thread 2
+(gdb) bt
+(gdb) frame 1
+(gdb) list
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) thread 2</code></td>
+<td>切换到指定 GDB 线程。</td>
+<td>编号取自 info threads，不要把 Linux TID 直接填在这里。</td>
+</tr>
+<tr>
+<td><code>(gdb) bt</code></td>
+<td>打印当前线程的调用栈（backtrace）。</td>
+<td>从 #0 往外看谁调用了出错函数。</td>
+</tr>
+<tr>
+<td><code>(gdb) frame 1</code></td>
+<td>切换到指定编号的栈帧，准备检查该层的数据。</td>
+<td>编号取自 bt；0 通常为最内层，示例 1 不一定是你的业务帧。</td>
+</tr>
+<tr>
+<td><code>(gdb) list</code></td>
+<td>显示当前源码位置附近的代码。</td>
+<td>需要匹配的源码路径和调试信息。</td>
+</tr>
+</tbody></table>
+<p>这里的 <code>2</code> 和 <code>1</code> 仅为示意。先从 <code>info threads</code> 选择工作线程，再在 <code>bt</code> 中找包含 <code>worker_a</code> 或 <code>worker_b</code> 的那一行，使用该行左侧的栈帧编号执行 <code>frame N</code>；<code>N</code> 需要替换成实际数字。重点不是记住某个运行库函数，而是证明“谁持有 A、谁持有 B、谁正在等谁”。只有停在锁函数，并不能证明死锁；空闲线程正常等待条件变量也会睡眠。</p>
+<h3>5. 关键结论</h3>
+<p>修复版统一使用 A→B 的加锁顺序，并移除持锁后的屏障。后一点非常重要：如果线程 1 拿到 A 后在屏障等待，而线程 2 因拿不到 A 无法到达屏障，依然会卡死。</p>
+<h3>6. 修复验证</h3>
+<pre><code class="language-bash">gcc -g -O0 -Wall -Wextra -pthread examples/deadlock_fixed.c -o deadlock_fixed
+./deadlock_fixed
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gcc -g -O0 -Wall -Wextra -pthread examples/deadlock_fixed.c -o deadlock_fixed</code></td>
+<td>编译统一加锁顺序后的修复版。</td>
+<td>保持与错误版相同的编译选项，运行后检查是否正常完成。</td>
+</tr>
+<tr>
+<td><code>./deadlock_fixed</code></td>
+<td>运行统一锁顺序后的修复版。</td>
+<td>应显示 completed=40000 并退出；只打印启动信息不算通过。</td>
+</tr>
+</tbody></table>
+<p>修复后两个线程各执行 20000 次受锁保护的计数，输出 <code>completed=40000 (expected 40000)</code> 并正常退出。在这个封闭示例中，统一顺序消除了两把锁之间的循环等待；真实工程需要对所有相关路径采用同一顺序，并检查异常返回是否遗漏解锁。结束错误版 GDB 会话时可执行 <code>kill</code>、确认结束实验进程，再 <code>quit</code>。</p>
+<p>还可以用修复版练习观察点：新开 <code>gdb ./deadlock_fixed</code>，依次执行 <code>break worker</code>、<code>run</code>，首次停止后 <code>delete 1</code> 删除入口断点，再执行 <code>watch completed</code>、<code>continue</code>。删除入口断点是为了避免另一个线程再次命中它，干扰观察。当共享计数改变时，硬件观察点可以告诉你当前是哪个线程、旧值和新值是什么。这次练习只观察前几次变化，随后用 <code>info breakpoints</code> 找到观察点编号，删除它再继续，避免数万次停止拖慢程序。</p>
+<h2 id="part-06">06｜多线程调试最重要的三个细节</h2>
+<p>第一，GDB 线程号与 Linux TID 不相同。<code>info threads</code> 第一列用于 <code>thread 2</code>；输出中的 <code>LWP 12348</code> 通常对应 Linux 线程 ID。要定位高 CPU 线程，可以先运行：</p>
+<pre><code class="language-bash">top -H -p 12345
+ps -L -p 12345 -o pid,tid,pcpu,stat,wchan:24,comm
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>top -H -p 12345</code></td>
+<td>以线程为单位动态查看指定进程。</td>
+<td>-H 显示线程，-p 限定 PID；寻找持续占 CPU 的 TID。</td>
+</tr>
+<tr>
+<td><code>ps -L -p 12345 -o pid,tid,pcpu,stat,wchan:24,comm</code></td>
+<td>列出目标进程各线程，并选择 PID/TID、CPU、状态、等待位置、名称等列。</td>
+<td>它是一次状态快照，应结合时间窗口和 GDB 栈验证。</td>
+</tr>
+</tbody></table>
+<p>再附加 GDB，将可疑 TID 与 LWP 对应起来。<code>thread apply all bt</code> 看整体，<code>thread N</code> 后的 <code>bt full</code> 看个体。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/Threads.html">GDB 多线程文档</a></p>
+<p>第二，默认 all-stop 模式下，一个线程停止会使其他线程一起停止；但再次执行单步或继续时，其他线程通常也可能运行。短距离观察当前线程可用：</p>
+<pre><code class="language-text">(gdb) set scheduler-locking on
+(gdb) next
+(gdb) set scheduler-locking off
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>(gdb) set scheduler-locking on</code></td>
+<td>在支持的调试目标上，限制只让当前线程运行。</td>
+<td>仅短时使用；它可能阻止别的线程释放所需锁。</td>
+</tr>
+<tr>
+<td><code>(gdb) next</code></td>
+<td>执行到下一源码位置，通常越过当前行的函数调用。</td>
+<td>检查本行执行后的数据变化；其他线程可能仍会运行。</td>
+</tr>
+<tr>
+<td><code>(gdb) set scheduler-locking off</code></td>
+<td>取消上述调度锁定。</td>
+<td>恢复后其他线程才有机会正常参与执行。</td>
+</tr>
+</tbody></table>
+<p>开启后若当前线程等待其他线程释放锁，就可能人为制造“卡死”。因此只在必要的短小片段中使用，之后恢复。non-stop 模式允许部分线程继续运行，但共享数据可能随时变化，也就难以获得一致快照。入门先掌握默认模式更稳妥。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/All_002dStop-Mode.html">GDB 调度控制文档</a></p>
+<h3>死锁、锁竞争、数据竞争：先分清再选工具</h3>
+<p><strong>死锁</strong>是相关执行者形成无法自行解除的等待，<strong>锁竞争</strong>是暂时没拿到锁但持有者仍能推进；某条业务路径死锁时，进程其他线程也可能继续运行，不能要求“整个进程完全静止”才算死锁。</p>
+<p>第三，数据竞争是另一个维度的问题：缺少必要同步的冲突访问。例如两个线程同时对普通 <code>int</code> 做 <code>counter++</code>，并不等于两个不可分割的加法。在 C/C++ 中，这可能构成数据竞争和未定义行为。</p>
+<p>对竞争问题，GDB 会改变时序，可能“一调试就不出错”。测试环境可用 <code>clang -g -O1 -fsanitize=thread -pthread ...</code> 运行真实多线程程序，让 ThreadSanitizer 报告冲突访问栈。<strong>ThreadSanitizer 仅用于受控测试复现，不把插桩程序直接部署到生产服务。</strong> 它可能显著增加 CPU、内存开销，改变线程时序，支持的平台也有限；没有报告不等于证明不存在竞争。修复要按状态语义选择锁或原子操作，不能用 <code>volatile</code> 替代同步。<a target="_blank" rel="noopener noreferrer" href="https://clang.llvm.org/docs/ThreadSanitizer.html">ThreadSanitizer 文档</a></p>
+<h3>现场附加与 core：暂停业务前先明确采集方式</h3>
+<p><strong>⚠️ 现场采集：<code>sudo gdb -p 12345</code> 会干扰目标运行。</strong> 默认 all-stop 调试会暂停被调试进程的线程，可能造成超时；检查结束用 <code>detach</code> 解除附加并恢复正常运行。不要直接复制示例 PID，也不要在不了解影响时对线上服务附加。</p>
+<p>崩溃后优先分析<strong>已经保存的现场</strong>，例如 <code>gdb ./app ./core</code>。普通 core 只能静态检查，不能继续崩溃前的执行；在有可执行文件时重新 <code>run</code> 是启动新的进程，不是恢复旧现场。使用独立的 <code>gcore</code> 工具在线转储时，会暂停目标来保存内存等状态，并可能产生较大 I/O；<strong>它不通过让目标崩溃来生成 core，成功完成并解除附加后，目标会继续运行。</strong> 暂停不保证很短，时间取决于转储量、存储速度及环境，因此仍可能造成请求超时。若是在已附加的交互式 GDB 中执行 <code>generate-core-file</code>，转储完成不会替你执行 <code>continue</code> 或 <code>detach</code>。这些都不是无干扰采集；不要为了取得 core 主动让业务崩溃。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/gcore-man.html">gcore 官方说明</a></p>
+<p><strong>core 为什么没有出现在当前目录？</strong> 先读配置，不要直接修改：</p>
+<pre><code class="language-bash">ulimit -c
+cat /proc/sys/kernel/core_pattern
+# 12345 替换为目标进程 PID；读取权限受系统策略影响。
+grep &#39;Max core file size&#39; /proc/12345/limits
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ulimit -c</code></td>
+<td>读取当前 shell 的 core 大小软限制。</td>
+<td>它不是对既有 systemd 服务资源限制的查询。</td>
+</tr>
+<tr>
+<td><code>cat /proc/sys/kernel/core_pattern</code></td>
+<td>读取内核配置的 core 命名或交付规则。</td>
+<td>开头为竖线时是交给收集程序，不一定落在当前目录。</td>
+</tr>
+<tr>
+<td><code>grep &#39;Max core file size&#39; /proc/12345/limits</code></td>
+<td>从目标进程的资源限制文件中筛选 core 大小限制。</td>
+<td>与目标进程对应，读取受权限限制；不能只看当前 shell 的 ulimit。</td>
+</tr>
+</tbody></table>
+<ul>
+<li><code>ulimit -c unlimited</code> 修改当前 shell 的软限制（受硬限制约束），随后启动的子进程通常继承它；它不会追溯改变已运行服务，也不会影响由另一个管理器启动的服务。</li>
+<li>systemd 服务应检查相应单元的 <code>LimitCORE</code>，以及收集器和存储策略；可用 <code>systemctl show 服务名 -p LimitCORE -p LimitCORESoft</code> 读取。使用 systemd-coredump 时，可按权限运行 <code>coredumpctl list</code>、<code>coredumpctl info</code> 查已有记录，并非每台机器都启用了该组件。</li>
+<li>容器进程仍有资源限制，常由容器运行时设置；core 去向还与宿主机内核的 <code>core_pattern</code>、命名空间和收集器有关，可能由宿主机收集。不能保证一定写进容器当前目录，也不能保证一定写到宿主机文件系统的固定位置。</li>
+<li>若 <code>core_pattern</code> 以 <code>|</code> 开头，内核把 core 交给收集程序，此时 <code>RLIMIT_CORE</code> 不按普通文件转储方式限制输出，仍需检查收集器自己的存储与大小限制。</li>
+</ul>
+<p>是否需要调整上述配置取决于已经查到的原因，不是必须把所有限制都改掉。core 可能包含口令、请求正文等业务数据，应控制读权限、存储空间和保留时间。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man5/core.5.html">Linux core 手册</a>、<a target="_blank" rel="noopener noreferrer" href="https://www.freedesktop.org/software/systemd/man/latest/systemd-coredump.html">systemd-coredump 说明</a></p>
+<p><strong>理解锁竞争、唤醒与死锁。</strong> 把互斥锁想成只有一把的钥匙：拿到的人使用共享资源，其他人要等。常见 Linux mutex 实现的无竞争路径，通常用用户态原子操作完成；竞争时可能直接等待，也可能按锁类型和实现先有限自旋，再使用 futex。<strong>futex 是等待和唤醒等操作的底层机制，不等于 mutex，也不意味着每次加锁都先自旋。</strong> 条件变量等同步机制也可能使用它。futex 可以理解为“抢不到就登记休息，等别人来叫醒”。内核把“检查共享值”和“条件满足才睡眠”作为一个原子步骤完成，避免简单的先检查后睡眠遗漏唤醒。释放方唤醒等待者，只是让它有机会继续竞争，并不保证它立刻获得 CPU 或锁。因此一次加锁耗时可能包含竞争、睡眠和被唤醒后的调度等待。<a target="_blank" rel="noopener noreferrer" href="https://www.man7.org/linux/man-pages/man2/futex.2.html">Linux futex 机制</a></p>
+<p>例如线程 A 持锁调用下游 200 毫秒，线程 B 等了 180 毫秒，这属于锁竞争；下游返回后仍可推进。若 A 持锁甲等锁乙，而 B 持锁乙等锁甲，且没有超时等解除路径，才形成该示例中的死锁。可以画等待图：线程→正在请求的锁，锁→当前持有者；甲乙均为单实例互斥锁时，闭环说明循环等待。证据应来自全部线程栈、锁地址、持有路径和执行记录。单个 futex 栈无法给出这些信息。GDB 调度锁定还可能冻结真正能解锁的线程，人为改变等待图。<a target="_blank" rel="noopener noreferrer" href="https://sourceware.org/gdb/current/onlinedocs/gdb.html/All_002dStop-Mode.html">GDB 调度控制</a></p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大图 2：线程共享状态与资源等待环" data-title="图 2：线程共享状态与资源等待环"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjEwOTAiIHZpZXdCb3g9IjAgMCAxNDAwIDEwOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0i5Zu+IDIgIOe6v+eoi+WFseS6q+aVsOaNru+8jOatu+mUgeeUseetieW+heWFs+ezu+aehOaIkCI+DQo8ZGVmcz48bWFya2VyIGlkPSJhcnJvdyIgbWFya2VyV2lkdGg9IjEwIiBtYXJrZXJIZWlnaHQ9IjEwIiByZWZYPSI4IiByZWZZPSI1IiBvcmllbnQ9ImF1dG8tc3RhcnQtcmV2ZXJzZSI+PHBhdGggZD0iTTAsMCBMMTAsNSBMMCwxMCIgZmlsbD0iIzVhN2M5MiIvPjwvbWFya2VyPjwvZGVmcz4NCjxyZWN0IHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjEwOTAiIHJ4PSIyMCIgZmlsbD0iI2Y4ZmFmYiIvPg0KPHRleHQgeD0iNDgiIHk9IjU2IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyOSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lm74gMiAg57q/56iL5YWx5Lqr5pWw5o2u77yM5q276ZSB55Sx562J5b6F5YWz57O75p6E5oiQPC90ZXh0Pg0KPHRleHQgeD0iNDgiIHk9Ijk2IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzUzNmM3YyIgdGV4dC1hbmNob3I9InN0YXJ0Ij7nnIvop4EgZnV0ZXgg5Y+q6K+05piO5Y+v6IO95q2j5Zyo5ZCM5q2l562J5b6F77yb6K+B5piO5q276ZSB6ZyA6KaB5om+5Ye65oyB5pyJ6ICF5LiO6Zet5ZCI55qE562J5b6F546v44CCPC90ZXh0Pg0KPHJlY3QgeD0iNDgiIHk9IjE0MCIgd2lkdGg9IjYzMCIgaGVpZ2h0PSIxNzAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjcwIiB5PSIxNzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPue6v+eoiyBB77ya5pyJ6Ieq5bex55qE5omn6KGM546w5Zy6PC90ZXh0Pg0KPHRleHQgeD0iNzAiIHk9IjIxOSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+54us56uL55qE5a+E5a2Y5Zmo5LiO5qCIPC90ZXh0Pg0KPHRleHQgeD0iNzAiIHk9IjI1MSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5bey5oyB5pyJIGxvY2tfYe+8jOWGjeeUs+ivtyBsb2NrX2I8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iMjgzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij5iYXJyaWVyIOS/neivgeWPjOaWueWFiOWPluW+l+WQhOiHquesrOS4gOaKiumUgTwvdGV4dD4NCjxyZWN0IHg9IjcyMiIgeT0iMTQwIiB3aWR0aD0iNjMwIiBoZWlnaHQ9IjE3MCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iNzQ0IiB5PSIxNzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPue6v+eoiyBC77ya5pyJ6Ieq5bex55qE5omn6KGM546w5Zy6PC90ZXh0Pg0KPHRleHQgeD0iNzQ0IiB5PSIyMTkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPueLrOeri+eahOWvhOWtmOWZqOS4juagiDwvdGV4dD4NCjx0ZXh0IHg9Ijc0NCIgeT0iMjUxIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lt7LmjIHmnIkgbG9ja19i77yM5YaN55Sz6K+3IGxvY2tfYTwvdGV4dD4NCjx0ZXh0IHg9Ijc0NCIgeT0iMjgzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7pgJrov4flsY/pmpzlkI7vvIzkuKTovrnpg73ml6Dms5Xlj5blvpfnrKzkuozmiorplIE8L3RleHQ+DQo8cmVjdCB4PSI0OCIgeT0iMzQ1IiB3aWR0aD0iMTMwNCIgaGVpZ2h0PSIxMzAiIHJ4PSIxNCIgZmlsbD0iI2VlZjVmOCIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9Ijc1IiB5PSIzODUiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWFseS6q+WcsOWdgOepuumXtO+8muS7o+eggSAvIOWFqOWxgOWPmOmHjyAvIOWghiAvIOS4pOaKiuS6kuaWpemUgTwvdGV4dD4NCjx0ZXh0IHg9Ijc1IiB5PSI0MjciIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWkmuS4que6v+eoi+iDveeci+ingeWQjOS4gOS7veaVsOaNru+8m+WPr+ingeW5tuS4jeS7o+ihqOiuv+mXruiHquWKqOWuieWFqOOAguaZrumAmuWPmOmHj+eahCBjb3VudGVyKysg5Lmf5LiN5piv5ZCM5q2l44CCPC90ZXh0Pg0KPHRleHQgeD0iNDgiIHk9IjUyNSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+6LWE5rqQ5YiG6YWN5Zu+77ya5a6e57q/6KGo56S64oCc57q/56iL562J5b6F6LWE5rqQ4oCd77yM6Jma57q/6KGo56S64oCc6LWE5rqQ6KKr57q/56iL5oyB5pyJ4oCdPC90ZXh0Pg0KPHJlY3QgeD0iODAiIHk9IjU4NSIgd2lkdGg9IjMzMCIgaGVpZ2h0PSIxMzAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjEwMiIgeT0iNjI0IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij7nur/nqIsgQTwvdGV4dD4NCjx0ZXh0IHg9IjEwMiIgeT0iNjY0IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7mjIHmnIkgQe+8jOetieW+hSBCPC90ZXh0Pg0KPHJlY3QgeD0iOTkwIiB5PSI1ODUiIHdpZHRoPSIzMzAiIGhlaWdodD0iMTMwIiByeD0iMTQiIGZpbGw9IiNmZmY1ZWMiIHN0cm9rZT0iI2NiZGJlMyIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSIxMDEyIiB5PSI2MjQiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjYWM2MDJkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuS6kuaWpemUgSBCPC90ZXh0Pg0KPHRleHQgeD0iMTAxMiIgeT0iNjY0IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7nm67liY3nlLHnur/nqIsgQiDmjIHmnIk8L3RleHQ+DQo8cmVjdCB4PSI5OTAiIHk9IjgwMCIgd2lkdGg9IjMzMCIgaGVpZ2h0PSIxMzAiIHJ4PSIxNCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjEwMTIiIHk9IjgzOSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+57q/56iLIEI8L3RleHQ+DQo8dGV4dCB4PSIxMDEyIiB5PSI4NzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuaMgeaciSBC77yM562J5b6FIEE8L3RleHQ+DQo8cmVjdCB4PSI4MCIgeT0iODAwIiB3aWR0aD0iMzMwIiBoZWlnaHQ9IjEzMCIgcng9IjE0IiBmaWxsPSIjZmZmNWVjIiBzdHJva2U9IiNjYmRiZTMiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iMTAyIiB5PSI4MzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjYWM2MDJkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuS6kuaWpemUgSBBPC90ZXh0Pg0KPHRleHQgeD0iMTAyIiB5PSI4NzkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuebruWJjeeUsee6v+eoiyBBIOaMgeaciTwvdGV4dD4NCjxsaW5lIHgxPSI0MjIiIHkxPSI2NTAiIHgyPSI5NzgiIHkyPSI2NTAiIHN0cm9rZT0iIzVhN2M5MiIgc3Ryb2tlLXdpZHRoPSIzIiBtYXJrZXItZW5kPSJ1cmwoI2Fycm93KSIvPg0KPHRleHQgeD0iNzAwIiB5PSI2MzMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIyIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjYWM2MDJkIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj7nrYnlvoUgQjwvdGV4dD4NCjxsaW5lIHgxPSIxMTU1IiB5MT0iNzI4IiB4Mj0iMTE1NSIgeTI9Ijc4OCIgc3Ryb2tlPSIjNWE3YzkyIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIiBzdHJva2UtZGFzaGFycmF5PSI4IDciLz4NCjx0ZXh0IHg9IjExNzUiIHk9Ijc2NSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMyMTc4NmMiIHRleHQtYW5jaG9yPSJzdGFydCI+5oyB5pyJPC90ZXh0Pg0KPGxpbmUgeDE9Ijk3OCIgeTE9Ijg2NSIgeDI9IjQyMiIgeTI9Ijg2NSIgc3Ryb2tlPSIjNWE3YzkyIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIi8+DQo8dGV4dCB4PSI3MDAiIHk9Ijg0OSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjIiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNhYzYwMmQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPuetieW+hSBBPC90ZXh0Pg0KPGxpbmUgeDE9IjI0NSIgeTE9Ijc4OCIgeDI9IjI0NSIgeTI9IjcyOCIgc3Ryb2tlPSIjNWE3YzkyIiBzdHJva2Utd2lkdGg9IjMiIG1hcmtlci1lbmQ9InVybCgjYXJyb3cpIiBzdHJva2UtZGFzaGFycmF5PSI4IDciLz4NCjx0ZXh0IHg9IjI2NSIgeT0iNzY1IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzIxNzg2YyIgdGV4dC1hbmNob3I9InN0YXJ0Ij7mjIHmnIk8L3RleHQ+DQo8dGV4dCB4PSI3MDAiIHk9Ijc0NSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjkiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNhYzYwMmQiIHRleHQtYW5jaG9yPSJtaWRkbGUiPumXreWQiOetieW+heeOrzwvdGV4dD4NCjx0ZXh0IHg9IjcwMCIgeT0iNzg2IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzUzNmM3YyIgdGV4dC1hbmNob3I9Im1pZGRsZSI+5Y+M5pa56YO95peg5rOV5o6o6L+b5Yiw6Kej6ZSBPC90ZXh0Pg0KPHJlY3QgeD0iNDgiIHk9Ijk3MiIgd2lkdGg9IjEzMDQiIGhlaWdodD0iNzgiIHJ4PSIxNCIgZmlsbD0iI2VkZjZmMiIgc3Ryb2tlPSIjYzJkZGQwIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9Ijc1IiB5PSIxMDA1IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMiIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzIxNzg2YyIgdGV4dC1hbmNob3I9InN0YXJ0Ij7kv67lpI3vvJrmiYDmnInot6/lvoTnu5/kuIDmjIkgQSDihpIgQiDliqDplIHvvJvmjIHplIHlkI7nmoTml6cgYmFycmllciDlv4Xpobvnp7vpmaTjgII8L3RleHQ+DQo8dGV4dCB4PSI3NSIgeT0iMTAzNSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+6K+B5o2u77ya5YWo6YOo57q/56iL5qCIICsg6ZSB5a+56LGh5Zyw5Z2AICsg6I635Y+W6Lev5b6E77yb5L+u5aSN54mI5a6M5oiQIDQwMDAwIOasoeiuoeaVsOW5tumAgOWHuuOAgjwvdGV4dD4NCjwvc3ZnPg==" alt="图 2：线程共享状态与资源等待环" loading="lazy"><span>点击放大查看</span></button><figcaption>图 2：线程共享状态与资源等待环</figcaption></figure>
+<p><em>图 2：线程共享状态与资源等待环。实线表示请求锁，虚线表示锁被线程持有；等待闭环与源码路径共同构成证据</em></p>
+<h2 id="part-07">07｜实验三：证明 HTTP 慢请求不一定是网络慢</h2>
+<h3>1. 实验目标</h3>
+<p><strong>实验环境。</strong> 对照两个本机 HTTP 请求，结合 curl、抓包和已知服务端代码，证明“响应晚”不一定是链路传输慢。</p>
+<p>配套 <code>examples/http_lab.py</code> 使用 Python 3.7 及以上标准库提供两个接口：<code>/fast</code> 立即返回，<code>/slow</code> 在返回前等待约两秒。等待发生在应用中，没有刻意制造网络延迟。使用线程式服务器，避免把所有请求都串行阻塞。关键代码如下；完整文件还补充了响应头、日志、404 和退出处理：</p>
+<pre><code class="language-python">if self.path == &quot;/slow&quot;:
+    time.sleep(2)
+    status, body = 200, b&quot;slow: waited 2 seconds\n&quot;
+elif self.path == &quot;/fast&quot;:
+    status, body = 200, b&quot;fast: no deliberate wait\n&quot;
+</code></pre>
+<h3>2. 编译或启动准备</h3>
+<p>这是 Python 程序，不需要 C 编译。先准备三个终端，均进入能看到 examples/ 的目录。</p>
+<p>终端 A 启动服务：</p>
+<pre><code class="language-bash">python3 examples/http_lab.py
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>python3 examples/http_lab.py</code></td>
+<td>启动配套 Python HTTP 服务。</td>
+<td>保持终端 A 运行，监听 127.0.0.1:18080；结束实验用 Ctrl+C。</td>
+</tr>
+</tbody></table>
+<h3>3. 复现步骤</h3>
+<p>终端 B 先开始抓包，等看到监听提示后再发送请求：</p>
+<pre><code class="language-bash">sudo tcpdump -i lo -nn -s 0 -w http-lab.pcap &#39;tcp port 18080&#39;
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo tcpdump -i lo -nn -s 0 -w http-lab.pcap &#39;tcp port 18080&#39;</code></td>
+<td>在 -i 指定接口抓取引号内过滤范围的报文；-nn 禁止名称解析，-s 0 保留通常足够的抓取长度，-w 保存原始记录。</td>
+<td>lo 用于本机实验；eth0 需按路由替换。轮转时 -C 是十进制 MB、-W 是文件数、-B 是缓冲区 KiB。先启动抓包，结束用 Ctrl+C 并检查捕获丢包统计。</td>
+</tr>
+</tbody></table>
+<p>终端 C 执行以下两条命令。<code>--noproxy &#39;*&#39;</code> 排除代理环境变量影响，<code>-4</code> 与回环 IPv4 地址保持一致：</p>
+<pre><code class="language-bash">curl --noproxy &#39;*&#39; -4 -sS -o /dev/null \
+  -w &#39;connect=%{time_connect} ttfb=%{time_starttransfer} total=%{time_total}\n&#39; \
+  http://127.0.0.1:18080/fast
+
+curl --noproxy &#39;*&#39; -4 -sS -o /dev/null \
+  -w &#39;connect=%{time_connect} ttfb=%{time_starttransfer} total=%{time_total}\n&#39; \
+  http://127.0.0.1:18080/slow
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>curl（完整参数见上方代码块）</code></td>
+<td>发送一次 HTTP 请求；--noproxy 排除代理，-4 使用 IPv4，-sS 隐藏进度但保留错误，-o /dev/null 不显示正文，-w 输出时间。</td>
+<td>对照 fast/slow 的 connect、ttfb、total；这些累计计时不能相加，差值也不等于服务端纯处理时间。</td>
+</tr>
+<tr>
+<td><code>curl（完整参数见上方代码块）</code></td>
+<td>发送一次 HTTP 请求；--noproxy 排除代理，-4 使用 IPv4，-sS 隐藏进度但保留错误，-o /dev/null 不显示正文，-w 输出时间。</td>
+<td>对照 fast/slow 的 connect、ttfb、total；这些累计计时不能相加，差值也不等于服务端纯处理时间。</td>
+</tr>
+</tbody></table>
+<h3>4. 观察输出要点</h3>
+<p>应观察到：两者建立 TCP 连接都很快，而 <code>/slow</code> 的首字节与总耗时约多两秒。这里所有时间单位都是秒，<code>time_connect</code> 是从开始到连接完成，<code>time_starttransfer</code> 是从开始到收到首个响应字节，<code>time_total</code> 是总耗时。它们是累计时间，不能简单相加。</p>
+<p><strong>ttfb - connect 不等于服务端处理耗时，更不等于 CPU 计算时间。</strong> 对本节的新建本机 HTTP 连接，它可粗看建连后的等待，但包含请求发送、传输、内核与应用排队、处理以及首字节返回等时间。换成 HTTPS、代理、重定向或复用连接，累计计时的解释还会变化。本实验因为地址、负载和等待逻辑可控，才能将主要差异关联到服务端的 <code>sleep</code>。<a target="_blank" rel="noopener noreferrer" href="https://curl.se/docs/manpage.html#-w">curl 时间变量说明</a></p>
+<p>请求结束后，在终端 B 按 <code>Ctrl+C</code> 正常结束抓包。读取文件：</p>
+<pre><code class="language-bash">tcpdump -nn -tttt -r http-lab.pcap
+tshark -r http-lab.pcap -d tcp.port==18080,http -Y http
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>tcpdump -nn -tttt -r http-lab.pcap</code></td>
+<td>用 -r 读取已有 pcap，-nn 保留数字形式，-tttt 显示日期和时间。</td>
+<td>这是离线阅读，不是重新抓包；查看请求与响应时刻。</td>
+</tr>
+<tr>
+<td><code>tshark -r http-lab.pcap -d tcp.port==18080,http -Y http</code></td>
+<td>在终端解码 pcap；-d 把 TCP 18080 端口明确按 HTTP 解码，-Y http 只显示 HTTP。</td>
+<td>用于找到 GET 与响应；过滤后无记录不一定是完全没抓到包。</td>
+</tr>
+</tbody></table>
+<p>TShark 中用 <code>-d</code> 明确将实验端口识别为 HTTP。无 TShark 时，可用 <code>tcpdump -A -r http-lab.pcap &#39;tcp port 18080&#39;</code> 查看明文内容，但它不会替你完整重组所有应用层消息。</p>
+<h3>5. 关键结论</h3>
+<p>在 Wireshark 中找到 <code>/slow</code> 所在 TCP 流；若端口 18080 未自动识别为 HTTP，先选择该连接的 TCP 报文，使用“分析→解码为（Decode As）”将该端口指定为 HTTP。应看到握手迅速完成、GET 请求到达，然后约两秒后才出现响应。TCP ACK 即使很快出现，也仅表示对端 TCP 栈确认收到相应字节，不代表业务处理完成。这个实验建立了最重要的直觉：先确定等待发生在哪个阶段，再决定是否调查网络路径。</p>
+<h3>6. 对照与修复验证</h3>
+<p>本实验是主动加入等待的对照实验，不需要修改网络参数。先确认 fast/slow 都成功返回，再核对两者耗时差、服务日志与请求时序一致。若模拟修复，可在测试副本中移除 slow 分支的教学 sleep 后重启服务，保持同样请求和抓包条件重新对照；这只验证人为等待被移除，不代表真实业务等待都可以删掉。</p>
+<p>可以追加一个问题：慢请求会不会阻塞快请求？在一个终端发起 <code>/slow</code>，马上在另一个终端请求 <code>/fast</code>，后者应仍然很快完成。如果将线程式服务器换成单线程服务器，前一个请求的等待就可能阻塞后一个请求。抓包可以看见“请求已到达但响应未出现”，服务器的执行模型才能解释为什么。</p>
+<p>服务日志里的线程编号来自 Python，不要直接拿它与 Linux TID 等同。完成实验后，在终端 A 按 <code>Ctrl+C</code> 停止服务。如果端口已被占用，用 <code>ss -lntp</code> 确认占用者，再选择未占用端口，并同步修改服务、curl 和抓包条件。</p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大图 3：TCP 握手、HTTP 应用等待与累计计时" data-title="图 3：TCP 握手、HTTP 应用等待与累计计时"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDUwIiBoZWlnaHQ9IjEwODAiIHZpZXdCb3g9IjAgMCAxNDUwIDEwODAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbGxlZGJ5PSJ0aXRsZSBkZXNjIj4KPHRpdGxlIGlkPSJ0aXRsZSI+VENQIOehruiupOS4jiBIVFRQIOS4muWKoeWkhOeQhuaYr+S4jeWQjOmYtuautTwvdGl0bGU+CjxkZXNjIGlkPSJkZXNjIj7lm5vms7PpgZPlm77lsZXnpLrov57mjqXmj6HmiYvjgIFIVFRQIOivt+axguOAgVRDUCDnoa7orqTjgIHmnI3liqHnq6/nrYnlvoXlkozlk43lupTjgILlupXpg6jor7TmmI4gY3VybCDnmoTov57mjqXjgIHpppblrZfoioLlkozmgLvogJfml7blnYfku47kvKDovpPlvIDlp4vntK/orqHorqHml7bjgII8L2Rlc2M+CjxkZWZzPjxtYXJrZXIgaWQ9ImFycm93IiBtYXJrZXJXaWR0aD0iMTAiIG1hcmtlckhlaWdodD0iMTAiIHJlZlg9IjgiIHJlZlk9IjMiIG9yaWVudD0iYXV0byIgbWFya2VyVW5pdHM9InN0cm9rZVdpZHRoIj48cGF0aCBkPSJNMCwwIEwwLDYgTDksMyB6IiBmaWxsPSIjMzE1ZjhmIi8+PC9tYXJrZXI+PG1hcmtlciBpZD0iZ3JlZW4iIG1hcmtlcldpZHRoPSIxMCIgbWFya2VySGVpZ2h0PSIxMCIgcmVmWD0iOCIgcmVmWT0iMyIgb3JpZW50PSJhdXRvIiBtYXJrZXJVbml0cz0ic3Ryb2tlV2lkdGgiPjxwYXRoIGQ9Ik0wLDAgTDAsNiBMOSwzIHoiIGZpbGw9IiMxNDdkODMiLz48L21hcmtlcj48L2RlZnM+CjxzdHlsZT50ZXh0e2ZvbnQtZmFtaWx5OiJNaWNyb3NvZnQgWWFIZWkiLCJOb3RvIFNhbnMgQ0pLIFNDIixzYW5zLXNlcmlmO2ZpbGw6IzIzMzc0ZH0udGl0bGV7Zm9udC1zaXplOjMycHg7Zm9udC13ZWlnaHQ6NzAwfS5zdWJ0aXRsZXtmb250LXNpemU6MjBweDtmaWxsOiM1YzZkODB9LmhlYWR7Zm9udC1zaXplOjIzcHg7Zm9udC13ZWlnaHQ6NzAwfS5sYWJlbHtmb250LXNpemU6MjBweH0uc21hbGx7Zm9udC1zaXplOjE4cHg7ZmlsbDojNTI2NjdjfS5jb2Rle2ZvbnQtZmFtaWx5OkNvbnNvbGFzLCJNaWNyb3NvZnQgWWFIZWkiLG1vbm9zcGFjZTtmb250LXNpemU6MjBweH0ubGFuZXtzdHJva2U6I2I2YzZkNztzdHJva2Utd2lkdGg6MjtzdHJva2UtZGFzaGFycmF5OjcgN30uZmxvd3tzdHJva2U6IzMxNWY4ZjtzdHJva2Utd2lkdGg6MztmaWxsOm5vbmU7bWFya2VyLWVuZDp1cmwoI2Fycm93KX0uZGF0YXtzdHJva2U6IzE0N2Q4MztzdHJva2Utd2lkdGg6MztmaWxsOm5vbmU7bWFya2VyLWVuZDp1cmwoI2dyZWVuKX08L3N0eWxlPgo8cmVjdCB3aWR0aD0iMTQ1MCIgaGVpZ2h0PSIxMDgwIiByeD0iMTgiIGZpbGw9IiNmNmY5ZmMiLz4KPHRleHQgeD0iNTUiIHk9IjU1IiBjbGFzcz0idGl0bGUiPuWOn+eQhuWbviDikaLjgIDku44gVENQIOaPoeaJi+WIsCBIVFRQIOi/lOWbnjwvdGV4dD4KPHRleHQgeD0iNTUiIHk9Ijg5IiBjbGFzcz0ic3VidGl0bGUiPueugOWMluekuuaEj++8jOmdnuWunua1i+aXtuW6j++8m+e6ryBIVFRQ44CB5paw5bu66L+e5o6l44CB5peg5Luj55CG44CCQUNLIOeahOe7mOWItuS9jee9ruS4jumXtOmalOS7heS9nOivtOaYjuOAgjwvdGV4dD4KPGcgZmlsbD0iI2U0ZWRmNiIgc3Ryb2tlPSIjYzhkN2U3Ij48cmVjdCB4PSI4MCIgeT0iMTE4IiB3aWR0aD0iMjU1IiBoZWlnaHQ9IjU2IiByeD0iMTIiLz48cmVjdCB4PSI0MjAiIHk9IjExOCIgd2lkdGg9IjI1NSIgaGVpZ2h0PSI1NiIgcng9IjEyIi8+PHJlY3QgeD0iNzYwIiB5PSIxMTgiIHdpZHRoPSIyNTUiIGhlaWdodD0iNTYiIHJ4PSIxMiIvPjxyZWN0IHg9IjExMDAiIHk9IjExOCIgd2lkdGg9IjI3NSIgaGVpZ2h0PSI1NiIgcng9IjEyIi8+PC9nPgo8ZyB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iaGVhZCI+PHRleHQgeD0iMjA3IiB5PSIxNTQiPuWuouaIt+err+W6lOeUqDwvdGV4dD48dGV4dCB4PSI1NDciIHk9IjE1NCI+5a6i5oi356uvIFRDUCDmoIg8L3RleHQ+PHRleHQgeD0iODg3IiB5PSIxNTQiPuacjeWKoeerryBUQ1Ag5qCIPC90ZXh0Pjx0ZXh0IHg9IjEyMzciIHk9IjE1NCI+5pyN5Yqh56uv5bqU55SoPC90ZXh0PjwvZz4KPHBhdGggY2xhc3M9ImxhbmUiIGQ9Ik0yMDcgMTc4Vjc4NSBNNTQ3IDE3OFY3ODUgTTg4NyAxNzhWNzg1IE0xMjM3IDE3OFY3ODUiLz4KPHRleHQgeD0iNjEiIHk9IjIwNyIgY2xhc3M9InNtYWxsIj504oKAIOW8gOWnizwvdGV4dD4KPHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik0yMDcgMjA1SDU0NyIvPjx0ZXh0IHg9IjMxNSIgeT0iMTk1IiBjbGFzcz0iY29kZSI+Y29ubmVjdCgpPC90ZXh0Pgo8cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTU0NyAyNTBIODg3Ii8+PHRleHQgeD0iNjk1IiB5PSIyMzkiIGNsYXNzPSJjb2RlIj5TWU48L3RleHQ+CjxwYXRoIGNsYXNzPSJmbG93IiBkPSJNODg3IDI5NUg1NDciLz48dGV4dCB4PSI2NjQiIHk9IjI4NCIgY2xhc3M9ImNvZGUiPlNZTiArIEFDSzwvdGV4dD4KPHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik01NDcgMzQwSDg4NyIvPjx0ZXh0IHg9IjY5NSIgeT0iMzI5IiBjbGFzcz0iY29kZSI+QUNLPC90ZXh0Pgo8cGF0aCBjbGFzcz0iZmxvdyIgZD0iTTU0NyAzODBIMjA3Ii8+PHRleHQgeD0iMzAwIiB5PSIzNjkiIGNsYXNzPSJsYWJlbCI+6L+e5o6l5bu656uL77yM6L+U5ZuePC90ZXh0Pjx0ZXh0IHg9IjgyIiB5PSIzODUiIGNsYXNzPSJzbWFsbCI+dOKCgTwvdGV4dD4KPHBhdGggY2xhc3M9ImRhdGEiIGQ9Ik0yMDcgNDMwSDU0NyIvPjx0ZXh0IHg9IjI4NSIgeT0iNDE5IiBjbGFzcz0iY29kZSI+5YaZ5YWlIEhUVFAgR0VUPC90ZXh0Pgo8cGF0aCBjbGFzcz0iZGF0YSIgZD0iTTU0NyA0NzVIODg3Ii8+PHRleHQgeD0iNjY1IiB5PSI0NjQiIGNsYXNzPSJsYWJlbCI+5Lyg6L6T6K+35rGC5a2X6IqCPC90ZXh0Pgo8cGF0aCBjbGFzcz0iZGF0YSIgZD0iTTg4NyA1MTBIMTIzNyIvPjx0ZXh0IHg9Ijk3OSIgeT0iNDk5IiBjbGFzcz0ibGFiZWwiPuW6lOeUqOivu+WPluivt+axgjwvdGV4dD4KPHBhdGggY2xhc3M9ImZsb3ciIGQ9Ik04ODcgNTUwSDU0NyIvPjx0ZXh0IHg9IjY0MCIgeT0iNTM5IiBjbGFzcz0ibGFiZWwiPkFDS++8muehruiupOaUtuWIsOWtl+iKgjwvdGV4dD4KPHJlY3QgeD0iMTA3OCIgeT0iNTMzIiB3aWR0aD0iMzE1IiBoZWlnaHQ9IjEwMiIgcng9IjEyIiBmaWxsPSIjZmZmMmQ4IiBzdHJva2U9IiNlMGJkNzMiLz4KPHRleHQgeD0iMTIzNyIgeT0iNTYzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0iaGVhZCI+5Lia5Yqh562J5b6F57qmIDIg56eSPC90ZXh0Pgo8dGV4dCB4PSIxMjM3IiB5PSI1OTMiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJjb2RlIj5zbGVlcCgyKTwvdGV4dD4KPHRleHQgeD0iMTIzNyIgeT0iNjE5IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ic21hbGwiPuatpOaXtuWPr+WHoOS5juS4jea2iOiAlyBDUFU8L3RleHQ+CjxyZWN0IHg9IjM5MCIgeT0iNTc3IiB3aWR0aD0iNjA5IiBoZWlnaHQ9IjU3IiByeD0iMTAiIGZpbGw9IiNlN2YzZjIiIHN0cm9rZT0iI2EwY2FjOCIvPgo8dGV4dCB4PSI2OTQiIHk9IjYwMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9ImxhYmVsIj5UQ1AgQUNLIOKJoCDlupTnlKjlt7LlpITnkIYg4omgIOaVsOaNruW3suaMgeS5heWMljwvdGV4dD4KPHRleHQgeD0iNjk0IiB5PSI2MjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJzbWFsbCI+572R57uc5Lqk5LuY6L+b5bqm5LiO5Lia5Yqh5a6M5oiQ6L+b5bqm5b+F6aG75YiG5Yir6KeC5a+fPC90ZXh0Pgo8cGF0aCBjbGFzcz0iZGF0YSIgZD0iTTEyMzcgNjY2SDg4NyIvPjx0ZXh0IHg9Ijk5MiIgeT0iNjU1IiBjbGFzcz0ibGFiZWwiPuWGmeWFpSBIVFRQIOWTjeW6lDwvdGV4dD4KPHBhdGggY2xhc3M9ImRhdGEiIGQ9Ik04ODcgNzA0SDU0NyIvPjx0ZXh0IHg9IjY0NyIgeT0iNjkzIiBjbGFzcz0ibGFiZWwiPuWTjeW6lOmmluaJueWtl+iKguWIsOi+vjwvdGV4dD4KPHBhdGggY2xhc3M9ImRhdGEiIGQ9Ik01NDcgNzQySDIwNyIvPjx0ZXh0IHg9IjMwMCIgeT0iNzMxIiBjbGFzcz0ibGFiZWwiPuWuouaIt+err+WPr+ivu+WIsOWTjeW6lDwvdGV4dD48dGV4dCB4PSI4MiIgeT0iNzQ3IiBjbGFzcz0ic21hbGwiPnTigoI8L3RleHQ+CjxjaXJjbGUgY3g9IjIwNyIgY3k9Ijc3OCIgcj0iNiIgZmlsbD0iIzE0N2Q4MyIvPjx0ZXh0IHg9IjIzMCIgeT0iNzg1IiBjbGFzcz0ibGFiZWwiPuWTjeW6lOS9k+aOpeaUtuWujOaIkO+8iOeugOWMluS4uuS4gOS4que7k+adn+aXtuWIu++8iTwvdGV4dD48dGV4dCB4PSI4MiIgeT0iNzgzIiBjbGFzcz0ic21hbGwiPnTigoM8L3RleHQ+CjxyZWN0IHg9IjU1IiB5PSI4MTgiIHdpZHRoPSIxMzQwIiBoZWlnaHQ9IjIyMCIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjN2Q2ZTUiLz4KPHRleHQgeD0iODAiIHk9Ijg1MSIgY2xhc3M9ImhlYWQiPmN1cmwg5pe26Ze05a2X5q6177ya5ZCM5LiA6LW354K557Sv6K6h77yM5LiN6IO955u05o6l55u45YqgPC90ZXh0Pgo8ZyBjbGFzcz0iY29kZSI+PHRleHQgeD0iODIiIHk9Ijg5OCI+dGltZV9jb25uZWN0PC90ZXh0Pjx0ZXh0IHg9IjgyIiB5PSI5NDQiPnRpbWVfc3RhcnR0cmFuc2ZlcjwvdGV4dD48dGV4dCB4PSI4MiIgeT0iOTkwIj50aW1lX3RvdGFsPC90ZXh0PjwvZz4KPGcgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2Utd2lkdGg9IjkiPjxwYXRoIGQ9Ik00MzAgODkySDY2MCIgc3Ryb2tlPSIjNzA5M2JiIi8+PHBhdGggZD0iTTQzMCA5MzhIMTA1MCIgc3Ryb2tlPSIjMzE1ZjhmIi8+PHBhdGggZD0iTTQzMCA5ODRIMTI3MCIgc3Ryb2tlPSIjMTQ3ZDgzIi8+PC9nPgo8ZyBjbGFzcz0ic21hbGwiPjx0ZXh0IHg9IjQzMCIgeT0iODc2Ij504oKAPC90ZXh0Pjx0ZXh0IHg9IjY3OCIgeT0iODk5Ij504oKBIOKIkiB04oKA77ya5Yiw6L+e5o6l5bu656uLPC90ZXh0Pjx0ZXh0IHg9IjEwNjgiIHk9Ijk0NSI+dOKCgiDiiJIgdOKCgO+8muWIsOmmluWtl+iKgjwvdGV4dD48dGV4dCB4PSIxMjg2IiB5PSI5OTEiPnTigoMg4oiSIHTigoA8L3RleHQ+PHRleHQgeD0iODIiIHk9IjEwMjIiPlRURkIg5YyF5ZCr5YmN572u5bu66L+e44CB5Lyg6L6T44CB5o6S6Zif5ZKM5Lia5Yqh562J5b6F562J77yb5LiN562J5LqO5pyN5Yqh56uvIENQVSDml7bpl7TjgIJUTFPjgIFETlPjgIHph43lrprlkJHkvJrlop7liqDpmLbmrrXjgII8L3RleHQ+PC9nPgo8L3N2Zz4K" alt="图 3：TCP 握手、HTTP 应用等待与累计计时" loading="lazy"><span>点击放大查看</span></button><figcaption>图 3：TCP 握手、HTTP 应用等待与累计计时</figcaption></figure>
+<p><em>图 3：TCP 握手、HTTP 应用等待与累计计时。仅为原理示意，非实际抓包时序；首字节等待不等于 CPU 计算时间</em></p>
+<h2 id="part-08">08｜真正抓包时，接口、范围和完整性决定结论</h2>
+<p>本机访问本机抓 <code>lo</code>，访问远端则先确认路由：</p>
+<pre><code class="language-bash">ip -br addr
+ip route get 192.0.2.10
+sudo tcpdump -D
+sudo tcpdump -i eth0 -nn -s 0 -w incident.pcap \
+  &#39;host 192.0.2.10 and tcp port 8080&#39;
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>ip -br addr</code></td>
+<td>简短列出网络接口与地址。</td>
+<td>找到 lo、eth0 等实际接口名。</td>
+</tr>
+<tr>
+<td><code>ip route get 192.0.2.10</code></td>
+<td>查询到指定目标时内核会选择的路由。</td>
+<td>看 dev 与 src；地址需换成真实目标。</td>
+</tr>
+<tr>
+<td><code>sudo tcpdump -D</code></td>
+<td>列出当前环境可以抓取的接口。</td>
+<td>它不会自动进入其他容器的网络命名空间。</td>
+</tr>
+<tr>
+<td><code>sudo tcpdump -i eth0 -nn -s 0 -w incident.pcap  &#39;host 192.0.2.10 and tcp port 8080&#39;</code></td>
+<td>在 -i 指定接口抓取引号内过滤范围的报文；-nn 禁止名称解析，-s 0 保留通常足够的抓取长度，-w 保存原始记录。</td>
+<td>lo 用于本机实验；eth0 需按路由替换。轮转时 -C 是十进制 MB、-W 是文件数、-B 是缓冲区 KiB。先启动抓包，结束用 Ctrl+C 并检查捕获丢包统计。</td>
+</tr>
+</tbody></table>
+<p><code>-i</code> 选接口，<code>-nn</code> 禁止地址与端口名称解析，<code>-w</code> 保存原始包，<code>-s 0</code> 使用足够大的默认抓取长度，通常保留完整常规报文。不要误以为抓取任意长度的特殊大报文都绝不会截断。实时排查用 <code>-tttt</code> 显示日期时间；离线分析时读取原始文件即可。</p>
+<p>不确定接口可先用 <code>-i any</code>，但它只覆盖当前网络命名空间可见的接口，并非自动进入每个容器。容器内部通信可用 <code>sudo nsenter -t 12345 -n tcpdump -i any -nn &#39;tcp port 8080&#39;</code>。<strong>any 只覆盖当前网络命名空间可见的接口</strong>；它不是所有容器的全局抓包入口。<code>nsenter</code> 示例中的 PID 必须对应目标命名空间中的进程，在宿主机上按权限执行。相同逻辑报文经过多个接口时可能出现多份记录，<strong>重复记录不等于 TCP 重传</strong>。</p>
+<p>常用过滤规则如下。抓包表达式使用引号，复杂条件用括号：</p>
+<pre><code class="language-text">host 192.0.2.10                         与该地址有关
+src host 192.0.2.10                     来自该地址
+tcp and (port 8080 or port 8443)        两个 TCP 端口
+port 53                                常见明文 DNS 端口
+icmp or icmp6                          ICMP/ICMPv6
+</code></pre>
+<p>按端口 53 抓取不能覆盖 DNS over HTTPS 等加密 DNS。排查不明原因超时时，若只抓业务端口，也会遗漏此前的 DNS 与部分 ICMP 线索。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man7/pcap-filter.7.html">pcap-filter 手册</a></p>
+<p>长时间等偶发问题时，使用轮转限制磁盘占用：</p>
+<pre><code class="language-bash">sudo tcpdump -i eth0 -nn -s 0 -B 4096 \
+  -C 100 -W 10 -w ring.pcap &#39;tcp port 8080&#39;
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo tcpdump -i eth0 -nn -s 0 -B 4096  -C 100 -W 10 -w ring.pcap &#39;tcp port 8080&#39;</code></td>
+<td>在 -i 指定接口抓取引号内过滤范围的报文；-nn 禁止名称解析，-s 0 保留通常足够的抓取长度，-w 保存原始记录。</td>
+<td>lo 用于本机实验；eth0 需按路由替换。轮转时 -C 是十进制 MB、-W 是文件数、-B 是缓冲区 KiB。先启动抓包，结束用 Ctrl+C 并检查捕获丢包统计。</td>
+</tr>
+</tbody></table>
+<p>这组 <code>-C</code> 与 <code>-W</code> 参数按约 100 MB 的阈值轮转，循环使用最多 10 个文件；这里 <strong>1 MB = 1,000,000 字节，不是 1 MiB = 1,048,576 字节</strong>。检查发生在写下一条记录之前，文件大小可能略超阈值，不能把它当作严格的磁盘配额；触发问题后要及时停止，避免证据被覆盖。<code>-B</code> 的单位是 KiB。保存目录应允许 tcpdump 最终运行账户创建文件；部分发行版启动抓包后会降权，可能在新建轮转文件时暴露目录权限问题。退出时的 <code>packets dropped by kernel</code> 指抓包机制因缓冲不足等原因漏掉报文，不等于业务网络发生同样数量的丢包。应缩小范围、减少实时输出并检查存储速度。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man8/tcpdump.8.html">tcpdump 手册</a></p>
+<p><strong>文件格式看实际内容，不看后缀。</strong> 本文 tcpdump 的常规 <code>-w</code> 保存示例按 pcap 使用；从其他工具取得的文件也可能是 pcapng，应结合实际格式、链路类型和分析器版本确认兼容性。把 <code>.pcapng</code> 改名成 <code>.pcap</code> 并不完成格式转换，也不应笼统认为“某个系统上的 tcpdump 自动换成 pcapng”。<a target="_blank" rel="noopener noreferrer" href="https://www.tcpdump.org/manpages/pcap_dump_open.3pcap.html">libpcap 保存接口说明</a></p>
+<p><strong>理解观察点和卸载造成的差异。</strong> 抓包像在传送带不同位置拍照：应用先写入字节流，内核与网卡再负责组织和发送报文。本机发送方向的抓包点可能在网卡完成校验和之前，因此“校验和异常”未必是线上坏包。TSO/GSO 允许较大的内部缓冲稍后分段，GRO 则可以在接收路径合并报文；抓到超过常规 MTU 的记录，不能直接证明线上传输了同样大小的以太网帧。<a target="_blank" rel="noopener noreferrer" href="https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html">Wireshark 校验和说明</a>、<a target="_blank" rel="noopener noreferrer" href="https://docs.kernel.org/networking/segmentation-offloads.html">Linux 分段与聚合机制</a></p>
+<p>实操先记录接口、方向、网络命名空间与 <code>ethtool -k eth0</code> 的卸载配置，再比较对端抓包。发送端看见数据、接收端没有看见，只能先把范围缩到两处观察点之间，还需排除过滤过窄和抓包自身丢包。容器中的同一数据还可能经过 veth、网桥与宿主机接口，<code>any</code> 中出现多份记录也不自动等于 TCP 重传。比较 TCP 字节区间、确认进度和时间线，比只比包数可靠。<strong>不要为了抓包方便在线上随意关闭 tx-checksum、TSO/GSO/GRO。</strong> 这些机制可能显著影响 CPU 和吞吐；若确需关闭某项来做对照，只在获准的隔离测试中进行，记录原值、控制负载并恢复配置。本文不要求关闭卸载功能。</p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大图 4：Linux 抓包观察点与报文路径" data-title="图 4：Linux 抓包观察点与报文路径"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDUwIiBoZWlnaHQ9IjkwMCIgdmlld0JveD0iMCAwIDE0NTAgOTAwIiByb2xlPSJpbWciIGFyaWEtbGFiZWxsZWRieT0idGl0bGUgZGVzYyI+Cjx0aXRsZSBpZD0idGl0bGUiPkxpbnV4IOaKk+WMheinguWvn+eCueS4jue9kee7nOaVsOaNrui3r+W+hDwvdGl0bGU+CjxkZXNjIGlkPSJkZXNjIj7lj5HpgIHlupTnlKjnmoTmlbDmja7nu4/ov4cgc29ja2V0IOWSjCBUQ1AvSVDjgIHlhoXmoLjmipPljIXop4Llr5/ngrnjgIHnvZHljaHljbjovb3kuI7nnJ/lrp7pk77ot6/vvIzlho3liLDmjqXmlLbnq6/jgILor7TmmI7ljbjovb3njrDosaHjgIHnvZHnu5zlkb3lkI3nqbrpl7TjgIHlm57njq/mtYHph4/lkozljZXnq6/mipPljIXnu5PorrrnmoTovrnnlYzjgII8L2Rlc2M+CjxkZWZzPjxtYXJrZXIgaWQ9ImFycm93IiBtYXJrZXJXaWR0aD0iMTAiIG1hcmtlckhlaWdodD0iMTAiIHJlZlg9IjgiIHJlZlk9IjMiIG9yaWVudD0iYXV0byIgbWFya2VyVW5pdHM9InN0cm9rZVdpZHRoIj48cGF0aCBkPSJNMCwwIEwwLDYgTDksMyB6IiBmaWxsPSIjMzE1ZjhmIi8+PC9tYXJrZXI+PC9kZWZzPgo8c3R5bGU+dGV4dHtmb250LWZhbWlseToiTWljcm9zb2Z0IFlhSGVpIiwiTm90byBTYW5zIENKSyBTQyIsc2Fucy1zZXJpZjtmaWxsOiMyMzM3NGR9LnRpdGxle2ZvbnQtc2l6ZTozMnB4O2ZvbnQtd2VpZ2h0OjcwMH0uc3VidGl0bGV7Zm9udC1zaXplOjIwcHg7ZmlsbDojNWM2ZDgwfS5oZWFke2ZvbnQtc2l6ZToyM3B4O2ZvbnQtd2VpZ2h0OjcwMH0ubGFiZWx7Zm9udC1zaXplOjIxcHh9LnNtYWxse2ZvbnQtc2l6ZToxOXB4O2ZpbGw6IzUyNjY3Y30uY29kZXtmb250LWZhbWlseTpDb25zb2xhcywiTWljcm9zb2Z0IFlhSGVpIixtb25vc3BhY2U7Zm9udC1zaXplOjIwcHh9LmZsb3d7c3Ryb2tlOiMzMTVmOGY7c3Ryb2tlLXdpZHRoOjM7ZmlsbDpub25lO21hcmtlci1lbmQ6dXJsKCNhcnJvdyl9PC9zdHlsZT4KPHJlY3Qgd2lkdGg9IjE0NTAiIGhlaWdodD0iOTAwIiByeD0iMTgiIGZpbGw9IiNmNmY5ZmMiLz4KPHRleHQgeD0iNTUiIHk9IjU1IiBjbGFzcz0idGl0bGUiPuWOn+eQhuWbviDikaPjgIDmipPljIXnnIvliLDnmoTmmK/igJzop4Llr5/ngrnigJ3vvIzkuI3kuIDlrprmmK/nur/kuIrmnIDnu4jluKc8L3RleHQ+Cjx0ZXh0IHg9IjU1IiB5PSI5MCIgY2xhc3M9InN1YnRpdGxlIj7ku6XluLjop4EgTGludXgg5Y+R6YCB5pa55ZCR5Li65L6L77yb5YW35L2T5YaF5qC444CB6amx5Yqo5ZKM6Jma5ouf572R57uc6Lev5b6E5Lya5pS55Y+Y6KeC5a+f5L2N572u5LiO5oql5paH5b2i5oCB44CCPC90ZXh0Pgo8ZyBzdHJva2U9IiNjMmQzZTUiIGZpbGw9IiNlN2VmZjgiPjxyZWN0IHg9IjU1IiB5PSIxNTMiIHdpZHRoPSIxODUiIGhlaWdodD0iMTI2IiByeD0iMTQiLz48cmVjdCB4PSIyODUiIHk9IjE1MyIgd2lkdGg9IjE4NSIgaGVpZ2h0PSIxMjYiIHJ4PSIxNCIvPjxyZWN0IHg9IjUxNSIgeT0iMTUzIiB3aWR0aD0iMTg1IiBoZWlnaHQ9IjEyNiIgcng9IjE0IiBmaWxsPSIjZGNlZWVlIiBzdHJva2U9IiM5MWJmYmQiLz48cmVjdCB4PSI3NDUiIHk9IjE1MyIgd2lkdGg9IjE4NSIgaGVpZ2h0PSIxMjYiIHJ4PSIxNCIvPjxyZWN0IHg9Ijk3NSIgeT0iMTUzIiB3aWR0aD0iMTg1IiBoZWlnaHQ9IjEyNiIgcng9IjE0Ii8+PHJlY3QgeD0iMTIwNSIgeT0iMTUzIiB3aWR0aD0iMTkwIiBoZWlnaHQ9IjEyNiIgcng9IjE0Ii8+PC9nPgo8ZyB0ZXh0LWFuY2hvcj0ibWlkZGxlIj48dGV4dCB4PSIxNDciIHk9IjE5MSIgY2xhc3M9ImhlYWQiPuWPkemAgeW6lOeUqDwvdGV4dD48dGV4dCB4PSIxNDciIHk9IjIyOSIgY2xhc3M9ImNvZGUiPndyaXRlIC8gc2VuZDwvdGV4dD48dGV4dCB4PSIxNDciIHk9IjI1NyIgY2xhc3M9InNtYWxsIj7nlKjmiLfmgIHlrZfoioLmtYE8L3RleHQ+PHRleHQgeD0iMzc3IiB5PSIxOTEiIGNsYXNzPSJoZWFkIj5zb2NrZXQgLyBUQ1AgLyBJUDwvdGV4dD48dGV4dCB4PSIzNzciIHk9IjIyOSIgY2xhc3M9ImxhYmVsIj7nvJPlhrLkuI7ljY/orq7lpITnkIY8L3RleHQ+PHRleHQgeD0iMzc3IiB5PSIyNTciIGNsYXNzPSJzbWFsbCI+5YaF5qC45Lit55qE5pWw5o2uPC90ZXh0Pjx0ZXh0IHg9IjYwNyIgeT0iMTkxIiBjbGFzcz0iaGVhZCI+5oqT5YyF6KeC5a+f54K5PC90ZXh0Pjx0ZXh0IHg9IjYwNyIgeT0iMjI5IiBjbGFzcz0iY29kZSI+dGNwZHVtcCAvIHBjYXA8L3RleHQ+PHRleHQgeD0iNjA3IiB5PSIyNTciIGNsYXNzPSJzbWFsbCI+6I635Y+W5YaF5qC45Y+v6KeB6K6w5b2VPC90ZXh0Pjx0ZXh0IHg9IjgzNyIgeT0iMTkxIiBjbGFzcz0iaGVhZCI+6amx5Yqo5LiO572R5Y2hPC90ZXh0Pjx0ZXh0IHg9IjgzNyIgeT0iMjI5IiBjbGFzcz0ibGFiZWwiPuagoemqjOWSjCAvIOWIhuautTwvdGV4dD48dGV4dCB4PSI4MzciIHk9IjI1NyIgY2xhc3M9InNtYWxsIj7lj6/og73nlLHnoazku7blrozmiJA8L3RleHQ+PHRleHQgeD0iMTA2NyIgeT0iMTkxIiBjbGFzcz0iaGVhZCI+55yf5a6e6ZO+6LevPC90ZXh0Pjx0ZXh0IHg9IjEwNjciIHk9IjIyOSIgY2xhc3M9ImxhYmVsIj7mnIDnu4jku6XlpKrnvZHluKc8L3RleHQ+PHRleHQgeD0iMTA2NyIgeT0iMjU3IiBjbGFzcz0ic21hbGwiPuS6pOaNouacuuS4jui3r+eUsei3r+W+hDwvdGV4dD48dGV4dCB4PSIxMzAwIiB5PSIxOTEiIGNsYXNzPSJoZWFkIj7mjqXmlLbnq688L3RleHQ+PHRleHQgeD0iMTMwMCIgeT0iMjI5IiBjbGFzcz0ibGFiZWwiPlRDUCDph43nu4TkuI7kuqTku5g8L3RleHQ+PHRleHQgeD0iMTMwMCIgeT0iMjU3IiBjbGFzcz0ic21hbGwiPuWGjeWIsOW6lOeUqOivu+WPljwvdGV4dD48L2c+CjxwYXRoIGNsYXNzPSJmbG93IiBkPSJNMjQwIDIxNkgyODIgTTQ3MCAyMTZINTEyIE03MDAgMjE2SDc0MiBNOTMwIDIxNkg5NzIgTTExNjAgMjE2SDEyMDIiLz4KPHBhdGggZD0iTTYwNyAyODBWMzA5SDgzN1YyODAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzZjOTZhMSIgc3Ryb2tlLXdpZHRoPSIyIi8+CjxyZWN0IHg9IjU1IiB5PSIzMzEiIHdpZHRoPSIxMzQwIiBoZWlnaHQ9IjE1MSIgcng9IjE0IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNjN2Q2ZTUiLz4KPHRleHQgeD0iODAiIHk9IjM2OSIgY2xhc3M9ImhlYWQiPuS4uuS7gOS5iOacrOacuuaKk+WMheS8muWHuueOsOKAnOagoemqjOWSjOmUmeivr+KAneaIluKAnOWkp+WMheKAne+8nzwvdGV4dD4KPHRleHQgeD0iODAiIHk9IjQwNiIgY2xhc3M9ImxhYmVsIj7ikaAg5oqT5YyF5pe25qCh6aqM5ZKM5Y+v6IO95bCa5pyq55Sx572R5Y2h6KGl566X77yb5pi+56S65byC5bi45LiN5b+F54S26K+05piO57q/5LiK5bin5o2f5Z2P44CCPC90ZXh0Pgo8dGV4dCB4PSI4MCIgeT0iNDQxIiBjbGFzcz0ibGFiZWwiPuKRoSBUU08gLyBHU08g5Y+v6K6p5YaF5qC45YWI5oyB5pyJ6L6D5aSn5pWw5o2u5q6177yM5LmL5ZCO5YaN5YiG5oiQ57q/5LiK5bin77yb5o6l5pS25pa55ZCR55qE6IGa5ZCI5Lmf5Y+v6IO95pS55Y+Y6KeC5a+f57uT5p6c44CCPC90ZXh0Pgo8dGV4dCB4PSI4MCIgeT0iNDY5IiBjbGFzcz0ic21hbGwiPuWFiOehruiupOaOpeWPo+OAgeaWueWQkeS4juWNuOi9vemFjee9ru+8jOWGjeWGs+WumuaYr+WQpumcgOimgeWPjOerr+aKk+WMheaIluWklumDqOinguWvn+eCuemqjOivgeOAgjwvdGV4dD4KPGcgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjYzdkNmU1Ij48cmVjdCB4PSI1NSIgeT0iNTEwIiB3aWR0aD0iNDIwIiBoZWlnaHQ9IjI0NSIgcng9IjE0Ii8+PHJlY3QgeD0iNTE1IiB5PSI1MTAiIHdpZHRoPSI0MjAiIGhlaWdodD0iMjQ1IiByeD0iMTQiLz48cmVjdCB4PSI5NzUiIHk9IjUxMCIgd2lkdGg9IjQyMCIgaGVpZ2h0PSIyNDUiIHJ4PSIxNCIvPjwvZz4KPHRleHQgeD0iODAiIHk9IjU0OSIgY2xhc3M9ImhlYWQiPuWuueWZqOS4jue9kee7nOWRveWQjeepuumXtDwvdGV4dD4KPHRleHQgeD0iODAiIHk9IjU4OCIgY2xhc3M9ImxhYmVsIj7lrrnlmajlupTnlKgg4oaSIHZldGgg4oaSIOe9keahpSAvIOS4u+acujwvdGV4dD4KPHRleHQgeD0iODAiIHk9IjYyNCIgY2xhc3M9InNtYWxsIj4taSBhbnkg5Y+q6KaG55uW5b2T5YmN572R57uc5ZG95ZCN56m66Ze0PC90ZXh0Pgo8dGV4dCB4PSI4MCIgeT0iNjUzIiBjbGFzcz0ic21hbGwiPuWPr+ingeeahOaOpeWPo++8m+W/heimgeaXtui/m+WFpeWuueWZqOWRveWQjeepuumXtOOAgjwvdGV4dD4KPHRleHQgeD0iODAiIHk9IjY5NiIgY2xhc3M9ImNvZGUiPm5zZW50ZXIgLXQgUElEIC1uIHRjcGR1bXAgLi4uPC90ZXh0Pgo8dGV4dCB4PSI4MCIgeT0iNzMzIiBjbGFzcz0ic21hbGwiPuWQjOS4gOmAu+i+keWMhei3qOaOpeWPo+WHuueOsCDiiaAgVENQIOmHjeS8oOOAgjwvdGV4dD4KPHRleHQgeD0iNTQwIiB5PSI1NDkiIGNsYXNzPSJoZWFkIj7mnKzmnLrlm57njq/kuI4gbG88L3RleHQ+Cjx0ZXh0IHg9IjU0MCIgeT0iNTg4IiBjbGFzcz0ibGFiZWwiPuacrOacuuW6lOeUqCBBIOKGkiBsbyDihpIg5pys5py65bqU55SoIEI8L3RleHQ+Cjx0ZXh0IHg9IjU0MCIgeT0iNjI0IiBjbGFzcz0ic21hbGwiPuiuv+mXruacrOacuuWbnueOr+WcsOWdgOmAmuW4uOS4jee7j+i/h+eJqeeQhue9keWNoeOAgjwvdGV4dD4KPHRleHQgeD0iNTQwIiB5PSI2NTMiIGNsYXNzPSJzbWFsbCI+5Y+q55uR5ZCsIGV0aDAg5Y+v6IO955yL5LiN5Yiw6L+Z5q616YCa5L+h44CCPC90ZXh0Pgo8dGV4dCB4PSI1NDAiIHk9IjY5NiIgY2xhc3M9ImNvZGUiPnRjcGR1bXAgLWkgbG8gLW5uICdwb3J0IDgwODAnPC90ZXh0Pgo8dGV4dCB4PSI1NDAiIHk9IjczMyIgY2xhc3M9InNtYWxsIj7lhYjnlKjlnLDlnYDjgIHot6/nlLHkuI7lkb3lkI3nqbrpl7Tnoa7lrprot6/lvoTjgII8L3RleHQ+Cjx0ZXh0IHg9IjEwMDAiIHk9IjU0OSIgY2xhc3M9ImhlYWQiPuWNleerr+aKk+WMheiDveivgeaYjuS7gOS5iDwvdGV4dD4KPHRleHQgeD0iMTAwMCIgeT0iNTg4IiBjbGFzcz0ibGFiZWwiPuKAnOWcqOatpOeCueinguWvn+WIsOKAneKJoOKAnOWvueerr+W3suaUtuWIsOKAnTwvdGV4dD4KPHRleHQgeD0iMTAwMCIgeT0iNjI0IiBjbGFzcz0ic21hbGwiPuWPkemAgeS+p+iusOW9leS4jeiDveWNleeLrOivgeaYjumTvui3r+S6pOS7mOOAgjwvdGV4dD4KPHRleHQgeD0iMTAwMCIgeT0iNjUzIiBjbGFzcz0ic21hbGwiPue8uuWwkeaKpeaWh+S5n+WPr+iDveaYr+acrOasoeaNleiOt+mBl+a8j+OAgjwvdGV4dD4KPHRleHQgeD0iMTAwMCIgeT0iNjk2IiBjbGFzcz0ibGFiZWwiPuWPjOerr+Wvuem9kOW6j+WIl+WPt+S4juaXtumXtOe6vzwvdGV4dD4KPHRleHQgeD0iMTAwMCIgeT0iNzMzIiBjbGFzcz0ic21hbGwiPuWPr+aKiumXrumimOe8qeWwj+WIsOS4pOS4quinguWvn+eCueS5i+mXtOOAgjwvdGV4dD4KPHJlY3QgeD0iNTUiIHk9Ijc4NiIgd2lkdGg9IjEzNDAiIGhlaWdodD0iNzUiIHJ4PSIxNCIgZmlsbD0iI2ZmZjJkOCIgc3Ryb2tlPSIjZTBiZDczIi8+Cjx0ZXh0IHg9IjgwIiB5PSI4MTciIGNsYXNzPSJoZWFkIj50Y3BkdW1wIOeahCDigJxwYWNrZXRzIGRyb3BwZWQgYnkga2VybmVs4oCdIOihqOekuuaKk+WMhei3r+W+hOa8j+iusO+8jOS4jeetieWQjOS6juS4muWKoee9kee7nOS4ouWMheOAgjwvdGV4dD4KPHRleHQgeD0iODAiIHk9Ijg0NiIgY2xhc3M9InNtYWxsIj7mo4Dmn6XmjZXojrfnvJPlhrLjgIHov4fmu6TojIPlm7TjgIHlhpnnm5jpgJ/luqbkuI7ph4fpm4bnq6/otJ/ovb3vvJvlho3nu5PlkIjkuKTnq6/miqXmlofjgIHph43kvKDorqHmlbDlj4rmjqXlj6Pnu5/orqHliKTmlq3nvZHnu5zmmK/lkKbkuKLljIXjgII8L3RleHQ+Cjwvc3ZnPgo=" alt="图 4：Linux 抓包观察点与报文路径" loading="lazy"><span>点击放大查看</span></button><figcaption>图 4：Linux 抓包观察点与报文路径</figcaption></figure>
+<p><em>图 4：Linux 抓包观察点与报文路径。观察点位于协议处理路径中；主机内部记录未必等同于线上最终帧</em></p>
+<h2 id="part-09">09｜读懂 TCP 和 Wireshark，避免“看见红色就下结论”</h2>
+<p>TCP 常见握手为 SYN→SYN/ACK→ACK。tcpdump 中 <code>[S]</code> 常表示 SYN，<code>[S.]</code> 为 SYN/ACK，<code>[.]</code> 为 ACK，<code>[F.]</code> 常表示 FIN/ACK，<code>[R.]</code> 为 RST/ACK。重复 SYN 而无响应，提示连接建立失败；收到 RST，可能是端口未监听、应用主动中断或中间设备拒绝，需要继续验证。</p>
+<p><code>seq</code> 和 <code>ack</code> 描述字节序列及确认进度。TCP 是字节流，一次应用 <code>send</code> 可能拆成多个报文，多次写入也可能合并。业务必须依靠协议规定的长度、分隔符或格式识别消息边界，不能把“一包”当成“一条请求”。</p>
+<p>Wireshark 有两套过滤语法：捕获过滤器决定保存哪些包，显示过滤器只决定当前显示哪些包。后者不会删除文件里的其他报文。例如：</p>
+<table>
+<thead>
+<tr>
+<th>目的</th>
+<th>捕获过滤器</th>
+<th>显示过滤器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>指定 TCP 端口</td>
+<td><code>tcp port 18080</code></td>
+<td><code>tcp.port == 18080</code></td>
+</tr>
+<tr>
+<td>指定 IPv4 地址</td>
+<td><code>host 192.0.2.10</code></td>
+<td><code>ip.addr == 192.0.2.10</code></td>
+</tr>
+<tr>
+<td>查看 HTTP 请求</td>
+<td>无完全对应的通用短表达式</td>
+<td><code>http.request</code></td>
+</tr>
+<tr>
+<td>跟踪一个 TCP 流</td>
+<td>地址、端口组成连接条件</td>
+<td><code>tcp.stream eq 0</code></td>
+</tr>
+</tbody></table>
+<p>先用 Conversations 找连接，再用 Follow TCP Stream 还原内容。<code>tcp.stream</code> 编号由当前抓包分析生成，不是端口，也不是跨文件通用标识。<a target="_blank" rel="noopener noreferrer" href="https://www.wireshark.org/docs/wsug_html/">Wireshark 用户指南</a></p>
+<p>重传看 <code>tcp.analysis.retransmission</code>，重复确认看 <code>tcp.analysis.duplicate_ack</code>，零窗口看 <code>tcp.analysis.zero_window</code>。<strong>这些是 Wireshark 根据已捕获报文推断的分析标签，不是 TCP 报文携带的“重传标志位”。</strong> 缺少握手、单向抓包、捕获丢包、乱序和过短截断，可能让判断缺少必要上下文，产生误导提示；影响取决于缺失的方向和内容，并非出现截断就一定误判。<strong>只看单向抓包的分析标签，不要直接认定真实网络故障。</strong> 也不能把标签数量当成链路丢包数，应结合两端抓包的字节区间、ACK 进度、捕获完整性与业务日志交叉核对。</p>
+<p>零窗口意味着接收端通告的窗口为零，应检查接收应用是否及时读取及缓冲压力；它不等于链路带宽不足。某方向重传增加时，应核对对端是否真的缺失数据、确认包是否返回，以及两端抓包是否完整。<a target="_blank" rel="noopener noreferrer" href="https://www.wireshark.org/docs/wsug_html_chunked/ChAdvTCPAnalysis.html">Wireshark TCP 分析文档</a></p>
+<p>本机抓包还可能看到“校验和错误”或比 MTU 大的报文。这可能来自校验和卸载、分段卸载或接收聚合：抓包位置看见的形态不完全等于线缆上的形态。先检查观察点与卸载配置，再判断。HTTPS 只能直接看到加密后的通信；受控调试中可使用应用支持的 TLS 会话密钥日志，不能指望仅有服务器私钥就解密现代 TLS 流量。</p>
+<p><strong>把窗口、吞吐和超时联系起来。</strong> 把网络传输想成货车送货：收货仓库可能没地方放，途中道路也可能拥堵。TCP 因此同时受两种约束：接收窗口 rwnd 表示接收方当前允许再接收多少数据；拥塞窗口 cwnd 是发送方对网络承载能力的控制。粗略说，允许在途的数据受两者较小值限制，新发送量还要减掉已经在途的数据。若有效窗口为 64 KiB、RTT 为 100 毫秒，窗口限制下的理想量级约为 640 KiB/s，即 5.2 Mbit/s；这只是忽略损耗等因素的估算，并非实际吞吐保证。即使网卡为千兆，也不能据此断言单连接应跑满。cwnd 是发送端内部状态，不能只看报文里的 Window 字段，应结合 <code>ss -ti</code>。还要注意单位：<code>ss</code> 的 <code>cwnd</code> 通常以报文段数表示，做字节估算时需乘相应 MSS；通告接收窗口还可能受握手时协商的窗口扩大选项影响。<a target="_blank" rel="noopener noreferrer" href="https://www.rfc-editor.org/rfc/rfc5681.html">RFC 5681 的窗口定义</a></p>
+<p>ACK 确认的是 TCP 字节接收进度：数据可能仍在接收缓冲区，应用尚未读取；即便应用读了，也未必写入数据库。排查应拆成 DNS、TCP 建连、TLS、请求发送、服务端排队与处理、响应传输。应用设置的两秒截止时间，也不是 TCP 重传计时器。本例 <code>/slow</code> 的 ACK 很快，业务响应两秒后才出现，就是两种进度不同。应以同一请求的抓包、服务日志和执行耗时逐段核对。<a target="_blank" rel="noopener noreferrer" href="https://www.rfc-editor.org/rfc/rfc9293.html">RFC 9293：TCP 语义</a></p>
+<h2 id="part-10">10｜用连接与路径信息补全网络证据</h2>
+<p>抓包看报文，<code>ss</code> 看内核中的 socket：</p>
+<pre><code class="language-bash">sudo ss -lntp
+sudo ss -tinp
+ss -s
+ip -s link show dev eth0
+ping -c 5 192.0.2.10
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo ss -lntp</code></td>
+<td>查看监听中的 TCP socket，使用数字地址/端口并显示进程信息。</td>
+<td>确认服务绑定在哪个地址和端口。</td>
+</tr>
+<tr>
+<td><code>sudo ss -tinp</code></td>
+<td>查看 TCP 连接及内部指标、数字地址与进程信息。</td>
+<td>关注队列、RTT、cwnd，注意单位和权限。</td>
+</tr>
+<tr>
+<td><code>ss -s</code></td>
+<td>打印 socket 汇总统计。</td>
+<td>先看连接状态的总体分布，再查具体连接。</td>
+</tr>
+<tr>
+<td><code>ip -s link show dev eth0</code></td>
+<td>读取指定接口的收发统计。</td>
+<td>看错误和丢弃趋势；不能直接归因到某条请求。</td>
+</tr>
+<tr>
+<td><code>ping -c 5 192.0.2.10</code></td>
+<td>向目标发送五次 ICMP 探测。</td>
+<td>只检验这种探测的响应，不证明业务 TCP 端口正常。</td>
+</tr>
+</tbody></table>
+<p>先确认服务监听的地址和端口，再观察连接状态、队列与 RTT 等信息。已建立连接的 <code>Recv-Q</code> 通常是应用尚未读取的数据，<code>Send-Q</code> 通常是尚未被确认的数据；监听 socket 的队列含义不同，不能照搬。<code>CLOSE_WAIT</code> 表示已收到对端 FIN，本端还未完成关闭；短暂出现可以正常，持续堆积才值得追查应用是否及时收尾和关闭，不能仅凭单次状态截图断言 fd 泄漏。较多 <code>TIME_WAIT</code> 则可能只是短连接频繁。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man8/ss.8.html">ss 手册</a></p>
+<p>ping 正常不能证明业务端口正常，ping 不通也不能证明 TCP 一定不通。<code>mtr</code> 或 <code>tracepath</code> 能辅助看路径，但中间跳不回答可能只是限制探测报文。跨机器抓包还要检查时钟同步，否则几毫秒的时钟偏差就可能误导短请求分析。</p>
+<p><strong>⚠️ 实验流量。</strong> iperf3 会主动产生网络负载，不能把生产链路当作随时可跑满的测试环境。</p>
+<p>在允许产生测试流量的环境，用 <code>iperf3 -s</code> 启动服务端，客户端运行 <code>iperf3 -c 192.0.2.10 -t 30</code>。<code>-R</code> 测反向传输，<code>-P 4</code> 使用四条并行连接。它验证特定条件下的传输能力，不包含数据库、业务计算和真实用户行为，不能当成接口性能测试。<a target="_blank" rel="noopener noreferrer" href="https://software.es.net/iperf/invoking.html">iperf3 文档</a></p>
+<h2 id="part-11">11｜性能诊断从整体向局部收敛</h2>
+<p>先回答两个问题：CPU 是否真的忙，还是线程大部分时间在等待？一次请求的总耗时包括执行、排队以及 I/O 等待；CPU 采样主要解释正在执行的部分。因此“CPU 很低但接口很慢”并不矛盾。</p>
+<pre><code class="language-bash">uptime
+top
+free -h
+vmstat 1 6
+mpstat -P ALL 1 5
+pidstat -t -u -w -p 12345 1 5
+iostat -xz -y 1 5
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>uptime</code></td>
+<td>看运行时间及 1、5、15 分钟负载平均值。</td>
+<td>结合 CPU 数、任务状态判断；它不是 CPU 使用率。</td>
+</tr>
+<tr>
+<td><code>top</code></td>
+<td>动态查看进程 CPU、内存及运行状态。</td>
+<td>先找持续异常的进程，按 q 退出。</td>
+</tr>
+<tr>
+<td><code>free -h</code></td>
+<td>按易读单位查看内存概况。</td>
+<td>重点结合 available、交换和变化趋势。</td>
+</tr>
+<tr>
+<td><code>vmstat 1 6</code></td>
+<td>每秒输出一次，共六次系统概况。</td>
+<td>第一行通常为启动以来汇总，之后看队列、交换及 CPU。</td>
+</tr>
+<tr>
+<td><code>mpstat -P ALL 1 5</code></td>
+<td>每秒列出所有逻辑 CPU 的统计，共五次。</td>
+<td>检查是否只有一个核持续很忙。</td>
+</tr>
+<tr>
+<td><code>pidstat -t -u -w -p 12345 1 5</code></td>
+<td>每秒查目标进程及线程的 CPU 与上下文切换，共五次。</td>
+<td>用线程号缩小调查范围，PID 必须替换。</td>
+</tr>
+<tr>
+<td><code>iostat -xz -y 1 5</code></td>
+<td>每秒输出扩展设备统计，共五次，跳过启动以来的首份报告并省略空闲设备。</td>
+<td>看 await、队列和吞吐，不仅看 %util。</td>
+</tr>
+</tbody></table>
+<p>不要只看某一瞬间，至少连续观察多个间隔。<code>vmstat</code> 第一行通常是自启动以来的汇总，后续才是间隔数据。负载平均值包含可运行任务及部分不可中断睡眠任务，不是 CPU 利用率；判断还需结合 CPU 数量和任务状态。</p>
+<p>CPU 高时先看是哪一个核、哪个进程、哪个线程，再用 perf 找函数。不同工具的 CPU 百分比口径可能不同，有的 100% 表示一个逻辑 CPU 被占满，多线程进程可以超过 100%。上下文切换多要结合请求量看：高吞吐服务切换多可能正常，低吞吐却频繁切换才值得进一步研究。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man1/pidstat.1.html">pidstat 手册</a></p>
+<p>内存看 <code>available</code>、交换活动和进程增长趋势，不能把 <code>free</code> 小直接当成内存不足，文件缓存也占内存。RSS 是进程当前驻留在物理内存中的空间，增长可能来自缓存、分配器保留或泄漏；应比较相同负载下多个时间点，必要时用堆分析工具验证。容器还要检查自己的 CPU 配额和内存上限，宿主机有空闲不代表容器不受限。</p>
+<p>磁盘关注吞吐、请求数、<code>await</code> 和队列长度。<code>await</code> 包括排队及请求完成时间；现代并行存储的 <code>%util</code> 接近 100% 不必然等于达到绝对吞吐极限。大量小随机 I/O 与少量大顺序 I/O 对设备的压力不同，不能只比较 MB/s。一次 <code>write</code> 很快，也不代表之后的 <code>fsync</code> 一定很快。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man1/iostat.1.html">iostat 手册</a></p>
+<p>PSI 像一个“因为资源不够而等了多久”的计时器。支持 PSI 的内核可读取 <code>/proc/pressure/cpu</code>、<code>memory</code>、<code>io</code>。PSI 表示任务因资源不足而停顿的时间比例，补充“利用率很高但到底有没有影响任务”的信息。<code>some</code> 表示至少部分任务停顿，<code>full</code> 有更严格的定义且 CPU 系统级存在特殊语义，应按对应内核解释。<a target="_blank" rel="noopener noreferrer" href="https://docs.kernel.org/accounting/psi.html">Linux PSI 文档</a></p>
+<p><strong>区分正在计算、等调度与阻塞。</strong> 顾客等餐十分钟，厨师真正切菜可能只用一分钟，其余时间在等灶台或送货。程序也一样：一个线程处理请求的关键路径可分为：正在 CPU 上运行，已可运行但等调度，以及等待锁、I/O 或外部事件。后两类通常属于离开 CPU 的时间。假设某请求总共一秒，其中计算 50 毫秒、等锁 850 毫秒、其他等待 100 毫秒，CPU 热点里某解析函数占八成，只说明它占了被采样执行的主要部分；在这个串行示例里，即便消除其约 40 毫秒计算，也难以解决主要延迟。并发请求的多线程 CPU 时间还可能重叠，不能简单相加当成单个请求的墙钟时间。</p>
+<p>perf 常见的 CPU 采样是在选定事件触发时记录指令位置和调用栈，再统计样本。应明确事件、采样范围和频率，不能把任意事件的占比都称作时间占比。短任务样本太少、栈展开不完整，都会影响解释。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man1/perf-record.1.html">perf 采样选项</a></p>
+<p>等待问题则应记录切出与切回 CPU 的时刻，按调用栈累计等待；再用线程状态、调度事件和唤醒者区分阻塞与运行队列等待。BCC 的 offcputime 提供这种观察方式，但一个线程在空闲事件循环等待很久，仍可能完全正常，必须关联真实慢请求。<a target="_blank" rel="noopener noreferrer" href="https://github.com/iovisor/bcc/blob/master/tools/offcputime_example.txt">BCC offcputime 示例</a></p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大图 5：请求时间分解与性能工具的覆盖范围" data-title="图 5：请求时间分解与性能工具的覆盖范围"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNDAwIiBoZWlnaHQ9IjEwMzAiIHZpZXdCb3g9IjAgMCAxNDAwIDEwMzAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0i5Zu+IDUgIOivt+axguW+iOaFou+8jOS4uuS7gOS5iCBDUFUg5Y205LiN6auY77yfIj4NCjxkZWZzPjxtYXJrZXIgaWQ9ImFycm93IiBtYXJrZXJXaWR0aD0iMTAiIG1hcmtlckhlaWdodD0iMTAiIHJlZlg9IjgiIHJlZlk9IjUiIG9yaWVudD0iYXV0by1zdGFydC1yZXZlcnNlIj48cGF0aCBkPSJNMCwwIEwxMCw1IEwwLDEwIiBmaWxsPSIjNWE3YzkyIi8+PC9tYXJrZXI+PC9kZWZzPg0KPHJlY3Qgd2lkdGg9IjE0MDAiIGhlaWdodD0iMTAzMCIgcng9IjIwIiBmaWxsPSIjZjhmYWZiIi8+DQo8dGV4dCB4PSI0OCIgeT0iNTYiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjI5IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWbviA1ICDor7fmsYLlvojmhaLvvIzkuLrku4DkuYggQ1BVIOWNtOS4jemrmO+8nzwvdGV4dD4NCjx0ZXh0IHg9IjQ4IiB5PSI5NiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTkiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiM1MzZjN2MiIHRleHQtYW5jaG9yPSJzdGFydCI+5Liy6KGM6K+35rGC56S65oSP77ya5YWI5a6a5LmJ6L6555WM77yM5YaN5oqK5ZCM5LiA5pe26Ze06L205ouG5YiG77yb5bm25Y+R6Zi25q615LiN6IO9566A5Y2V55u45Yqg44CCPC90ZXh0Pg0KPHRleHQgeD0iNDgiIHk9IjE1MCIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjUiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+5LiA5qyhIDEwMDAgbXMg6K+35rGC55qE566A5YyW5pe26Ze06LSm5pysPC90ZXh0Pg0KPHJlY3QgeD0iNTAiIHk9IjE4NSIgd2lkdGg9Ijc4LjAiIGhlaWdodD0iNzAiIHJ4PSIwIiBmaWxsPSIjNzA5NWIwIiBzdHJva2U9IiM3MDk1YjAiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHJlY3QgeD0iMTI4LjAiIHk9IjE4NSIgd2lkdGg9IjUyLjAiIGhlaWdodD0iNzAiIHJ4PSIwIiBmaWxsPSIjMjM3NTkxIiBzdHJva2U9IiMyMzc1OTEiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHJlY3QgeD0iMTgwLjAiIHk9IjE4NSIgd2lkdGg9IjEzMC4wIiBoZWlnaHQ9IjcwIiByeD0iMCIgZmlsbD0iI2IzOGM0NSIgc3Ryb2tlPSIjYjM4YzQ1IiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjI0NS4wIiB5PSIyMzAiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjI0IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj4xMDAgbXM8L3RleHQ+DQo8cmVjdCB4PSIzMTAuMCIgeT0iMTg1IiB3aWR0aD0iNjUwLjAiIGhlaWdodD0iNzAiIHJ4PSIwIiBmaWxsPSIjYjY2YzUwIiBzdHJva2U9IiNiNjZjNTAiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iNjM1LjAiIHk9IjIzMCIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjUwMCBtczwvdGV4dD4NCjxyZWN0IHg9Ijk2MC4wIiB5PSIxODUiIHdpZHRoPSIzOTAuMCIgaGVpZ2h0PSI3MCIgcng9IjAiIGZpbGw9IiM2NzhmN2QiIHN0cm9rZT0iIzY3OGY3ZCIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSIxMTU1LjAiIHk9IjIzMCIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjQiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPjMwMCBtczwvdGV4dD4NCjxyZWN0IHg9IjUwIiB5PSIyODgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgcng9IjMiIGZpbGw9IiM3MDk1YjAiIHN0cm9rZT0iIzcwOTViMCIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI3NiIgeT0iMzAzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7nvZHnu5zkvKDovpMgNjAgbXM8L3RleHQ+DQo8cmVjdCB4PSIzMTYiIHk9IjI4OCIgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiByeD0iMyIgZmlsbD0iIzIzNzU5MSIgc3Ryb2tlPSIjMjM3NTkxIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjM0MiIgeT0iMzAzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij5DUFUg6L+Q6KGMIDQwIG1zPC90ZXh0Pg0KPHJlY3QgeD0iNTgyIiB5PSIyODgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgcng9IjMiIGZpbGw9IiNiMzhjNDUiIHN0cm9rZT0iI2IzOGM0NSIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI2MDgiIHk9IjMwMyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTgiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5bCx57uq5o6S6ZifIDEwMCBtczwvdGV4dD4NCjxyZWN0IHg9Ijg0OCIgeT0iMjg4IiB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHJ4PSIzIiBmaWxsPSIjYjY2YzUwIiBzdHJva2U9IiNiNjZjNTAiIHN0cm9rZS13aWR0aD0iMiIvPg0KPHRleHQgeD0iODc0IiB5PSIzMDMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPumUgSAvIOadoeS7tuetieW+hSA1MDAgbXM8L3RleHQ+DQo8cmVjdCB4PSIxMTE0IiB5PSIyODgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgcng9IjMiIGZpbGw9IiM2NzhmN2QiIHN0cm9rZT0iIzY3OGY3ZCIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSIxMTQwIiB5PSIzMDMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE4IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkkvTyDnrYnlvoUgMzAwIG1zPC90ZXh0Pg0KPHJlY3QgeD0iNDgiIHk9IjM1MCIgd2lkdGg9IjYzMCIgaGVpZ2h0PSIyMjUiIHJ4PSIxNCIgZmlsbD0iI2VlZjVmOCIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjcwIiB5PSIzODkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIzIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPk9uLUNQVe+8muato+WcqOaJp+ihjOeahCA0MCBtczwvdGV4dD4NCjx0ZXh0IHg9IjcwIiB5PSI0MjkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuW3peWFt++8mnBlcmYgcmVjb3JkIC8gcGVyZiByZXBvcnQ8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNDYxIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7ov73pl67vvJrph43lpI3orqHnrpfvvJ/mi7fotJ3vvJ/liIbphY3vvJ/ng63ngrnlvqrnjq/vvJ88L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNDkzIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7moLfmnKzogZrlkIjmiJDosIPnlKjot6/lvoTvvIzlrr3luqYgLyDljaDmr5TmmK/nu5/orqHnu5PmnpzjgII8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNTI1IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lh73mlbDljaAgQ1BVIOagt+acrCA4MCXvvIw8L3RleHQ+DQo8dGV4dCB4PSI3MCIgeT0iNTU3IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzE4Mzg0YiIgdGV4dC1hbmNob3I9InN0YXJ0Ij7kuI3ku6PooajlroPljaDor7fmsYLmgLvogJfml7YgODAl44CCPC90ZXh0Pg0KPHJlY3QgeD0iNzIyIiB5PSIzNTAiIHdpZHRoPSI2MzAiIGhlaWdodD0iMjI1IiByeD0iMTQiIGZpbGw9IiNmNWYxZWIiIHN0cm9rZT0iI2NiZGJlMyIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI3NDQiIHk9IjM4OSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjMiIGZvbnQtd2VpZ2h0PSI3MDAiIGZpbGw9IiMxNzY3OGQiIHRleHQtYW5jaG9yPSJzdGFydCI+T2ZmLUNQVe+8mue6v+eoi+ayoeWcqCBDUFUg5LiK5omn6KGMPC90ZXh0Pg0KPHRleHQgeD0iNzQ0IiB5PSI0MjkiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWwsee7qu+8muaDs+i/kOihjO+8jOS9huWwmuacquiOt+W+lyBDUFU8L3RleHQ+DQo8dGV4dCB4PSI3NDQiIHk9IjQ2MSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+6Zi75aGe77ya562J5b6F6ZSB44CBSS9P44CB5LqL5Lu25oiW5a6a5pe25ZmoPC90ZXh0Pg0KPHRleHQgeD0iNzQ0IiB5PSI0OTMiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuW3peWFt++8mue6v+eoi+agiOOAgeiwg+W6pui3n+i4quOAgXN0cmFjZeOAgWVCUEY8L3RleHQ+DQo8dGV4dCB4PSI3NDQiIHk9IjUyNSIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjEiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5Yy65YiG4oCc5q2j5bi456m66Zey4oCd5ZKM4oCc6K+35rGC6KKr6IC96K+v4oCd77yMPC90ZXh0Pg0KPHRleHQgeD0iNzQ0IiB5PSI1NTciIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIxIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuW/hemhu+WFs+iBlOivt+axguaXtumXtOS4juS4muWKoeeKtuaAgeOAgjwvdGV4dD4NCjx0ZXh0IHg9IjQ4IiB5PSI2MzEiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjI1IiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuS7jueOsOixoeWIsOivgeaNru+8jOmBv+WFjei3qOWxguebtOaOpeS4i+e7k+iuujwvdGV4dD4NCjxyZWN0IHg9IjQ4IiB5PSI2NjAiIHdpZHRoPSIxMzA0IiBoZWlnaHQ9IjU4IiByeD0iNSIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjcwIiB5PSI2OTciIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkNQVSDpq5g8L3RleHQ+DQo8dGV4dCB4PSIzNzUiIHk9IjY5NyIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5YWI5a6a5L2N57q/56iL77yM5YaN55yL54Ot54K55qCIPC90ZXh0Pg0KPHRleHQgeD0iODQ1IiB5PSI2OTciIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjNTM2YzdjIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPnBpZHN0YXQgLXQg4oaSIHBlcmYg4oaSIOa6kOeggTwvdGV4dD4NCjxyZWN0IHg9IjQ4IiB5PSI3MjUiIHdpZHRoPSIxMzA0IiBoZWlnaHQ9IjU4IiByeD0iNSIgZmlsbD0iI2VlZjNmNiIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjcwIiB5PSI3NjIiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPkNQVSDkvY7vvIzlu7bov5/pq5g8L3RleHQ+DQo8dGV4dCB4PSIzNzUiIHk9Ijc2MiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5om+5o6S6Zif44CB6ZSB5LiO5aSW6YOo5L6d6LWWPC90ZXh0Pg0KPHRleHQgeD0iODQ1IiB5PSI3NjIiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjNTM2YzdjIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuWFqOe6v+eoi+agiCDihpIg562J5b6F5pe26ZW/IOKGkiDor7fmsYLov73ouKo8L3RleHQ+DQo8cmVjdCB4PSI0OCIgeT0iNzkwIiB3aWR0aD0iMTMwNCIgaGVpZ2h0PSI1OCIgcng9IjUiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2NiZGJlMyIgc3Ryb2tlLXdpZHRoPSIyIi8+DQo8dGV4dCB4PSI3MCIgeT0iODI3IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzE3Njc4ZCIgdGV4dC1hbmNob3I9InN0YXJ0Ij7no4Hnm5ggYXdhaXQg6auYPC90ZXh0Pg0KPHRleHQgeD0iMzc1IiB5PSI4MjciIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjMTgzODRiIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPuaguOWvuemYn+WIl+OAgeWQjOatpeWGmeS4juS4muWKoeiAl+aXtjwvdGV4dD4NCjx0ZXh0IHg9Ijg0NSIgeT0iODI3IiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOSIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iIzUzNmM3YyIgdGV4dC1hbmNob3I9InN0YXJ0Ij5pb3N0YXQg4oaSIHBpZHN0YXQgLWQg4oaSIGZzeW5jIOi3r+W+hDwvdGV4dD4NCjxyZWN0IHg9IjQ4IiB5PSI4NTUiIHdpZHRoPSIxMzA0IiBoZWlnaHQ9IjU4IiByeD0iNSIgZmlsbD0iI2VlZjNmNiIgc3Ryb2tlPSIjY2JkYmUzIiBzdHJva2Utd2lkdGg9IjIiLz4NCjx0ZXh0IHg9IjcwIiB5PSI4OTIiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjIwIiBmb250LXdlaWdodD0iNzAwIiBmaWxsPSIjMTc2NzhkIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPlRDUCDph43kvKDmj5DnpLo8L3RleHQ+DQo8dGV4dCB4PSIzNzUiIHk9Ijg5MiIgZm9udC1mYW1pbHk9Ik1pY3Jvc29mdCBZYUhlaSxOb3RvIFNhbnMgQ0pLIFNDLEFyaWFsLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiMxODM4NGIiIHRleHQtYW5jaG9yPSJzdGFydCI+5qC45a+55oqT5YyF5a6M5pW05oCn5LiO5Y+M56uv5oql5paHPC90ZXh0Pg0KPHRleHQgeD0iODQ1IiB5PSI4OTIiIGZvbnQtZmFtaWx5PSJNaWNyb3NvZnQgWWFIZWksTm90byBTYW5zIENKSyBTQyxBcmlhbCxzYW5zLXNlcmlmIiBmb250LXNpemU9IjE5IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjNTM2YzdjIiB0ZXh0LWFuY2hvcj0ic3RhcnQiPnBjYXAg5a6M5pW05oCnIOKGkiBzZXEvYWNrIOKGkiDot6/lvoTlr7nmr5Q8L3RleHQ+DQo8dGV4dCB4PSI0OCIgeT0iOTcwIiBmb250LWZhbWlseT0iTWljcm9zb2Z0IFlhSGVpLE5vdG8gU2FucyBDSksgU0MsQXJpYWwsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyMSIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iIzIxNzg2YyIgdGV4dC1hbmNob3I9InN0YXJ0Ij7lj6rmnIkgNDAgbXMg6IO96KKr6K+lIENQVSDkvJjljJbnm7TmjqXlvbHlk43vvJrljbPkvb/miorlroPnvKnnn63kuIDljYrvvIzmgLvogJfml7bkuZ/ku4Xku44gMTAwMCBtcyDpmY3liLAgOTgwIG1z44CCPC90ZXh0Pg0KPC9zdmc+" alt="图 5：请求时间分解与性能工具的覆盖范围" loading="lazy"><span>点击放大查看</span></button><figcaption>图 5：请求时间分解与性能工具的覆盖范围</figcaption></figure>
+<p><em>图 5：请求时间分解与性能工具的覆盖范围。图中数值是串行请求的教学假设；不同观察范围与并发阶段不能直接相加</em></p>
+<h2 id="part-12">12｜实验四：找到重复计算，让优化有证据</h2>
+<h3>1. 实验目标</h3>
+<p><strong>实验环境。</strong> 在结果一致的前提下，找出重复计算，分清热点样本占比、绝对运行耗时和优化收益。</p>
+<p>配套 <code>examples/cpu_hotspot.c</code> 对一块固定数据反复计算校验和。<code>baseline</code> 每轮重新扫描；<code>cached</code> 只计算一次，再复用结果。两种模式输出同一汇总值，便于验证优化没有改变实验语义。</p>
+<h3>2. 编译命令</h3>
+<pre><code class="language-bash">gcc -O2 -g -Wall -Wextra -fno-omit-frame-pointer \
+  examples/cpu_hotspot.c -o cpu_hotspot
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>gcc -O2 -g -Wall -Wextra -fno-omit-frame-pointer  examples/cpu_hotspot.c -o cpu_hotspot</code></td>
+<td>编译 CPU 对照程序，两个计算模式共用同一二进制。</td>
+<td>使用 <code>-O2</code> 做优化构建下的对照，并保留调试信息和帧指针以辅助采样分析。</td>
+</tr>
+</tbody></table>
+<h3>3. 复现步骤</h3>
+<p>使用同一二进制、默认输入先各运行一次：</p>
+<pre><code class="language-bash">./cpu_hotspot baseline
+./cpu_hotspot cached
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>./cpu_hotspot baseline</code></td>
+<td>运行同一实验程序，选择每轮重复计算的 baseline 或复用结果的 cached 模式。</td>
+<td>默认轮数时两种 result 都应为 ad8d345e08537ef0，再比较 elapsed。</td>
+</tr>
+<tr>
+<td><code>./cpu_hotspot cached</code></td>
+<td>运行同一实验程序，选择每轮重复计算的 baseline 或复用结果的 cached 模式。</td>
+<td>默认轮数时两种 result 都应为 ad8d345e08537ef0，再比较 elapsed。</td>
+</tr>
+</tbody></table>
+<p>源码中保留热点函数，并通过明确的读取方式防止编译器把基准中的重复扫描悄悄消除。这些是教学测量措施，不是在建议业务代码到处添加 <code>volatile</code>。核心差异如下：</p>
+<pre><code class="language-c">/* baseline：每一轮扫描固定的 32 KiB 数据。 */
+for (uint64_t i = 0; i &lt; rounds; ++i)
+    result += checksum() ^ i;
+
+/* cached：固定数据只扫描一次，后续复用结果。 */
+uint64_t saved = checksum();
+for (uint64_t i = 0; i &lt; rounds; ++i)
+    result += saved ^ i;
+</code></pre>
+<h3>4. 观察输出要点</h3>
+<p>默认 20000 轮，两种模式都应输出 <code>result=ad8d345e08537ef0</code>；运行时间依机器而变。等价的原因是 <code>checksum()</code> 的输入始终不变，因此每次返回相同值。优化减少的是重复工作，不是让同一段机器指令神奇地跑得更快。真实缓存必须解决数据变化后的失效、并发访问和内存成本。</p>
+<p>接着在本实验环境里观察整体计数与调用栈。先尝试软件事件，避免把默认硬件事件不可用误当成程序错误：</p>
+<pre><code class="language-bash">perf stat -e task-clock,context-switches,page-faults \
+  -- ./cpu_hotspot baseline
+
+perf record -e cpu-clock -F 99 -g -o baseline.data \
+  -- ./cpu_hotspot baseline
+perf report -i baseline.data
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>perf stat -e task-clock,context-switches,page-faults  -- ./cpu_hotspot baseline</code></td>
+<td>统计指定软件事件；-e 选择 task-clock、上下文切换、缺页，-- 后是待运行程序。</td>
+<td>先确认统计是否成功，再读指标；权限限制时用程序计时对照。</td>
+</tr>
+<tr>
+<td><code>perf record -e cpu-clock -F 99 -g -o baseline.data  -- ./cpu_hotspot baseline</code></td>
+<td>启动实验程序并采样；-e cpu-clock 选软件事件，-F 99 请求 99Hz，-g 记录调用栈，-o 指定采样文件。</td>
+<td>生成 baseline.data 后交给 report；样本不足或栈不全会影响结论。</td>
+</tr>
+<tr>
+<td><code>perf report -i baseline.data</code></td>
+<td>读取 -i 指定的采样文件，按函数/调用栈汇总。</td>
+<td>对照 Self、Children 和 checksum 路径；它不是再次运行程序。</td>
+</tr>
+</tbody></table>
+<h3>5. 关键结论</h3>
+<p>如果采样数量太少，可增加最后的轮数参数，例如 ./cpu_hotspot baseline 100000；该数值只是测试起点，应按机器和采集时长调整，对照时两种模式保持相同轮数。热点应主要集中于 <code>checksum</code> 及其调用路径。在 <code>perf report</code> 中，<code>Self</code> 看样本直接落在当前函数的比例，<code>Children</code> 还包含沿调用栈归入该函数的后代开销；理解两列后再决定优化哪里。采样看到的是统计占比，不是精确的每次函数耗时。比较 <code>cached</code> 时还要注意它可能太快，样本不足；此时先核对结果，再多次计时看趋势，避免用极短运行宣称精确加速倍数。程序自身计时只覆盖计算区间，<code>perf/time</code> 则测量整个命令，比较时应保持统计口径一致。</p>
+<p><strong>⚠️ 现场采集。</strong> 对现有服务的 perf 采样也应限制进程、事件、频率和持续时间，并观察开销；实验通过不代表同样参数在线上无影响。例如经评估后，可短时采集：</p>
+<pre><code class="language-bash">sudo perf record -e cpu-clock -F 99 -g -p 12345 -- sleep 15
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo perf record -e cpu-clock -F 99 -g -p 12345 -- sleep 15</code></td>
+<td>附加 -p 指定进程采样；sleep 15 让这次采集约持续十五秒。</td>
+<td>采样可能干扰业务；检查权限、频率、栈完整性与目标 PID。</td>
+</tr>
+</tbody></table>
+<p>这里使用软件 CPU 时钟事件，仍需要相应内核支持和权限。<strong>-F 99 请求约每秒 99 次采样，不是采集 99 个样本的总量；实际频率可能被内核调节。</strong> 不要为“看得更清楚”盲目调高频率，尤其是多线程、多 CPU 或昂贵栈展开场景，工具本身可能明显扰动负载。若没有帧指针、栈展开不完整，可在支持的环境尝试 <code>--call-graph dwarf</code>，但它有额外开销。<code>[unknown]</code> 较多时，要检查符号、权限和展开方式，不要直接根据残缺报告改代码。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man1/perf-record.1.html">perf record 手册</a></p>
+<p>硬件支持时，可增加 <code>cycles,instructions</code>，由两者计算 IPC。IPC 低可能与访存或分支等因素有关，但没有适用于所有程序的“达标值”，不能只为提高 IPC 而优化。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man1/perf-stat.1.html">perf stat 手册</a></p>
+<h3>6. 优化与修复验证</h3>
+<p>在相同机器和输入下重复运行对照；默认轮数时先核对两次 result 均为 ad8d345e08537ef0，再比较同口径时间：</p>
+<pre><code class="language-bash">time ./cpu_hotspot baseline
+time ./cpu_hotspot cached
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>time ./cpu_hotspot baseline</code></td>
+<td>运行后面的命令并记录整个命令的耗时。</td>
+<td>real 是墙钟时间，user/sys 是 CPU 时间；与程序内计算区间计时分开比较。</td>
+</tr>
+<tr>
+<td><code>time ./cpu_hotspot cached</code></td>
+<td>运行后面的命令并记录整个命令的耗时。</td>
+<td>real 是墙钟时间，user/sys 是 CPU 时间；与程序内计算区间计时分开比较。</td>
+</tr>
+</tbody></table>
+<p>cached 可能非常短，不要把输出舍入后的 0 当成“没有开销”，也不要仅凭一轮结果给出精确加速倍数。</p>
+<p>若 perf 提示权限受限或虚拟机没有相应事件，可先采用程序自身计时或 <code>time ./cpu_hotspot baseline</code>；Linux 中 <code>time</code> 的 <code>real</code> 是经过的墙钟时间，<code>user</code>、<code>sys</code> 是 CPU 执行时间，三者不要当成同一指标；必要时在有权限的测试机采样。不要为了完成示例而盲目降低整机安全设置。测试应固定输入、编译选项与负载，重复数次看趋势，并先确认两种模式输出一致。</p>
+<p>火焰图像“按工作内容分类的账单”：下面表示调用者，上面表示被调用者；横向宽度表示相应采样事件的样本占比，不是按时间从左到右播放，也不是单次调用耗时。优化时优先找“占比高且可以减少的工作”，再回到业务延迟和吞吐验证；某函数占比下降，也可能仅仅是其他工作变多。</p>
+<p><strong>CPU 火焰图与 off-CPU 火焰图怎样搭配？</strong></p>
+<table>
+<thead>
+<tr>
+<th>观察方式</th>
+<th>回答的问题</th>
+<th>不能直接推出什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基于 CPU 时钟等合适事件的 CPU 火焰图</td>
+<td>线程运行时，样本主要落在哪些调用路径？</td>
+<td>不能直接解释离开 CPU 的长时间等待</td>
+</tr>
+<tr>
+<td>按调度切出/切回累计的 off-CPU 火焰图</td>
+<td>离开 CPU 的时间集中在哪些切出调用栈？</td>
+<td>不一定全是锁阻塞，也可能含运行队列等待；空闲线程的等待未必影响请求</td>
+</tr>
+</tbody></table>
+<p>BCC 常提供现成分析工具，bpftrace 适合按事件写短追踪脚本；可用于研究 I/O 延迟、调度等待或 TCP 事件，但应先确认内核、权限和工具版本。它们不是默认零开销，也不会自动把所有等待归因到同一条请求。<a target="_blank" rel="noopener noreferrer" href="https://github.com/iovisor/bcc/blob/master/tools/offcputime_example.txt">BCC offcputime 示例</a>、<a target="_blank" rel="noopener noreferrer" href="https://bpftrace.org/docs/">bpftrace 官方文档</a></p>
+<h2 id="part-13">13｜CPU 不忙时，追踪线程到底在等什么</h2>
+<p><strong>⚠️ 现场采集：strace 会介入系统调用。</strong> 高频系统调用或高 QPS 服务可能明显变慢；先在测试副本复现，现场需要时再按范围短时采集。不要把短时示例扩成长期全量跟踪。</p>
+<p>短时使用 strace 可以看系统调用与返回值：</p>
+<pre><code class="language-bash">sudo strace -ff -tt -T -p 12345 \
+  -e trace=network,futex,read,write,epoll_wait -o trace
+</code></pre>
+<p><strong>这几条命令分别做什么？</strong></p>
+<table>
+<thead>
+<tr>
+<th>输入什么</th>
+<th>为什么输入</th>
+<th>观察什么 / 注意什么</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>sudo strace -ff -tt -T -p 12345  -e trace=network,futex,read,write,epoll_wait -o trace</code></td>
+<td>附加目标跟踪指定系统调用；-ff 分任务保存，-tt 打时间，-T 记调用经过时长，-o 指定输出前缀。</td>
+<td>按过滤范围看返回值、错误与等待；采集会干扰高频调用程序，用 Ctrl+C 结束。</td>
+</tr>
+</tbody></table>
+<p><code>-e trace=network,futex,read,write,epoll_wait</code> 是一个过滤集合：<code>network</code> 选择网络类系统调用，其余是另行列出的系统调用名，<strong>不是说 futex 属于 network 类</strong>。futex 也不专属于 mutex，条件变量等机制同样可能使用它。</p>
+<p><code>-ff</code> 配合 <code>-p</code> 会附加该进程的线程，并继续跟踪新任务，按任务分文件保存；<code>-tt</code> 显示时间；<code>-T</code> 显示系统调用经过的时间。发现反复连接失败，就检查目的地址与错误码；大量小读写可能值得合并；锁等待则结合线程栈和锁关系继续查。</p>
+<p>系统调用耗时可能包含睡眠与调度等待，不等于内核持续使用 CPU。空闲服务长期停在 <code>epoll_wait</code> 通常正常。strace 可能明显影响高频系统调用程序，因此应限制范围与时间。<a target="_blank" rel="noopener noreferrer" href="https://man7.org/linux/man-pages/man1/strace.1.html">strace 手册</a></p>
+<p>更深入时，BCC/bpftrace 等 eBPF 工具可以观察线程离开 CPU 的调用栈、调度等待、TCP 重传或块设备延迟。先明确要测的事件，再选择探针和过滤条件；工具名称、内核支持和权限随环境变化。CPU 火焰图回答“运行时做什么”，等待分析回答“不能运行时在等什么”，两者共同解释请求延迟。</p>
+<h2 id="part-14">14｜把一次慢请求排查闭环</h2>
+<p>假设接口 P99 突然增加，但平均 CPU 不高。先从日志找出慢请求时间和标识；再查看同一窗口的线程 CPU、磁盘和内存压力；随后抓包确定握手、请求与响应各阶段的时序。</p>
+<p>如果请求很快到达，服务端很久后才回应，就查看服务端排队与执行。线程栈若显示大量工作线程等待同一把锁，而持锁线程正在执行远程调用，这组证据支持“锁内阻塞操作扩大了等待”的方向。继续用调用耗时、锁范围和请求追踪验证，再决定是否缩小临界区或调整执行模型。</p>
+<p>如果 CPU 很高，perf 显示重复解析占主要样本，就检查输入是否可复用、解析是否能移出循环。如果客户端重复 SYN，而服务端完全看不到对应报文，才把排查重点转向途中路径、访问策略和观察点。每个结论都应能回答：证据是什么，还排除了哪些可能？</p>
+<p>修改完成后，保持相同数据、并发、资源限制与持续时间，比较吞吐、错误率、P50/P95/P99 和资源占用。再记录触发条件、采集命令、关键证据、根因和修复验证。这样一次排障不仅解决当前故障，也留下下一次可以复用的操作路径。</p>
+<p><strong>先估算优化收益，再决定投入。</strong> 先用餐馆想一想：每秒进来十位客人，每位平均停留十秒，店里平均大约有一百位客人。这对应第一个问题：系统里平均有多少请求尚未完成？在稳定、边界一致且统计时间足够长的条件下，Little 定律给出 <code>L = λ × W</code>：平均在途请求数＝平均完成速率×平均停留时间。例如 1000 请求/秒、平均耗时 0.2 秒，对应平均约 200 个在途请求；这些请求可能在排队或异步等待，并不意味着必须有 200 个线程。<strong>Little 定律这里全部使用平均值：不能用 P99 代替平均耗时推算平均并发。</strong> 持续增长的队列也不能直接当成稳定状态。<a target="_blank" rel="noopener noreferrer" href="https://pubsonline.informs.org/doi/10.1287/opre.9.3.383">Little 原始论文</a></p>
+<p>再问“加快这一步，对整件事能省多少时间”。按 Amdahl 的分解思路，若某部分占总耗时 30%，将它加速三倍，其他部分不变，总耗时成为 <code>0.7 + 0.3/3 = 0.8</code>，整体只加速 1.25 倍。这解释了为什么优化一个很显眼但占比不大的函数，用户感受有限。这里要求统计边界一致，且该部分与剩余部分可按假设分解；并不是说 Amdahl 定律一律只能用于平均值。也不能把不同请求或不同阶段的 P99 直接相加，或把 CPU 样本占比直接当成整个请求的墙钟耗时占比。<a target="_blank" rel="noopener noreferrer" href="https://doi.org/10.1145/1465482.1465560">Amdahl 原始论文</a></p>
+<p>最后看“最慢的那少部分”为什么拖累整体。若每条请求必须等待 100 个相互独立的子调用全部结束，每个子调用有 1% 概率超过某阈值，则至少一个超阈值的概率为 <code>1 − 0.99^100 ≈ 63.4%</code>。这是明确假设下的算例，实际依赖可能相关。P99 变差时，应检查队列突增、锁持有时间、下游长尾与重试放大，并用单请求追踪验证因果。不能用平均值变好证明尾延迟也改善。</p>
+<p><strong>配套文件与验证说明。</strong> <code>examples/</code> 保留六份源码，覆盖四个实验；<code>assets/</code> 包含五张原理图和一张总结思维导图的 SVG、PNG。<code>README.md</code> 提供执行顺序，<code>核查说明.md</code> 说明实测范围。Linux 专用抓包与 perf 命令尚未在制作环境实测；示意时间和公式算例均未包装成测量结果。</p>
+<h2 id="part-15">15｜Q&amp;A：常见问题与解答</h2>
+<p><strong>问：打开源码却不能逐行调试，为什么？</strong> 答：先确认程序编译时带 <code>-g</code>，且符号与可执行文件同一版本。优化可能让变量消失或多行合并；入门实验用 <code>-O0</code>，分析线上故障则保留现场版本。</p>
+<p><strong>问：<code>gdb -p</code> 报“不允许操作”，怎么办？</strong> 答：先核对进程属于谁、是否位于容器里、系统是否限制 ptrace。按测试环境的权限策略运行，不能靠反复执行同一条命令解决权限问题。</p>
+<p><strong>问：线程停在 <code>futex</code> 就是死锁吗？</strong> 答：不是。它也可能在正常等工作。要找到锁的持有者与所有等待路径，证明谁都无法推进，而不只是看见一个睡眠线程。</p>
+<p><strong>问：抓不到 localhost 请求怎么办？</strong> 答：本实验明确访问 <code>127.0.0.1</code>，应抓 <code>lo</code>，不是外部网卡。确认先启动抓包，再发送请求；容器里还要核对网络命名空间。</p>
+<p><strong>问：HTTP 过滤器里看不到请求，是没抓到吗？</strong> 答：先用 <code>tcp.port == 18080</code> 查找，再把该端口 Decode As 为 HTTP。HTTPS 内容被加密，即使捕获成功，也不会直接显示明文请求。</p>
+<p><strong>问：CPU 不高，为什么请求还能等两秒？</strong> 答：线程可能在睡眠、等锁或等网络。就像厨师没切菜，也可能是灶台被占了；用线程栈与等待时间找原因。</p>
+<p><strong>问：运行实验没有得到固定毫秒数，是错了吗？</strong> 答：不是。机器和负载影响时间。崩溃修复看错误被正确处理，死锁修复看完成计数，性能优化先看两种结果一致，再多次比较耗时趋势。</p>
+<p><strong>问：该先学哪个工具？</strong> 答：先跑崩溃、死锁、慢 HTTP、CPU 重复计算四个实验。每次只回答一个问题：“哪里出错”“谁在等谁”“哪一段慢”“哪段代码忙”。</p>
+<p><strong>问：生产 release 能不能带 -g？</strong> 答：可以，调试信息与优化选项并不互斥，可以采用 -O2 -g 并单独保存符号。是否分发符号由发布和数据管理策略决定，不应简单写成“生产不能用 -g”。</p>
+<p><strong>问：-O0 调试正常，能否证明 -O2 线上也正常？</strong> 答：不能。生成代码、变量可见性和线程时序会改变，数据竞争等未定义行为可能呈现不同结果；需回到原优化设置、负载与触发条件验证。</p>
+<p><strong>问：重新编译一个同名 app，就能分析旧 core 吗？</strong> 答：不能仅凭文件名判断。保留故障现场二进制及对应共享库、调试符号，核对 Build ID 和部署记录；不匹配时，栈和变量解释可能错误。可复现构建能生成相同制品，但仍要核对，而非假定。</p>
+<p><strong>问：能在 core 上加 watch 找出谁写坏内存吗？</strong> 答：普通 core 没有写入历史或后续执行，只能看快照状态。应先根据栈与数据缩小范围，再在测试复现时布置观察点。</p>
+<p><strong>问：修改终端的 ulimit，systemd 服务就有 core 了吗？</strong> 答：不会追溯影响它。要检查目标进程自己的限制、服务配置和 core 收集路径；core_pattern 的管道收集还存在专门语义，见第 06 节。</p>
+<h2 id="part-16">16｜思维导图总结：用证据选择下一步</h2>
+<table>
+<thead>
+<tr>
+<th>看到的现象</th>
+<th>先采集什么</th>
+<th>下一步验证什么</th>
+<th>常见误判</th>
+<th>推荐工具</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>程序崩溃</td>
+<td>匹配程序的 core、<code>bt full</code>、参数与局部变量</td>
+<td>非法地址从哪条调用路径传入</td>
+<td>崩溃在 memcpy 就认定库函数有 bug</td>
+<td>GDB + 匹配二进制/core</td>
+</tr>
+<tr>
+<td>进程卡住</td>
+<td><code>thread apply all bt</code>、线程状态、锁对象</td>
+<td>持有者是否能推进，是否存在等待环</td>
+<td>所有 futex 等待都是死锁</td>
+<td>GDB、ps、短时 strace</td>
+</tr>
+<tr>
+<td>请求超时</td>
+<td>curl 阶段计时、两端 pcap、请求日志</td>
+<td>卡在建连、应用等待还是响应传输</td>
+<td>收到 ACK 就认为业务已完成</td>
+<td>curl、tcpdump、Wireshark</td>
+</tr>
+<tr>
+<td>CPU 持续高</td>
+<td><code>pidstat -t</code>、perf 事件与热点栈</td>
+<td>热点是不是可减少的重复工作</td>
+<td>只看热点比例，不核对绝对耗时</td>
+<td>pidstat、perf、time</td>
+</tr>
+<tr>
+<td>CPU 低但很慢</td>
+<td>线程栈、队列、调度与 I/O 等待</td>
+<td>正在阻塞还是就绪却未获 CPU</td>
+<td>加线程就一定能提高吞吐</td>
+<td>线程栈、pidstat、PSI、经筛选的 BCC/bpftrace</td>
+</tr>
+<tr>
+<td>修改后平均值变好</td>
+<td>同条件吞吐、错误率、P95/P99</td>
+<td>正确性、尾延迟与资源成本是否改善</td>
+<td>平均值改善就宣布全部问题解决</td>
+<td>同负载压测、请求日志、指标监控</td>
+</tr>
+</tbody></table>
+<h3>排障闭环三问</h3>
+<blockquote>
+<p><strong>1. 我看到的是事实，还是猜想？</strong></p>
+<p><strong>2. 当前工具观测的是哪一层？</strong></p>
+<p><strong>3. 什么证据可以推翻我的假设？</strong></p>
+</blockquote>
+<p>把答案写进排障记录，再决定下一步采集；不要把一个工具的提示当成最终结论。</p>
+<p><strong>随手查命令：</strong> 配套新增 <a href="Linux%E6%8E%92%E9%9A%9C%E9%80%9F%E6%9F%A5%E5%B0%8F%E6%8A%84.md">Linux排障速查小抄.md</a>，按读取信息、实验操作和会干扰业务的采集分别列出。下面仍保留不依赖图片的文字思维树，可以直接复制到笔记中。</p>
+<pre><code class="language-text">Linux 调试、抓包与性能分析
+├── 先定义问题：时间、输入、范围、P99、错误率
+├── GDB：断点 → 栈帧 → 变量 → 错误数据的来源
+├── 多线程：全部线程栈 → 持锁者 → 等待环 → 修复验证
+├── 网络：接口与命名空间 → 握手 → 请求 → 应用等待 → 响应
+├── 性能：资源概况 → 线程 → CPU 热点 / 阻塞与排队
+└── 验证：结果正确 → 同条件复测 → 保存证据与结论
+</code></pre>
+<p>下面的导图把学习内容汇成六条排查路线。它适合复习，也适合现场排障时快速决定“下一步采集什么”。浏览器版可点击图放大，资料包同时保留高清 PNG 和可编辑 SVG。</p>
+<figure class="diagram"><button class="diagram-open" type="button" aria-label="放大图 6：Linux 排障总结思维导图" data-title="图 6：Linux 排障总结思维导图"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxODAwIiBoZWlnaHQ9IjEzMzAiIHZpZXdCb3g9IjAgMCAxODAwIDEzMzAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbGxlZGJ5PSJ0aXRsZSBkZXNjIj4KICA8dGl0bGUgaWQ9InRpdGxlIj5MaW51eCDmjpLpmpzmgLvnu5PmgJ3nu7Tlr7zlm748L3RpdGxlPgogIDxkZXNjIGlkPSJkZXNjIj7kuK3lv4PkuLogTGludXgg5o6S6Zqc44CC5YWt5Liq5YiG5pSv5piv6Zeu6aKY5a6a5LmJ5LiO6K+B5o2u44CBR0RCIOS4jue6v+eoi+OAgeaKk+WMheS4jiBUQ1DjgIHns7vnu5/otYTmupDjgIFwZXJmIOS4juetieW+heOAgemqjOivgemXreeOr+OAguavj+S4quWIhuaUr+WIl+WHuuWbm+S4quWKqOS9nOWPiuWvueW6lOWRveS7pOaIluaYk+mUmeeCueOAgjwvZGVzYz4KICA8ZGVmcz4KICAgIDxzdHlsZT4KICAgICAgdGV4dHtmb250LWZhbWlseToiTWljcm9zb2Z0IFlhSGVpIiwiTm90byBTYW5zIENKSyBTQyIsIlBpbmdGYW5nIFNDIixzYW5zLXNlcmlmO2ZpbGw6IzIwMzY0Yn0KICAgICAgLm1haW4tdGl0bGV7Zm9udC1zaXplOjM0cHg7Zm9udC13ZWlnaHQ6NzAwfS5zdWJ0aXRsZXtmb250LXNpemU6MTlweDtmaWxsOiM2MDc3OGJ9CiAgICAgIC5icmFuY2gtdGl0bGV7Zm9udC1zaXplOjI2cHg7Zm9udC13ZWlnaHQ6NzAwfS5pdGVte2ZvbnQtc2l6ZToyMnB4O2ZvbnQtd2VpZ2h0OjYwMH0KICAgICAgLmRldGFpbHtmb250LXNpemU6MThweDtmaWxsOiM1MzZiODB9Lm51bWJlcntmb250LXNpemU6MjFweDtmb250LXdlaWdodDo3MDA7ZmlsbDojZmZmfQogICAgICAuY29ubmVjdG9ye2ZpbGw6bm9uZTtzdHJva2Utd2lkdGg6NDtzdHJva2UtbGluZWNhcDpyb3VuZDtvcGFjaXR5Oi42M30KICAgICAgLmRpdmlkZXJ7c3Ryb2tlOiNkY2U2ZWQ7c3Ryb2tlLXdpZHRoOjF9CiAgICAgIC5yb290LXRpdGxle2ZvbnQtc2l6ZTozOHB4O2ZvbnQtd2VpZ2h0OjcwMDtmaWxsOndoaXRlfS5yb290LXN1Yntmb250LXNpemU6MjJweDtmaWxsOiNkY2VhZjR9CiAgICA8L3N0eWxlPgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iMTgwMCIgaGVpZ2h0PSIxMzMwIiByeD0iMjQiIGZpbGw9IiNmNGY3ZmEiLz4KICA8dGV4dCB4PSI2MCIgeT0iNDkiIGNsYXNzPSJtYWluLXRpdGxlIj7kuIDlvKDlm77kuLLotbflrozmlbTmjpLpmpzov4fnqIs8L3RleHQ+CiAgPHRleHQgeD0iMTc0MCIgeT0iNDciIHRleHQtYW5jaG9yPSJlbmQiIGNsYXNzPSJzdWJ0aXRsZSI+5YWI5o+Q5Ye66Zeu6aKYIOKGkiDnlKjor4Hmja7lrprkvY0g4oaSIOeUqOebuOWQjOadoeS7tumqjOivgTwvdGV4dD4KCiAgPCEtLSDmiYDmnInliIbmlK/nur/lhYjnu5jliLbvvIzpgb/lhY3pga7mjKHlhoXlrrnjgIIgLS0+CiAgPHBhdGggZD0iTTczMCA1OTAgQzY4NSA1OTAgNzE1IDI1NSA2NjAgMjU1IiBjbGFzcz0iY29ubmVjdG9yIiBzdHJva2U9IiM0OTdlYTEiLz4KICA8cGF0aCBkPSJNNzMwIDY1MCBMNjYwIDY1MCIgY2xhc3M9ImNvbm5lY3RvciIgc3Ryb2tlPSIjNDM4Yjg2Ii8+CiAgPHBhdGggZD0iTTczMCA3MTAgQzY4NSA3MTAgNzE1IDEwMzUgNjYwIDEwMzUiIGNsYXNzPSJjb25uZWN0b3IiIHN0cm9rZT0iIzZiNzdhNSIvPgogIDxwYXRoIGQ9Ik0xMDcwIDU5MCBDMTExNSA1OTAgMTA4NSAyNTUgMTE0MCAyNTUiIGNsYXNzPSJjb25uZWN0b3IiIHN0cm9rZT0iIzQ5N2VhMSIvPgogIDxwYXRoIGQ9Ik0xMDcwIDY1MCBMMTE0MCA2NTAiIGNsYXNzPSJjb25uZWN0b3IiIHN0cm9rZT0iIzQzOGI4NiIvPgogIDxwYXRoIGQ9Ik0xMDcwIDcxMCBDMTExNSA3MTAgMTA4NSAxMDM1IDExNDAgMTAzNSIgY2xhc3M9ImNvbm5lY3RvciIgc3Ryb2tlPSIjNmI3N2E1Ii8+CgogIDwhLS0g5bem5LiK77ya5a6a5LmJIC0tPgogIDxnIGlkPSJicmFuY2gtMSIgZGF0YS1jYXJkPSJ0cnVlIj4KICAgIDxyZWN0IHg9IjQwIiB5PSI5NSIgd2lkdGg9IjYyMCIgaGVpZ2h0PSIzMjAiIHJ4PSIxOCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjYjljZmRmIiBzdHJva2Utd2lkdGg9IjIiLz4KICAgIDxwYXRoIGQ9Ik01OCA5NSBINjQyIFE2NjAgOTUgNjYwIDExMyBWMTU5IEg0MCBWMTEzIFE0MCA5NSA1OCA5NSIgZmlsbD0iI2U0ZWZmNiIvPgogICAgPGNpcmNsZSBjeD0iNzciIGN5PSIxMjciIHI9IjE4IiBmaWxsPSIjNDk3ZWExIi8+PHRleHQgeD0iNzciIHk9IjEzNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9Im51bWJlciI+MTwvdGV4dD4KICAgIDx0ZXh0IHg9IjExMCIgeT0iMTM2IiBjbGFzcz0iYnJhbmNoLXRpdGxlIj7pl67popjlrprkuYnkuI7or4Hmja48L3RleHQ+CiAgICA8dGV4dCB4PSI2NiIgeT0iMTkwIiBjbGFzcz0iaXRlbSI+5oqK4oCc5b6I5oWi4oCd5YaZ5oiQ5Y+v5rWL6YeP546w6LGhPC90ZXh0PgogICAgPHRleHQgeD0iNjYiIHk9IjIxNiIgY2xhc3M9ImRldGFpbCI+5pe26Ze044CB6IyD5Zu044CB6Kem5Y+R6L6T5YWl44CBUDk5IOS4jumUmeivr+eOhzwvdGV4dD4KICAgIDxsaW5lIHgxPSI2NiIgeTE9IjIyOSIgeDI9IjYzNCIgeTI9IjIyOSIgY2xhc3M9ImRpdmlkZXIiLz4KICAgIDx0ZXh0IHg9IjY2IiB5PSIyNTUiIGNsYXNzPSJpdGVtIj7orqnkuI3lkIzor4Hmja7mjIflkJHlkIzkuIDmrKHor7fmsYI8L3RleHQ+CiAgICA8dGV4dCB4PSI2NiIgeT0iMjgxIiBjbGFzcz0iZGV0YWlsIj7or7fmsYIgSUQg77yL5pel5b+X77yL5oqT5YyF77yb6Leo5py65Zmo5YWI5qC45a+55pe26ZKfPC90ZXh0PgogICAgPGxpbmUgeDE9IjY2IiB5MT0iMjk0IiB4Mj0iNjM0IiB5Mj0iMjk0IiBjbGFzcz0iZGl2aWRlciIvPgogICAgPHRleHQgeD0iNjYiIHk9IjMyMCIgY2xhc3M9Iml0ZW0iPueUseS9juW8gOmUgOinguWvn+mAkOatpea3seWFpTwvdGV4dD4KICAgIDx0ZXh0IHg9IjY2IiB5PSIzNDYiIGNsYXNzPSJkZXRhaWwiPuezu+e7n+aMh+aghyDihpIg6L+b56iLIC8g57q/56iLIOKGkiDku6PnoIHkuI7miqXmloc8L3RleHQ+CiAgICA8bGluZSB4MT0iNjYiIHkxPSIzNTkiIHgyPSI2MzQiIHkyPSIzNTkiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSI2NiIgeT0iMzg1IiBjbGFzcz0iaXRlbSI+5L+d5a2Y54mI5pys44CB6L6T5YWl44CB56ym5Y+35LiO5Y6f5aeL6K+B5o2uPC90ZXh0PgogIDwvZz4KCiAgPCEtLSDlt6bkuK3vvJrosIPor5UgLS0+CiAgPGcgaWQ9ImJyYW5jaC0yIiBkYXRhLWNhcmQ9InRydWUiPgogICAgPHJlY3QgeD0iNDAiIHk9IjQ4NSIgd2lkdGg9IjYyMCIgaGVpZ2h0PSIzMjAiIHJ4PSIxOCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjYmFkOGQ1IiBzdHJva2Utd2lkdGg9IjIiLz4KICAgIDxwYXRoIGQ9Ik01OCA0ODUgSDY0MiBRNjYwIDQ4NSA2NjAgNTAzIFY1NDkgSDQwIFY1MDMgUTQwIDQ4NSA1OCA0ODUiIGZpbGw9IiNlM2YxZWUiLz4KICAgIDxjaXJjbGUgY3g9Ijc3IiBjeT0iNTE3IiByPSIxOCIgZmlsbD0iIzQzOGI4NiIvPjx0ZXh0IHg9Ijc3IiB5PSI1MjQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJudW1iZXIiPjI8L3RleHQ+CiAgICA8dGV4dCB4PSIxMTAiIHk9IjUyNiIgY2xhc3M9ImJyYW5jaC10aXRsZSI+R0RCIOS4jue6v+eoizwvdGV4dD4KICAgIDx0ZXh0IHg9IjY2IiB5PSI1ODAiIGNsYXNzPSJpdGVtIj7ltKnmuoPvvJrosIPnlKjot6/lvoTvvIvplJnor6/mlbDmja48L3RleHQ+CiAgICA8dGV4dCB4PSI2NiIgeT0iNjA2IiBjbGFzcz0iZGV0YWlsIj5idCBmdWxsIMK3IGZyYW1lIE4gwrcgcHJpbnQgKnB0cjwvdGV4dD4KICAgIDxsaW5lIHgxPSI2NiIgeTE9IjYxOSIgeDI9IjYzNCIgeTI9IjYxOSIgY2xhc3M9ImRpdmlkZXIiLz4KICAgIDx0ZXh0IHg9IjY2IiB5PSI2NDUiIGNsYXNzPSJpdGVtIj7ljaHkvY/vvJrlhYjnnIvmiYDmnInnur/nqIvvvIzlho3mib7nrYnlvoXnjq88L3RleHQ+CiAgICA8dGV4dCB4PSI2NiIgeT0iNjcxIiBjbGFzcz0iZGV0YWlsIj5pbmZvIHRocmVhZHMgwrcgdGhyZWFkIGFwcGx5IGFsbCBidDwvdGV4dD4KICAgIDxsaW5lIHgxPSI2NiIgeTE9IjY4NCIgeDI9IjYzNCIgeTI9IjY4NCIgY2xhc3M9ImRpdmlkZXIiLz4KICAgIDx0ZXh0IHg9IjY2IiB5PSI3MTAiIGNsYXNzPSJpdGVtIj7mlbDmja7lj5jlnY/vvJrov73ouKrlhpnlhaXkuI7lr7nosaHnlJ/lkb3lkajmnJ88L3RleHQ+CiAgICA8dGV4dCB4PSI2NiIgeT0iNzM2IiBjbGFzcz0iZGV0YWlsIj53YXRjaO+8m+ernuS6iemXrumimOeUqCBUaHJlYWRTYW5pdGl6ZXIg6L6F5YqpPC90ZXh0PgogICAgPGxpbmUgeDE9IjY2IiB5MT0iNzQ5IiB4Mj0iNjM0IiB5Mj0iNzQ5IiBjbGFzcz0iZGl2aWRlciIvPgogICAgPHRleHQgeD0iNjYiIHk9Ijc3NSIgY2xhc3M9Iml0ZW0iPuaYk+mUme+8mkdEQiDnur/nqIvlj7cg4omgIExpbnV4IFRJRDwvdGV4dD4KICA8L2c+CgogIDwhLS0g5bem5LiL77ya572R57ucIC0tPgogIDxnIGlkPSJicmFuY2gtMyIgZGF0YS1jYXJkPSJ0cnVlIj4KICAgIDxyZWN0IHg9IjQwIiB5PSI4NzUiIHdpZHRoPSI2MjAiIGhlaWdodD0iMzIwIiByeD0iMTgiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2M3Y2NlMiIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgICA8cGF0aCBkPSJNNTggODc1IEg2NDIgUTY2MCA4NzUgNjYwIDg5MyBWOTM5IEg0MCBWODkzIFE0MCA4NzUgNTggODc1IiBmaWxsPSIjZWJlZGY3Ii8+CiAgICA8Y2lyY2xlIGN4PSI3NyIgY3k9IjkwNyIgcj0iMTgiIGZpbGw9IiM2Yjc3YTUiLz48dGV4dCB4PSI3NyIgeT0iOTE0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibnVtYmVyIj4zPC90ZXh0PgogICAgPHRleHQgeD0iMTEwIiB5PSI5MTYiIGNsYXNzPSJicmFuY2gtdGl0bGUiPuaKk+WMheS4jiBUQ1A8L3RleHQ+CiAgICA8dGV4dCB4PSI2NiIgeT0iOTcwIiBjbGFzcz0iaXRlbSI+5YWI6YCJ5o6l5Y+j44CB5ZG95ZCN56m66Ze05LiO6L+H5ruk6IyD5Zu0PC90ZXh0PgogICAgPHRleHQgeD0iNjYiIHk9Ijk5NiIgY2xhc3M9ImRldGFpbCI+dGNwZHVtcCAtaSBsbyAtbm4gLXMgMCAtdyB0cmFjZS5wY2FwPC90ZXh0PgogICAgPGxpbmUgeDE9IjY2IiB5MT0iMTAwOSIgeDI9IjYzNCIgeTI9IjEwMDkiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSI2NiIgeT0iMTAzNSIgY2xhc3M9Iml0ZW0iPuaMiei/nuaOpemYtuauteWumuS9jeetieW+hTwvdGV4dD4KICAgIDx0ZXh0IHg9IjY2IiB5PSIxMDYxIiBjbGFzcz0iZGV0YWlsIj7mj6HmiYsg4oaSIOivt+axgiDihpIg5bqU55So562J5b6FIOKGkiDlk43lupTvvJt0Y3Auc3RyZWFtPC90ZXh0PgogICAgPGxpbmUgeDE9IjY2IiB5MT0iMTA3NCIgeDI9IjYzNCIgeTI9IjEwNzQiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSI2NiIgeT0iMTEwMCIgY2xhc3M9Iml0ZW0iPueUqCBzb2NrZXQg5LiO5Lik56uv6K+B5o2u6Kej6YeK5byC5bi4PC90ZXh0PgogICAgPHRleHQgeD0iNjYiIHk9IjExMjYiIGNsYXNzPSJkZXRhaWwiPnNzIC10aW5w77yb5qC45a+56YeN5Lyg44CB6Zu256qX5Y+j44CB5oqT5YyF5Lii5aSxPC90ZXh0PgogICAgPGxpbmUgeDE9IjY2IiB5MT0iMTEzOSIgeDI9IjYzNCIgeTI9IjExMzkiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSI2NiIgeT0iMTE2NSIgY2xhc3M9Iml0ZW0iPuaYk+mUme+8mlRDUCBBQ0sg4omgIOS4muWKoeWkhOeQhuWujOaIkDwvdGV4dD4KICA8L2c+CgogIDwhLS0g5Y+z5LiK77ya6LWE5rqQIC0tPgogIDxnIGlkPSJicmFuY2gtNCIgZGF0YS1jYXJkPSJ0cnVlIj4KICAgIDxyZWN0IHg9IjExNDAiIHk9Ijk1IiB3aWR0aD0iNjIwIiBoZWlnaHQ9IjMyMCIgcng9IjE4IiBmaWxsPSIjZmZmIiBzdHJva2U9IiNiOWNmZGYiIHN0cm9rZS13aWR0aD0iMiIvPgogICAgPHBhdGggZD0iTTExNTggOTUgSDE3NDIgUTE3NjAgOTUgMTc2MCAxMTMgVjE1OSBIMTE0MCBWMTEzIFExMTQwIDk1IDExNTggOTUiIGZpbGw9IiNlNGVmZjYiLz4KICAgIDxjaXJjbGUgY3g9IjExNzciIGN5PSIxMjciIHI9IjE4IiBmaWxsPSIjNDk3ZWExIi8+PHRleHQgeD0iMTE3NyIgeT0iMTM0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibnVtYmVyIj40PC90ZXh0PgogICAgPHRleHQgeD0iMTIxMCIgeT0iMTM2IiBjbGFzcz0iYnJhbmNoLXRpdGxlIj7ns7vnu5/otYTmupA8L3RleHQ+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIxOTAiIGNsYXNzPSJpdGVtIj5DUFXvvJrmlbTmnLog4oaSIOaguCDihpIg6L+b56iLIOKGkiDnur/nqIs8L3RleHQ+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIyMTYiIGNsYXNzPSJkZXRhaWwiPnZtc3RhdCDCtyBtcHN0YXQgLVAgQUxMIMK3IHBpZHN0YXQgLXQ8L3RleHQ+CiAgICA8bGluZSB4MT0iMTE2NiIgeTE9IjIyOSIgeDI9IjE3MzQiIHkyPSIyMjkiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIyNTUiIGNsYXNzPSJpdGVtIj7lhoXlrZjvvJrlj6/nlKjph4/jgIHkuqTmjaLjgIHlop7plb/otovlir88L3RleHQ+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIyODEiIGNsYXNzPSJkZXRhaWwiPmZyZWUgLWjvvJtSU1Mg5aKe6ZW/5LiN55u05o6l562J5LqO5rOE5ryPPC90ZXh0PgogICAgPGxpbmUgeDE9IjExNjYiIHkxPSIyOTQiIHgyPSIxNzM0IiB5Mj0iMjk0IiBjbGFzcz0iZGl2aWRlciIvPgogICAgPHRleHQgeD0iMTE2NiIgeT0iMzIwIiBjbGFzcz0iaXRlbSI+56OB55uY77ya5bu26L+f44CB6Zif5YiX44CB5ZCe5ZCQ5LiA6LW355yLPC90ZXh0PgogICAgPHRleHQgeD0iMTE2NiIgeT0iMzQ2IiBjbGFzcz0iZGV0YWlsIj5pb3N0YXQgLXh6IC15IDHvvJthd2FpdCDljIXlkKvmjpLpmJ/ml7bpl7Q8L3RleHQ+CiAgICA8bGluZSB4MT0iMTE2NiIgeTE9IjM1OSIgeDI9IjE3MzQiIHkyPSIzNTkiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIzODUiIGNsYXNzPSJpdGVtIj7ooaXlhYXvvJpQU0kg5Y6L5Yqb5LiO5a655ZmoIGNncm91cCDpmZDpop08L3RleHQ+CiAgPC9nPgoKICA8IS0tIOWPs+S4re+8muaAp+iDvSAtLT4KICA8ZyBpZD0iYnJhbmNoLTUiIGRhdGEtY2FyZD0idHJ1ZSI+CiAgICA8cmVjdCB4PSIxMTQwIiB5PSI0ODUiIHdpZHRoPSI2MjAiIGhlaWdodD0iMzIwIiByeD0iMTgiIGZpbGw9IiNmZmYiIHN0cm9rZT0iI2JhZDhkNSIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgICA8cGF0aCBkPSJNMTE1OCA0ODUgSDE3NDIgUTE3NjAgNDg1IDE3NjAgNTAzIFY1NDkgSDExNDAgVjUwMyBRMTE0MCA0ODUgMTE1OCA0ODUiIGZpbGw9IiNlM2YxZWUiLz4KICAgIDxjaXJjbGUgY3g9IjExNzciIGN5PSI1MTciIHI9IjE4IiBmaWxsPSIjNDM4Yjg2Ii8+PHRleHQgeD0iMTE3NyIgeT0iNTI0IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0ibnVtYmVyIj41PC90ZXh0PgogICAgPHRleHQgeD0iMTIxMCIgeT0iNTI2IiBjbGFzcz0iYnJhbmNoLXRpdGxlIj5wZXJmIOS4juetieW+hTwvdGV4dD4KICAgIDx0ZXh0IHg9IjExNjYiIHk9IjU4MCIgY2xhc3M9Iml0ZW0iPuWFiOa1i+aAu+S9k+aIkOacrO+8jOWGjei/vei4queDreeCueagiDwvdGV4dD4KICAgIDx0ZXh0IHg9IjExNjYiIHk9IjYwNiIgY2xhc3M9ImRldGFpbCI+cGVyZiBzdGF0IMK3IHBlcmYgcmVjb3JkIC1nIMK3IHBlcmYgcmVwb3J0PC90ZXh0PgogICAgPGxpbmUgeDE9IjExNjYiIHkxPSI2MTkiIHgyPSIxNzM0IiB5Mj0iNjE5IiBjbGFzcz0iZGl2aWRlciIvPgogICAgPHRleHQgeD0iMTE2NiIgeT0iNjQ1IiBjbGFzcz0iaXRlbSI+Q1BVIOS4jeW/meaXtu+8jOajgOafpee6v+eoi+S4uuS9leS4jeiDvei/kOihjDwvdGV4dD4KICAgIDx0ZXh0IHg9IjExNjYiIHk9IjY3MSIgY2xhc3M9ImRldGFpbCI+c3RyYWNlIC1mZiAtdHQgLVTvvJvnur/nqIvmoIjjgIFlQlBGIOetieW+heWIhuaekDwvdGV4dD4KICAgIDxsaW5lIHgxPSIxMTY2IiB5MT0iNjg0IiB4Mj0iMTczNCIgeTI9IjY4NCIgY2xhc3M9ImRpdmlkZXIiLz4KICAgIDx0ZXh0IHg9IjExNjYiIHk9IjcxMCIgY2xhc3M9Iml0ZW0iPuWMuuWIhuaJp+ihjOOAgeWPr+i/kOihjOaOkumYn+OAgemYu+WhnuetieW+hTwvdGV4dD4KICAgIDx0ZXh0IHg9IjExNjYiIHk9IjczNiIgY2xhc3M9ImRldGFpbCI+Q1BVIOmHh+agt+S4jeiDveeLrOiHquino+mHiuWFqOmDqOivt+axguiAl+aXtjwvdGV4dD4KICAgIDxsaW5lIHgxPSIxMTY2IiB5MT0iNzQ5IiB4Mj0iMTczNCIgeTI9Ijc0OSIgY2xhc3M9ImRpdmlkZXIiLz4KICAgIDx0ZXh0IHg9IjExNjYiIHk9Ijc3NSIgY2xhc3M9Iml0ZW0iPuaYk+mUme+8mueBq+eEsOWbvuWuveW6puaYr+agt+acrOWNoOavlDwvdGV4dD4KICA8L2c+CgogIDwhLS0g5Y+z5LiL77ya6Zet546vIC0tPgogIDxnIGlkPSJicmFuY2gtNiIgZGF0YS1jYXJkPSJ0cnVlIj4KICAgIDxyZWN0IHg9IjExNDAiIHk9Ijg3NSIgd2lkdGg9IjYyMCIgaGVpZ2h0PSIzMjAiIHJ4PSIxOCIgZmlsbD0iI2ZmZiIgc3Ryb2tlPSIjYzdjY2UyIiBzdHJva2Utd2lkdGg9IjIiLz4KICAgIDxwYXRoIGQ9Ik0xMTU4IDg3NSBIMTc0MiBRMTc2MCA4NzUgMTc2MCA4OTMgVjkzOSBIMTE0MCBWODkzIFExMTQwIDg3NSAxMTU4IDg3NSIgZmlsbD0iI2ViZWRmNyIvPgogICAgPGNpcmNsZSBjeD0iMTE3NyIgY3k9IjkwNyIgcj0iMTgiIGZpbGw9IiM2Yjc3YTUiLz48dGV4dCB4PSIxMTc3IiB5PSI5MTQiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJudW1iZXIiPjY8L3RleHQ+CiAgICA8dGV4dCB4PSIxMjEwIiB5PSI5MTYiIGNsYXNzPSJicmFuY2gtdGl0bGUiPumqjOivgemXreeOrzwvdGV4dD4KICAgIDx0ZXh0IHg9IjExNjYiIHk9Ijk3MCIgY2xhc3M9Iml0ZW0iPuWBh+iuvuW/hemhu+iDveiiq+ivgeaNruaUr+aMgeaIluaOqOe/uzwvdGV4dD4KICAgIDx0ZXh0IHg9IjExNjYiIHk9Ijk5NiIgY2xhc3M9ImRldGFpbCI+5piO56Gu77ya55yL5Yiw5LuA5LmI5omN566X6aqM6K+B5oiQ5Yqf77yfPC90ZXh0PgogICAgPGxpbmUgeDE9IjExNjYiIHkxPSIxMDA5IiB4Mj0iMTczNCIgeTI9IjEwMDkiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIxMDM1IiBjbGFzcz0iaXRlbSI+5LyY5YWI5YeP5bCR6YeN5aSN5bel5L2c5LiO5peg5pWI562J5b6FPC90ZXh0PgogICAgPHRleHQgeD0iMTE2NiIgeT0iMTA2MSIgY2xhc3M9ImRldGFpbCI+57uf5LiA6ZSB5bqP44CB57yp5bCP5oyB6ZSB6IyD5Zu044CB6YG/5YWN6YeN5aSN6K6h566XPC90ZXh0PgogICAgPGxpbmUgeDE9IjExNjYiIHkxPSIxMDc0IiB4Mj0iMTczNCIgeTI9IjEwNzQiIGNsYXNzPSJkaXZpZGVyIi8+CiAgICA8dGV4dCB4PSIxMTY2IiB5PSIxMTAwIiBjbGFzcz0iaXRlbSI+5Zu65a6a6L6T5YWl44CB5bm25Y+R44CB54mI5pys5LiO6LWE5rqQ6ZmQ5Yi2PC90ZXh0PgogICAgPHRleHQgeD0iMTE2NiIgeT0iMTEyNiIgY2xhc3M9ImRldGFpbCI+5YWI6aqM6K+B57uT5p6c5q2j56Gu77yM5YaN5q+U6L6DIFA5OeOAgeWQnuWQkOWSjOmUmeivr+eOhzwvdGV4dD4KICAgIDxsaW5lIHgxPSIxMTY2IiB5MT0iMTEzOSIgeDI9IjE3MzQiIHkyPSIxMTM5IiBjbGFzcz0iZGl2aWRlciIvPgogICAgPHRleHQgeD0iMTE2NiIgeT0iMTE2NSIgY2xhc3M9Iml0ZW0iPuS/neWtmO+8muinpuWPkeadoeS7tiDihpIg6K+B5o2uIOKGkiDmoLnlm6Ag4oaSIOWkjea1izwvdGV4dD4KICA8L2c+CgogIDwhLS0g5Lit5b+DIC0tPgogIDxnIGlkPSJyb290Ij4KICAgIDxyZWN0IHg9IjczMCIgeT0iNTQwIiB3aWR0aD0iMzQwIiBoZWlnaHQ9IjIyMCIgcng9IjI2IiBmaWxsPSIjMTczZDU5Ii8+CiAgICA8dGV4dCB4PSI5MDAiIHk9IjU5NiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgY2xhc3M9InJvb3QtdGl0bGUiPkxpbnV4IOaOkumanDwvdGV4dD4KICAgIDxsaW5lIHgxPSI3NzUiIHkxPSI2MjAiIHgyPSIxMDI1IiB5Mj0iNjIwIiBzdHJva2U9IiM1YjdjOTUiLz4KICAgIDx0ZXh0IHg9IjkwMCIgeT0iNjU2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBjbGFzcz0icm9vdC1zdWIiPuS7o+eggSDCtyDnur/nqIsgwrcg572R57ucPC90ZXh0PgogICAgPHRleHQgeD0iOTAwIiB5PSI2OTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGNsYXNzPSJyb290LXN1YiI+6LWE5rqQIMK3IOaXtumXtCDCtyDor4Hmja48L3RleHQ+CiAgICA8dGV4dCB4PSI5MDAiIHk9IjcyOSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxOCIgZmlsbD0iI2M3ZGNlYiIgc3R5bGU9ImZpbGw6I2M3ZGNlYiI+55eH54q2IOKGkiDlgYforr4g4oaSIOmqjOivgTwvdGV4dD4KICA8L2c+CiAgPHJlY3QgeD0iNDAiIHk9IjEyMzAiIHdpZHRoPSIxNzIwIiBoZWlnaHQ9IjU4IiByeD0iMTIiIGZpbGw9IiNlOGVmZjQiLz4KICA8dGV4dCB4PSI5MDAiIHk9IjEyNjciIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iMjIiIGZpbGw9IiMzNjU5NzMiPui0r+epv+WFqOeoi++8muS/neeVmeWOn+Wni+eOsOWcuiDCtyDorrDlvZXlt6XlhbflvIDplIAgwrcg55So5aSa5Liq6KeC5a+f54K55Lqk5Y+J6aqM6K+BIMK3IOmBv+WFjeS7juWNleS4quaMh+agh+ebtOaOpeS4i+e7k+iuujwvdGV4dD4KPC9zdmc+Cg==" alt="图 6：Linux 排障总结思维导图" loading="lazy"><span>点击放大查看</span></button><figcaption>图 6：Linux 排障总结思维导图</figcaption></figure>
+<p><em>图 6：Linux 排障总结思维导图。中心是现象、假设与验证，六个分支对应证据、代码、网络、资源、时间和复测</em></p>
+</article><div class="foot"><a href="#contents">回到目录</a> · 图文与代码验证范围见资料包 核查说明.md。官方参考链接需联网。</div></main></div>
+<dialog id="zoom"><div class="zoom-toolbar"><strong id="zoom-title"></strong><button id="fit">适应窗口</button><button id="actual">原尺寸</button><button id="plus">放大 +</button><button id="minus">缩小 −</button><button id="close">关闭 ✕</button></div><div class="zoom-scroll"><img id="zoom-img" alt=""></div></dialog>
+<script>
+const modal=document.getElementById('zoom'),image=document.getElementById('zoom-img');let width=1000;
+function apply(){image.style.width=width+'px'}
+document.querySelectorAll('.diagram-open').forEach(button=>button.addEventListener('click',()=>{const source=button.querySelector('img');image.src=source.src;image.alt=source.alt;document.getElementById('zoom-title').textContent=button.dataset.title;modal.showModal();width=Math.max(600,modal.clientWidth-60);apply()}));
+document.getElementById('close').onclick=()=>modal.close();document.getElementById('fit').onclick=()=>{width=modal.clientWidth-60;apply()};document.getElementById('actual').onclick=()=>{width=image.naturalWidth||1500;apply()};document.getElementById('plus').onclick=()=>{width=Math.min(5000,width*1.25);apply()};document.getElementById('minus').onclick=()=>{width=Math.max(280,width/1.25);apply()};
+modal.addEventListener('click',event=>{if(event.target===modal)modal.close()});
+</script></body></html>

@@ -1,0 +1,15 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.22", ranksep="0.5", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>内存分配器与多线程</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 43 篇 · 工程问题、机制推导与验证边界</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 43 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">内存分配器与多线程：malloc 锁、<BR/>jemalloc 与 TCMalloc 的原理和选型</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>分配路径</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="11">本地缓存与中央补充 / 页管理与碎片及<BR/>驻留量</FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>实现差异</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="11">jemalloc arena 与 tcache / 区分<BR/>Google TCMalloc 和 gperftools</FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>基准对照</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155" POINT-SIZE="11">有界批次与校验工作量 / 跨线程释放需<BR/>要独立实验</FONT></TD></TR></TABLE>>];
+root -> b2 [color="#D97706"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>工程选型</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#334155" POINT-SIZE="11">吞吐、尾延迟、RSS 一起看 / 库绑定确<BR/>认与回退方案</FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+}

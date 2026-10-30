@@ -1,0 +1,53 @@
+digraph flatmap_flow {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>FlatMap 的一生：小 map 内联 → 挂链 → 扩容搬迁</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">装载因子默认 80%，扩容即「整体搬家」——这是它所有「指针不稳定」问题的根源</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    step1 [label=<
+<TABLE BORDER="1" COLOR="#0D9488" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>1. 构造：零堆分配</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#115E59">_buckets 指向对象内部的 _default_buckets[17]<BR/>DEFAULT_NBUCKET = 16，_load_factor = 80（百分比）<BR/>is_default_buckets() 为真 → 析构时不必 free</FONT></TD></TR>
+</TABLE>>];
+
+    step2 [label=<
+<TABLE BORDER="1" COLOR="#0284C7" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>2. 插入（operator[]）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0369A1">index = hash &amp; (nbucket-1)（nbucket 是 2 的幂）<BR/>首槽空 → 就地 new(&amp;first_node) Bucket(key)<BR/>否则沿 next 找；到链尾再判满</FONT></TD></TR>
+</TABLE>>];
+
+    step3 [label=<
+<TABLE BORDER="1" COLOR="#D97706" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>3. 判满 is_too_crowded()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">size * 100 &gt;= nbucket * _load_factor<BR/>默认即 size / nbucket &gt;= 0.8<BR/>链尾挂节点前判一次</FONT></TD></TR>
+</TABLE>>];
+
+    step4 [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>4. 扩容 resize(nbucket + 1)</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">flatmap_round：向上取到 2 的幂（最小 8）<BR/>不够装就继续翻倍，直到不 crowded<BR/>遍历旧桶，把每个元素 <B>重新 new</B> 到新桶里<BR/>再 clear() 旧桶、free 旧桶数组（池保留）</FONT></TD></TR>
+</TABLE>>];
+
+    step5 [label=<
+<TABLE BORDER="1" COLOR="#475569" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="13"><B>5. 清理：clear() vs clear_and_reset_pool()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#334155">clear()：析构元素、节点还回池，<B>桶数组还在、池不还给系统</B><BR/>clear_and_reset_pool()：连池一起 free，真还给系统</FONT></TD></TR>
+</TABLE>>];
+
+    warn [label=<
+<TABLE BORDER="1" COLOR="#E11D48" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>陷阱</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="10" COLOR="#BE123C">扩容后，之前 seek/insert 返回的<BR/>mapped_type* 全部失效（元素被搬到新桶）<BR/>erase 首节点时，同桶次元素会被<BR/>「赋值搬」进首槽，指针也换地址</FONT></TD></TR>
+</TABLE>>];
+
+    step1 -> step2 [label="  insert", color="#0D9488", fontcolor="#115E59"];
+    step2 -> step3 [label="  未命中且有空位", color="#0284C7", fontcolor="#0369A1"];
+    step3 -> step4 [label="  拥挤", color="#D97706", fontcolor="#B45309"];
+    step4 -> step5 [label="  搬迁完成", color="#475569", fontcolor="#334155"];
+    step4 -> warn [label="  指针失效", color="#E11D48", fontcolor="#BE123C", style=dashed];
+    step3 -> step2 [label="  不拥挤：挂到链尾", color="#7C3AED", fontcolor="#5B21B6", constraint=false];
+
+    { rank=same; step4; warn; }
+}

@@ -1,0 +1,15 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad="0.35", nodesep="0.22", ranksep="0.5", fontname="PingFang SC", labelloc=t, labeljust=c];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [arrowsize=0.65];
+label=<<FONT COLOR="#1E293B" POINT-SIZE="24"><B>多线程下信号处理</B></FONT><BR/><FONT COLOR="#64748B" POINT-SIZE="13">第 20 篇 · 工程问题、机制推导与验证边界</FONT>>;
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>第 20 篇</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="11">多线程下信号处理：信号掩码、<BR/>sigaction 与线程安全陷阱</FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>信号交付</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="11">进程处置与线程掩码 / 创建线程前统一<BR/>屏蔽</FONT></TD></TR></TABLE>>];
+root -> b0 [color="#4F46E5"];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>安全边界</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="11">线程安全不等于异步信号安全 / handler<BR/>仅作最小通知</FONT></TD></TR></TABLE>>];
+root -> b1 [color="#0D9488"];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>同步接收</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#334155" POINT-SIZE="11">sigwait 返回普通控制流 / 请求停止再<BR/>回收工作线程</FONT></TD></TR></TABLE>>];
+root -> b2 [color="#D97706"];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>工程验证</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#334155" POINT-SIZE="11">就绪握手与 pending 信号 / Linux 实验<BR/>和平台跳过</FONT></TD></TR></TABLE>>];
+root -> b3 [color="#7C3AED"];
+}

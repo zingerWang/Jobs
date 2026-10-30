@@ -1,0 +1,66 @@
+digraph mindmap_01 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：bRPC 源码全景</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>src 下的四座大厦</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么要先看目录</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>butil 基础库</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>bthread 线程引擎</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>bvar 监控</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>brpc 框架主体</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>读码方法</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">不看地图 → 400+ 文件必迷路</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>目标：报得出「门牌号」</B></FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">重造 STL：IOBuf / FlatMap / Arena</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">最底层，不依赖任何上层</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>M:N：M 个协程跑在 N 个线程上</B></FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">task_control / task_group / work stealing</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">butex / stack / 同步原语（挂起协程而非线程）</FONT>>];
+    l2d [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>可独立使用 —— 全系列最重要</B></FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">variable / window / latency_recorder</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">高频写入、开销极低，不干扰主流程</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">根目录：核心组件（server/channel/socket…）</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#4338CA"><B>policy/：所有实现的集中地（可插拔）</B></FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">builtin/：内置运维页 · details/：内部细节</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">自底向上读：butil → bthread → bvar → brpc</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">带着调用栈读，别从头顺读</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">多看 example/ 与 test/</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b;
+    s1 -> l1a; s1 -> l1b;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c; s2 -> l2d;
+    s3 -> l3a; s3 -> l3b;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

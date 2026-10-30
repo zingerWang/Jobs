@@ -1,0 +1,38 @@
+digraph consensus_properties {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>共识问题的三个性质</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">n 个进程各自提议一个值，最终所有「正确进程」必须对同一个值达成决定</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    def [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>共识（Consensus）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#334155">n 个进程各自提议一个值 → 所有没崩溃的进程最终决定<B>同一个值</B></FONT></TD></TR>
+</TABLE>>];
+
+    ag [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>① 一致性 Agreement</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">所有正确进程决定的值相同<BR/><B>不能各决定各的</B> · 安全性</FONT></TD></TR>
+</TABLE>>];
+    va [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>② 有效性 Validity</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">决定的值必须是某个进程提议过的<BR/><B>不能凭空造值</B> · 安全性</FONT></TD></TR>
+</TABLE>>];
+    te [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>③ 终止性 Termination</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">每个正确进程最终都会做出决定<BR/><B>不能永远等下去</B> · 活性</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么难：安全与活性会打架</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">①② 是「安全性」：<B>永远不做错事</B>；③ 是「活性」：<B>最终做成事</B><BR/>06 篇的 FLP 定理说的正是：异步 + 崩溃故障下，<B>三者无法同时保证</B></FONT></TD></TR>
+</TABLE>>];
+
+    def -> ag; def -> va; def -> te;
+    { rank=same; ag; va; te; }
+    va -> note [color="#7C3AED", fontcolor="#6D28D9", label=" 安全 + 活性 = 完整需求"];
+}

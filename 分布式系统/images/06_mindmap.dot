@@ -1,0 +1,32 @@
+digraph mindmap_04 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：FLP 与拜占庭将军</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>理论基础<br/>FLP 与拜占庭</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>FLP 不可能性</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>拜占庭将军</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">异步模型：无法区分挂/慢</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">结论：一个进程崩溃，也无法保证终止+一致+有效</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>意义：用超时换「大概率终止」</B></FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">崩溃故障 vs 拜占庭故障（撒谎）</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>结论：容忍 f 个叛徒需 n ≥ 3f+1</B></FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>意义：可信用 CFT（Raft），不可信用 BFT（区块链）</B></FONT>>];
+
+    root -> s1; root -> s2;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+}

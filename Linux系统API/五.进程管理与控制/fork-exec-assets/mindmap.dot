@@ -1,0 +1,13 @@
+digraph G { graph [rankdir=LR, bgcolor="white", pad="0.4", nodesep="0.45", ranksep="0.8", dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">fork 与 exec 系列函数</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">创建谁、运行什么、结束后如何收尾</FONT>>]; node [shape=plaintext, fontname="PingFang SC", fontsize=14]; edge [color="#64748B", arrowsize=0.8, penwidth=1.5, fontname="PingFang SC", fontsize=12];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>进程创建与程序执行</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">fork / exec / waitpid</TD></TR></TABLE></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>职责分工</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">fork 创建子进程</TD></TR><TR><TD ALIGN="LEFT">exec 换程序，PID 不变</TD></TR><TR><TD ALIGN="LEFT">waitpid 等待并回收</TD></TR></TABLE></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>fork 返回与资源</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">父进程得到子 PID，子进程得到 0</TD></TR><TR><TD ALIGN="LEFT">私有内存逻辑独立，COW 推迟复制</TD></TR><TR><TD ALIGN="LEFT">fd 表项独立，打开文件描述共享</TD></TR></TABLE></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>exec 接口与属性</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">成功不返回，失败返回 -1</TD></TR><TR><TD ALIGN="LEFT">l/v 参数形式；p 搜索；e 环境</TD></TR><TR><TD ALIGN="LEFT">FD_CLOEXEC 决定成功执行时关闭</TD></TR></TABLE></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>完整执行流程</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">子进程准备后 exec</TD></TR><TR><TD ALIGN="LEFT">失败后报错并 _exit</TD></TR><TR><TD ALIGN="LEFT">父进程 waitpid 后解码状态</TD></TR></TABLE></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>常见问题</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">缓冲重复输出与 fd 泄漏</TD></TR><TR><TD ALIGN="LEFT">多线程 fork 后的锁状态</TD></TR><TR><TD ALIGN="LEFT">路径、权限、格式和资源限制</TD></TR></TABLE></TD></TR></TABLE>>];
+r -> a [label=""];
+r -> b [label=""];
+r -> c [label=""];
+r -> d [label=""];
+r -> e [label=""];
+}

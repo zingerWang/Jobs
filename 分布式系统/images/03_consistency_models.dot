@@ -1,0 +1,34 @@
+digraph consistency_models {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.4, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>一致性模型：从强到弱</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">越往右越弱：越好用（心智负担小）→ 越难用但性能越好</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    strong [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>强一致</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">线性一致<BR/>写完立刻所有副本可见</FONT></TD></TR>
+</TABLE>>];
+
+    seq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>顺序一致</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">有全局顺序<BR/>但不要求符合真实时间</FONT></TD></TR>
+</TABLE>>];
+
+    causal [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>因果一致</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">有因果的有序<BR/>无因果的可乱序</FONT></TD></TR>
+</TABLE>>];
+
+    eventual [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>最终一致</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">停止写入后<BR/>最终收敛到同一值</FONT></TD></TR>
+</TABLE>>];
+
+    strong -> seq [label="弱", color="#94A3B8"];
+    seq -> causal [label="弱", color="#94A3B8"];
+    causal -> eventual [label="弱", color="#94A3B8"];
+}

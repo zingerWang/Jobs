@@ -1,0 +1,49 @@
+digraph ready_loop {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Ready / Advance：把 Raft 状态机接到 IO 上</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">Step/Propose 只是「喂输入」，真正的推进发生在这个循环里</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>① 喂输入（异步，不阻塞）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3"><B>Step(msg)</B>：收到的 raft 消息 → 丢进队列就返回<BR/><B>Propose(data)</B>：客户端写请求 → 丢进队列就返回<BR/><FONT COLOR="#4338CA">注意：返回 ≠ 成功。此刻还没有落盘、也没有复制出去</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>② Ready()：取出「这一轮要干的事」</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">· <B>HardState</B>：term / votedFor / commit（变了才给）<BR/>· <B>Entries</B>：需要追加到本地日志的新条目<BR/>· <B>Snapshot</B>：需要落盘/发送的快照<BR/>· <B>Messages</B>：要发出去的 raft 消息<BR/>· <B>CommittedEntries</B>：可以 apply 到状态机的条目</FONT></TD></TR>
+</TABLE>>];
+
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>③ 持久化（先落盘！）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">把 HardState / Entries 写进 <B>WAL 并 fsync</B>（必要时先写 Snapshot）<BR/><B>这一步没做完，绝不能执行 ④</B> —— 这就是「先落盘、再回 ACK」的落点</FONT></TD></TR>
+</TABLE>>];
+
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>④ 发送消息 + 回复客户端</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">Messages 发给其他节点；此时 leader 才可以对客户端说「写成功了」<BR/>（对单节点集群或已提交的读，也可以在这里返回）</FONT></TD></TR>
+</TABLE>>];
+
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>⑤ apply + Advance()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">把 CommittedEntries 按序 apply 到状态机（bbolt）<BR/>然后 <B>Advance()</B> 告诉 raft：「上一批我处理完了，可以准备下一批」</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>这个循环为什么长这样</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>调度权交给上层</B>：批量多大、要不要攒一批再 fsync、发送要不要流水线，全由上层定 —— 性能调优都在这里<BR/>· <B>正确性由顺序保证</B>：③ 必须在 ④ 之前，④ 必须在 ⑤ 之前；顺序错了 Raft 的安全性论证就不成立<BR/>· 循环是「一次 Ready 一次 Advance」，不调用 Advance 就不会有下一批 —— 天然形成背压</FONT></TD></TR>
+</TABLE>>];
+
+    s1 -> s2 [label=" 主循环里拉取"];
+    s2 -> s3 [label=" 先干最要紧的"];
+    s3 -> s4 [label=" 落盘成功"];
+    s4 -> s5;
+    s5 -> s1 [label=" Advance() 之后进入下一轮", color="#7C3AED", fontcolor="#6D28D9"];
+    s5 -> note [style=invis];
+}

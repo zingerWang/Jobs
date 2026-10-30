@@ -1,0 +1,48 @@
+digraph violations {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.6, ranksep=1.0, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>弱一致会「读错」什么，该用什么保证来修</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">左边是用户看到的诡异现象，右边是对应的保证</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    v1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>读己之写被违反</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">改完昵称刷新，还是旧的<BR/>读不到自己刚写的值</FONT></TD></TR>
+</TABLE>>];
+    f1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>读己之写保证</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">写完后自己的读<BR/>一定包含这次写</FONT></TD></TR>
+</TABLE>>];
+
+    v2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>单调读被违反</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">刚看到 100 条消息<BR/>刷新一下变回 98 条</FONT></TD></TR>
+</TABLE>>];
+    f2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>单调读保证</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">读到的值不会退回<BR/>时间不倒流</FONT></TD></TR>
+</TABLE>>];
+
+    v3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>因果被违反</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">只看到评论<BR/>看不到被评论的原帖</FONT></TD></TR>
+</TABLE>>];
+    f3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>因果一致</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">有因果的操作保序<BR/>先看到因，再看到果</FONT></TD></TR>
+</TABLE>>];
+
+    v1 -> f1 [color="#E11D48", fontcolor="#BE123C", label="需要"];
+    v2 -> f2 [color="#E11D48", fontcolor="#BE123C", label="需要"];
+    v3 -> f3 [color="#E11D48", fontcolor="#BE123C", label="需要"];
+
+    { rank=same; v1; f1; }
+    { rank=same; v2; f2; }
+    { rank=same; v3; f3; }
+}

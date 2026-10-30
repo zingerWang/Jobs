@@ -1,0 +1,36 @@
+digraph congestion_control {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.9, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>TCP 拥塞控制：四个算法</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">类比：高速开车——踩油门提速，堵车（丢包）就刹车</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.9];
+
+    slow_start [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>慢启动</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">cwnd 指数增长<BR/>每个 RTT 翻倍（每 ACK +1 MSS）</FONT></TD></TR>
+</TABLE>>];
+
+    cong_avoid [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>拥塞避免</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">cwnd 线性增长<BR/>每 RTT +1 MSS</FONT></TD></TR>
+</TABLE>>];
+
+    fast_retrans [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>快重传</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">连续 3 个重复 ACK<BR/>不等超时立刻重传</FONT></TD></TR>
+</TABLE>>];
+
+    fast_recovery [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>快恢复</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#6D28D9">cwnd 减半<BR/>继续拥塞避免</FONT></TD></TR>
+</TABLE>>];
+
+    slow_start -> cong_avoid [label="  cwnd 达到阈值 ssthresh", color="#0D9488", fontcolor="#0F766E"];
+    cong_avoid -> fast_retrans [label="  收到 3 个重复 ACK", color="#E11D48", fontcolor="#BE123C"];
+    fast_retrans -> fast_recovery [label="  立刻重传丢的包", color="#E11D48", fontcolor="#BE123C"];
+    fast_recovery -> cong_avoid [label="  cwnd 减半后继续", color="#7C3AED", fontcolor="#6D28D9", constraint=false];
+    cong_avoid -> slow_start [label="  超时（丢包严重）", color="#E11D48", fontcolor="#BE123C", constraint=false];
+}

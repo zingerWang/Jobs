@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="900" viewBox="0 0 1450 900" role="img" aria-labelledby="title desc">
+<title id="title">Linux 抓包观察点与网络数据路径</title>
+<desc id="desc">发送应用的数据经过 socket 和 TCP/IP、内核抓包观察点、网卡卸载与真实链路，再到接收端。说明卸载现象、网络命名空间、回环流量和单端抓包结论的边界。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#315f8f"/></marker></defs>
+<style>text{font-family:"Microsoft YaHei","Noto Sans CJK SC",sans-serif;fill:#23374d}.title{font-size:32px;font-weight:700}.subtitle{font-size:20px;fill:#5c6d80}.head{font-size:23px;font-weight:700}.label{font-size:21px}.small{font-size:19px;fill:#52667c}.code{font-family:Consolas,"Microsoft YaHei",monospace;font-size:20px}.flow{stroke:#315f8f;stroke-width:3;fill:none;marker-end:url(#arrow)}</style>
+<rect width="1450" height="900" rx="18" fill="#f6f9fc"/>
+<text x="55" y="55" class="title">原理图 ④　抓包看到的是“观察点”，不一定是线上最终帧</text>
+<text x="55" y="90" class="subtitle">以常见 Linux 发送方向为例；具体内核、驱动和虚拟网络路径会改变观察位置与报文形态。</text>
+<g stroke="#c2d3e5" fill="#e7eff8"><rect x="55" y="153" width="185" height="126" rx="14"/><rect x="285" y="153" width="185" height="126" rx="14"/><rect x="515" y="153" width="185" height="126" rx="14" fill="#dceeee" stroke="#91bfbd"/><rect x="745" y="153" width="185" height="126" rx="14"/><rect x="975" y="153" width="185" height="126" rx="14"/><rect x="1205" y="153" width="190" height="126" rx="14"/></g>
+<g text-anchor="middle"><text x="147" y="191" class="head">发送应用</text><text x="147" y="229" class="code">write / send</text><text x="147" y="257" class="small">用户态字节流</text><text x="377" y="191" class="head">socket / TCP / IP</text><text x="377" y="229" class="label">缓冲与协议处理</text><text x="377" y="257" class="small">内核中的数据</text><text x="607" y="191" class="head">抓包观察点</text><text x="607" y="229" class="code">tcpdump / pcap</text><text x="607" y="257" class="small">获取内核可见记录</text><text x="837" y="191" class="head">驱动与网卡</text><text x="837" y="229" class="label">校验和 / 分段</text><text x="837" y="257" class="small">可能由硬件完成</text><text x="1067" y="191" class="head">真实链路</text><text x="1067" y="229" class="label">最终以太网帧</text><text x="1067" y="257" class="small">交换机与路由路径</text><text x="1300" y="191" class="head">接收端</text><text x="1300" y="229" class="label">TCP 重组与交付</text><text x="1300" y="257" class="small">再到应用读取</text></g>
+<path class="flow" d="M240 216H282 M470 216H512 M700 216H742 M930 216H972 M1160 216H1202"/>
+<path d="M607 280V309H837V280" fill="none" stroke="#6c96a1" stroke-width="2"/>
+<rect x="55" y="331" width="1340" height="151" rx="14" fill="#fff" stroke="#c7d6e5"/>
+<text x="80" y="369" class="head">为什么本机抓包会出现“校验和错误”或“大包”？</text>
+<text x="80" y="406" class="label">① 抓包时校验和可能尚未由网卡补算；显示异常不必然说明线上帧损坏。</text>
+<text x="80" y="441" class="label">② TSO / GSO 可让内核先持有较大数据段，之后再分成线上帧；接收方向的聚合也可能改变观察结果。</text>
+<text x="80" y="469" class="small">先确认接口、方向与卸载配置，再决定是否需要双端抓包或外部观察点验证。</text>
+<g fill="#fff" stroke="#c7d6e5"><rect x="55" y="510" width="420" height="245" rx="14"/><rect x="515" y="510" width="420" height="245" rx="14"/><rect x="975" y="510" width="420" height="245" rx="14"/></g>
+<text x="80" y="549" class="head">容器与网络命名空间</text>
+<text x="80" y="588" class="label">容器应用 → veth → 网桥 / 主机</text>
+<text x="80" y="624" class="small">-i any 只覆盖当前网络命名空间</text>
+<text x="80" y="653" class="small">可见的接口；必要时进入容器命名空间。</text>
+<text x="80" y="696" class="code">nsenter -t PID -n tcpdump ...</text>
+<text x="80" y="733" class="small">同一逻辑包跨接口出现 ≠ TCP 重传。</text>
+<text x="540" y="549" class="head">本机回环与 lo</text>
+<text x="540" y="588" class="label">本机应用 A → lo → 本机应用 B</text>
+<text x="540" y="624" class="small">访问本机回环地址通常不经过物理网卡。</text>
+<text x="540" y="653" class="small">只监听 eth0 可能看不到这段通信。</text>
+<text x="540" y="696" class="code">tcpdump -i lo -nn 'port 8080'</text>
+<text x="540" y="733" class="small">先用地址、路由与命名空间确定路径。</text>
+<text x="1000" y="549" class="head">单端抓包能证明什么</text>
+<text x="1000" y="588" class="label">“在此点观察到”≠“对端已收到”</text>
+<text x="1000" y="624" class="small">发送侧记录不能单独证明链路交付。</text>
+<text x="1000" y="653" class="small">缺少报文也可能是本次捕获遗漏。</text>
+<text x="1000" y="696" class="label">双端对齐序列号与时间线</text>
+<text x="1000" y="733" class="small">可把问题缩小到两个观察点之间。</text>
+<rect x="55" y="786" width="1340" height="75" rx="14" fill="#fff2d8" stroke="#e0bd73"/>
+<text x="80" y="817" class="head">tcpdump 的 “packets dropped by kernel” 表示抓包路径漏记，不等同于业务网络丢包。</text>
+<text x="80" y="846" class="small">检查捕获缓冲、过滤范围、写盘速度与采集端负载；再结合两端报文、重传计数及接口统计判断网络是否丢包。</text>
+</svg>

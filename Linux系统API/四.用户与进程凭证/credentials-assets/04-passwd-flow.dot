@@ -1,0 +1,23 @@
+digraph G {
+graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.40", ranksep="0.60", dpi=200, fontname="PingFang SC", labelloc=t,
+label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>passwd 怎样修改本地密码</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">内核授予资源访问身份；程序和 PAM 验证这次请求是否合法</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=12, color="#64748B", fontcolor="#475569", arrowsize=0.8, penwidth=1.5];
+start [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>alice 执行 passwd</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">原 shell 仍是普通用户身份</FONT></TD></TR></TABLE>>];
+exec [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="16"><B>exec 处理 SUID 位</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#334155" POINT-SIZE="13">典型状态：RUID=1000，EUID=0<BR ALIGN="CENTER"/>程序取得受限更新所需的有效身份</FONT></TD></TR></TABLE>>];
+who [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="16"><B>确定调用者与目标账号</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#334155" POINT-SIZE="13">普通用户只允许修改自己的密码<BR ALIGN="CENTER"/>管理员请求按对应策略处理</FONT></TD></TR></TABLE>>];
+verify [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="16"><B>PAM / 账号后端执行验证</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#334155" POINT-SIZE="13">按配置检查旧密码、有效期和新密码规则</FONT></TD></TR></TABLE>>];
+hash [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="16"><B>生成新口令散列</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#334155" POINT-SIZE="13">使用配置的算法、参数与盐<BR ALIGN="CENTER"/>不把明文密码写进 shadow</FONT></TD></TR></TABLE>>];
+update [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="16"><B>本地 shadow 后端协调更新</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#334155" POINT-SIZE="13">协调并发，保留其他账号记录<BR ALIGN="CENTER"/>写入受保护的新内容，再完成替换</FONT></TD></TR></TABLE>>];
+done [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="16"><B>报告结果并退出</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#334155" POINT-SIZE="13">原 shell 的身份不因此提升</FONT></TD></TR></TABLE>>];
+reject [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="16"><B>拒绝请求</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#334155" POINT-SIZE="13">不执行这次密码更新</FONT></TD></TR></TABLE>>];
+start -> exec [label="启动", color="#4F46E5", fontcolor="#4F46E5"];
+exec -> who [label="先验证请求", color="#4F46E5", fontcolor="#4F46E5"];
+who -> verify [label="账号范围允许", color="#4F46E5", fontcolor="#4F46E5"];
+who -> reject [label="越权请求", color="#E11D48", fontcolor="#E11D48"];
+verify -> reject [label="验证或策略不通过", color="#E11D48", fontcolor="#E11D48"];
+verify -> hash [label="检查通过", color="#0D9488", fontcolor="#0D9488"];
+hash -> update [label="新验证资料", color="#0284C7", fontcolor="#0284C7"];
+update -> done [label="更新成功", color="#0D9488", fontcolor="#0D9488"];
+
+}

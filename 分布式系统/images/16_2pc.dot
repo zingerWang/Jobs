@@ -1,0 +1,34 @@
+digraph two_phase_commit {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>2PC：两阶段提交与它的「阻塞」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">协调者是单点：它在第二阶段宕机，所有参与者就只能干等</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    ph1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>阶段一：Prepare（投票）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">协调者问所有参与者：「这个事务你能提交吗？」<BR/>· 参与者执行事务的<b>所有操作</b>，并<b>锁定资源</b>（行锁、预留额度），然后回复 YES/NO<BR/>· 只要有一个 NO（或超时），协调者就决定<b>全局回滚</b><BR/><FONT COLOR="#4338CA">注意：资源在这一刻就被锁住了 —— 这是后面阻塞问题的根源。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    ph2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>阶段二：Commit / Abort（执行）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">全员 YES → 协调者发 <B>COMMIT</B>；否则发 <B>ABORT</B><BR/>参与者执行后释放锁，并回复 ACK<BR/>· 优点：<b>强一致（原子提交）</b>，也是 XA 规范的基础<BR/>· 代价：<b>同步阻塞 + 协调者单点 + 参与者持锁时间长</b></FONT></TD></TR>
+</TABLE>>];
+
+    block [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>阻塞问题：协调者在第二阶段前宕机</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">所有参与者都已回复 YES、进入 PREPARED 并<b>持有资源锁</b>，然后协调者挂了：<BR/>· 参与者<b>不敢提交</b>（可能有人投了 NO，提交就破坏了原子性）<BR/>· 也<b>不敢回滚</b>（可能所有人都投了 YES，回滚就丢数据）<BR/>· 于是只能<b>一直等</b> —— 锁不释放，其他事务全部阻塞<BR/><FONT COLOR="#9F1239">极端情况下协调者的日志也丢了，参与者就得<b>永久等待</b>（需要人工介入）。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    fix [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程上的缓解手段（都不是根治）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">· <B>协调者高可用</B>：协调者自己也做成集群，并把决策日志持久化（宕机重启后能继续推进）<BR/>· <B>参与者超时询问</B>：参与者超时后向其他参与者打听"你收到 COMMIT 了吗"——但这又引入"谁说了算"的问题<BR/>· <B>缩短事务</B>：把大事务拆小、把锁粒度变细，让阻塞窗口尽量短<BR/><FONT COLOR="#92400E">业界现实：<b>2PC/XA 只适合"短事务 + 少量参与者"</b>（如单库跨分片），跨服务的长事务要用 TCC/Saga。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    ph1 -> ph2 [label=" 全员 YES"];
+    ph2 -> block [label=" 协调者宕机", color="#E11D48", fontcolor="#BE123C"];
+    block -> fix [label=" 缓解"];
+}

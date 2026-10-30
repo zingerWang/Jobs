@@ -1,0 +1,54 @@
+digraph kernel_buffers {
+    rankdir=LR;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>内核缓冲区模型：数据到底存在哪</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">send 只是把数据拷进内核缓冲区，≠ 已送达；recv 只是从缓冲区拷出</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, penwidth=2.0, arrowsize=1.0];
+
+    app [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="15"><B>用户态进程</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#3730A3">应用程序（读写 fd）</FONT></TD></TR>
+</TABLE>>];
+
+    subgraph cluster_kernel {
+        label=<<FONT COLOR="#E11D48" POINT-SIZE="14"><B>内核态</B></FONT>>;
+        fontname="PingFang SC";
+        color="#E11D48";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FFFDFD";
+        sendbuf [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>发送缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">sk_write_queue<BR/>大小 SO_SNDBUF</FONT></TD></TR>
+</TABLE>>];
+        recvbuf [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>接收缓冲区</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">sk_receive_queue<BR/>大小 SO_RCVBUF</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    net [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="15"><B>网络（对端主机）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#0369A1">网卡 / 路由器 / 对端</FONT></TD></TR>
+</TABLE>>];
+
+    // 发送路径
+    app -> sendbuf [label="send() 拷贝进去", color="#0D9488", fontcolor="#0F766E"];
+    sendbuf -> net [label="内核 TCP 协议栈\n分包·重传·拥塞控制", color="#0D9488", fontcolor="#0F766E"];
+
+    // 接收路径
+    net -> recvbuf [label="网卡收包 → 重组·确认", color="#0284C7", fontcolor="#0369A1"];
+    recvbuf -> app [label="recv() 拷贝出来", color="#0284C7", fontcolor="#0369A1"];
+
+    // 阻塞条件注释
+    block [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>阻塞的本质</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">· send 阻塞：发送缓冲区满<BR/>· recv 阻塞：接收缓冲区空<BR/>· 非阻塞：立即返回 -1 + EAGAIN</FONT></TD></TR>
+</TABLE>>];
+    sendbuf -> block [style=invis];
+}

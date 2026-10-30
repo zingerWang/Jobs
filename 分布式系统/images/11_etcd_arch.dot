@@ -1,0 +1,48 @@
+digraph etcd_arch {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>etcd 的整体结构：一个进程里的三层存储</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">raft 模块是「纯状态机」——它不碰磁盘、不碰网络，只吐出一批「待办事项」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    client [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>客户端 / 其他 etcd 节点</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">gRPC API：<B>KV / Watch / Lease / Auth</B>（以及节点之间的 raft 消息）</FONT></TD></TR>
+</TABLE>>];
+
+    raft [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>raft 模块（etcd-io/raft）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C"><B>纯逻辑状态机</B>：输入是「收到的消息」和「本地提案」，输出是一批待办：<BR/>· <B>HardState</B>（term / votedFor / commit）要持久化<BR/>· <B>Entries</B>（新的日志条目）要持久化<BR/>· <B>Messages</B> 要发给其他节点<BR/>· <B>CommittedEntries</B> 要 apply 到状态机<BR/><FONT COLOR="#9F1239">它自己<b>不做任何 IO</b> —— 所以能被单测穷举、也能被别的项目直接复用</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    wal [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>WAL（预写日志）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">记录 = [长度][CRC][数据]，<B>回 ACK 之前必须 fsync</B><BR/>分段存放，快照之后旧的段可以删</FONT></TD></TR>
+</TABLE>>];
+    snap [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Snapshot（快照）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">定期把状态机整体存一份，用来<b>压缩日志</b><BR/>落后太多的 follower 直接传快照</FONT></TD></TR>
+</TABLE>>];
+    backend [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>状态机（bbolt）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">apply 已提交条目 → 真正对外可见的数据<BR/>「日志是因、状态是果」在这里落地</FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么要把 raft 做成「纯状态机 + 待办清单」？</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">· 算法逻辑与 IO 解耦 → 可以用假磁盘、假网络做<b>确定性重放测试</b>（etcd 的 raft 测试就是这么做的）<BR/>· 上层可以自由决定「什么时候落盘、批量多大、要不要流水线」——<b>性能优化的空间都留在这里</b><BR/>· 代价：上层必须严格遵守「先持久化、再发消息/回 ACK」的顺序，写错就丢数据</FONT></TD></TR>
+</TABLE>>];
+
+    client -> raft [label=" Step() 喂消息 / Propose() 提提案"];
+    raft -> wal [label=" ① 先持久化"];
+    raft -> snap [label=" ① 先持久化"];
+    raft -> backend [label=" ③ 再 apply"];
+    raft -> client [label=" ② 然后才发消息 / 回 ACK"];
+    wal -> note [style=invis];
+    { rank=same; wal; snap; }
+}

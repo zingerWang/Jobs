@@ -1,0 +1,99 @@
+digraph socket_kernel_struct {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.45, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>socket 的内核数据结构</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">「一切皆文件」的关键：socket 把 read/write 的实现注册进 file 的 f_op 函数指针表</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    syscall [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>应用调用（文件系统调用，统一入口）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="7"><FONT FACE="Menlo" POINT-SIZE="12" COLOR="#334155">read(fd) · write(fd) · close(fd) · fcntl(fd)</FONT></TD></TR>
+</TABLE>>];
+
+    subgraph cluster_user {
+        label=<<FONT COLOR="#4F46E5" POINT-SIZE="15"><B>用户态（进程）</B></FONT>>;
+        fontname="PingFang SC";
+        color="#4F46E5";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FBFBFF";
+        fd [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>文件描述符 fd</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#3730A3">一个整数编号（如 3）</FONT></TD></TR>
+</TABLE>>];
+        fdtable [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>进程文件描述符表</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#3730A3">fd → struct file *</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    subgraph cluster_kernel {
+        label=<<FONT COLOR="#E11D48" POINT-SIZE="15"><B>内核态</B></FONT>>;
+        fontname="PingFang SC";
+        color="#E11D48";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FFFDFD";
+        file [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>struct file</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#0369A1">· f_op：文件操作函数指针表<BR/>　（read / write / close / llseek… 的实现）<BR/>· private_data → 指向 struct socket</FONT></TD></TR>
+</TABLE>>];
+        socket [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>struct socket</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#BE123C">· 类型（stream / dgram / raw）<BR/>· 状态（unconnected / listening…）<BR/>· ops：proto_ops 函数指针表<BR/>　（connect / bind / sendmsg / recvmsg…）<BR/>· sk → 指向 struct sock</FONT></TD></TR>
+</TABLE>>];
+        sock [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>struct sock（tcp_sock）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12" COLOR="#BE123C">传输层具体状态（TCP 状态机所在）</FONT></TD></TR>
+</TABLE>>];
+        wq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>sk_write_queue</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">发送缓冲区</FONT></TD></TR>
+</TABLE>>];
+        rq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>sk_receive_queue</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">接收缓冲区</FONT></TD></TR>
+</TABLE>>];
+        synq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>半连接队列（SYN queue）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">仅监听套接字有</FONT></TD></TR>
+</TABLE>>];
+        acceptq [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>全连接队列（accept queue）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">仅监听套接字有</FONT></TD></TR>
+</TABLE>>];
+        other [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>其他状态</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">重传队列 · 乱序队列<BR/>拥塞控制 · 定时器</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    syscall -> fd [label="  传入 fd"];
+    fd -> fdtable;
+    fdtable -> file [ltail=cluster_user, lhead=cluster_kernel, label="  查表得到 struct file *", color="#4F46E5", fontcolor="#3730A3"];
+    file -> socket [label="  private_data", color="#0284C7", fontcolor="#0369A1"];
+    socket -> sock [label="  sk", color="#E11D48", fontcolor="#BE123C"];
+    sock -> wq;
+    sock -> rq;
+    sock -> synq;
+    sock -> acceptq;
+    sock -> other;
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>为什么 read/write 能作用于 socket？</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">read(fd) 内部 = file → f_op → read，<BR/>而 socket 把这个 read 实现成了 recv 的逻辑。<BR/>所以通用文件系统调用不用改，就能直接收发网络数据。</FONT></TD></TR>
+</TABLE>>];
+    other -> note [style=dashed, color="#D97706", fontcolor="#B45309"];
+}

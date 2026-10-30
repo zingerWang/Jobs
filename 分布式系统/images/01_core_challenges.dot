@@ -1,0 +1,44 @@
+digraph core_challenges {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.4, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>分布式系统的四大核心挑战</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">一切难点都源于「节点间只能靠网络通信」，由此衍生出四大难题</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.8];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>节点间只能靠网络通信</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">没有共享内存，没有共享时钟</FONT></TD></TR>
+</TABLE>>];
+
+    c1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>网络不可靠</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">消息丢失 / 延迟 / 重复 / 网络分区</FONT></TD></TR>
+</TABLE>>];
+
+    c2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>节点故障</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">宕机 / 进程崩溃 / 部分失败</FONT></TD></TR>
+</TABLE>>];
+
+    c3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>时钟漂移</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">每台机器时间不同步，无法判断先后</FONT></TD></TR>
+</TABLE>>];
+
+    c4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>一致性难保证</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">多副本数据可能暂时不一致</FONT></TD></TR>
+</TABLE>>];
+
+    root -> c1 [color="#0284C7", fontcolor="#0369A1"];
+    root -> c2 [color="#E11D48", fontcolor="#BE123C"];
+    root -> c3 [color="#D97706", fontcolor="#B45309"];
+    root -> c4 [color="#7C3AED", fontcolor="#6D28D9"];
+
+    { rank=same; c1; c2; c3; c4; }
+}

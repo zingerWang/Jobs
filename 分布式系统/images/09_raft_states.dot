@@ -1,0 +1,37 @@
+digraph raft_states {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.6, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Raft 的三种状态与任期</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">任何时候每个节点只处于一种状态；term 是逻辑时钟，看到更大的 term 就立刻降级</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    follower [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>Follower（跟随者）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">被动：只响应 leader / candidate 的 RPC<BR/>收到心跳就重置选举定时器</FONT></TD></TR>
+</TABLE>>];
+
+    candidate [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>Candidate（候选人）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309"><B>term + 1</B> → 投自己一票 → 并发向所有人拉票<BR/>拿到多数派就当选，否则超时后 term+1 再来</FONT></TD></TR>
+</TABLE>>];
+
+    leader [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="14"><B>Leader（领导者）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">唯一能接受客户端写请求的角色<BR/>周期性发心跳 + 复制日志（AppendEntries）</FONT></TD></TR>
+</TABLE>>];
+
+    term [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>任期 term：Raft 的逻辑时钟</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· 单调递增；<B>一个 term 内最多一个 leader</B>（靠「一个 term 只投一票」保证）<BR/>· 每个 RPC 都带 term：<B>谁看到更大的 term，就立刻把自己的 term 跟上并降级为 follower</B><BR/>· term 同时充当提案编号（这点比 Paxos 省心：不用自己造编号）</FONT></TD></TR>
+</TABLE>>];
+
+    follower -> candidate [label=" 选举超时（没等到心跳）", color="#D97706", fontcolor="#B45309"];
+    candidate -> leader [label=" 拿到多数派选票", color="#0D9488", fontcolor="#0F766E"];
+    candidate -> follower [label=" 发现更高 term / 本轮又超时", color="#475569", fontcolor="#334155"];
+    leader -> follower [label=" 发现更高 term", color="#E11D48", fontcolor="#BE123C"];
+    leader -> term [style=invis];
+    { rank=same; leader; term; }
+}

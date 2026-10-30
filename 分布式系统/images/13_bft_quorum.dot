@@ -1,0 +1,42 @@
+digraph bft_quorum {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>为什么 BFT 需要 n ≥ 3f+1（而 CFT 只要 2f+1）</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">差别只有一句话：CFT 里少数派可能"缺席"，BFT 里少数派可能"撒谎"</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    cft [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>CFT（崩溃容错）：两个 quorum 有交集就够了</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">交集中的节点<b>不会撒谎</b>——它要么已经崩溃（那它就不在 quorum 里），要么一定按照日志的真实内容回答。<BR/>所以 2q - n ≥ 1 就够 → 取 q = f+1 时得 <B>n ≥ 2f + 1</B>。<BR/><FONT COLOR="#115E59">例：5 节点容忍 2 台崩溃，quorum = 3，交集至少 1 个节点，而它一定说真话。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    bft [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>BFT（拜占庭容错）：交集里必须有一个【诚实】节点</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">交集里的节点可能是叛徒——<b>光有交集不够，交集里得有好人</b>。<BR/>交集大小至少 1 不够：如果那 1 个恰好是叛徒，它就能对两边说不同的话。<BR/>要求：<B>2q - n ≥ f + 1</B>（交集里最多 f 个叛徒，所以要比 f 多一个）<BR/>→ 取最小的 q = 2f+1，得 <B>n ≥ 3f + 1</B></FONT></TD></TR>
+</TABLE>>];
+
+    liveness [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>别忘另一半：活性也要求 n - f ≥ q</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">安全性只保证"不会错"，还得保证"还能动"：坏掉 f 个节点后，剩下的 n-f 个仍要凑得出 quorum。<BR/>把两条合起来解：取 n = 3f+1、q = 2f+1，恰好<b>两条都取等号</b>：<BR/>· 2(2f+1) - (3f+1) = f+1 ✓　· (3f+1) - f = 2f+1 = q ✓<BR/><FONT COLOR="#92400E">所以 <b>3f+1 是"最小可行规模"</b>，不是"随便选的数字"。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    trap [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>一个容易踩的陷阱：n 更大 ≠ 更安全</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">风险只由 <B>quorum 大小</B>决定，跟节点总数无关。<BR/>· n=4, f=1 → q=3 就够（交集至少 2 个，必有 1 个诚实）<BR/>· n=5, f=1 → <B>q 必须涨到 4</B>（q=3 时交集可能只有 1 个，恰好是叛徒）<BR/>→ 多加了节点，却要付更大的通信开销，容错能力<b>一点没涨</b>。这也是 PBFT 类系统普遍就用 <B>3f+1</B> 的原因。</FONT></TD></TR>
+</TABLE>>];
+
+    cmp [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>两者对比</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">· 容忍 1 个故障：CFT 要 <B>3</B> 台，BFT 要 <B>4</B> 台<BR/>· 容忍 2 个故障：CFT 要 <B>5</B> 台，BFT 要 <B>7</B> 台<BR/>· 容忍 3 个故障：CFT 要 <B>7</B> 台，BFT 要 <B>10</B> 台<BR/><FONT COLOR="#1E293B">BFT 的节点成本约是 CFT 的 1.5 倍，但真正的代价在通信：见下一张图。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    cft -> bft [label=" 把「缺席」换成「撒谎」"];
+    bft -> liveness [label=" 再加活性约束"];
+    liveness -> trap [label=" 由此得到的推论"];
+    trap -> cmp [style=invis];
+    { rank=same; trap; cmp; }
+}

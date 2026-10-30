@@ -1,0 +1,43 @@
+digraph redlock {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Redlock 的争议：为什么「多数派 + TTL」也不够</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">2016 年 Kleppmann 与 Antirez 的著名争论，结论是：责任必须落在被保护的资源上</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    idea [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Redlock 的思路：用多个独立 Redis 节点投票</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">部署 5 个<b>互相独立</b>的 Redis（没有主从关系），加锁流程：<BR/>① 记录开始时间<BR/>② 依次向 5 个节点发 <B>SET NX PX</B>（带超时，避免卡在某个节点上）<BR/>③ 若在 <B>≥ 3 个</B>节点上成功，且总耗时 &lt; 锁的有效期 → 认为加锁成功<BR/>④ 锁的有效期 = 原 TTL − 加锁耗时（扣除已消耗的时间）<BR/>⑤ 释放时向所有节点发删除请求（用 Lua 校验 value）</FONT></TD></TR>
+</TABLE>>];
+
+    a1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Kleppmann 的反驳①：假死（进程停顿）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">客户端拿到锁后遭遇长 GC / 容器被冻结，<b>停顿超过锁的 TTL</b>：<BR/>· 各节点上的锁<b>自动过期</b>（TTL 到了）<BR/>· 另一个客户端<b>合法地</b>拿到了锁<BR/>· 假死的客户端醒来，还以为自己持锁，于是去写资源 → <B>两个客户端同时进临界区</B><BR/><FONT COLOR="#9F1239">注意：这和网络分区无关——<b>多数派机制完全正常，问题出在"持锁者的时间感"</b>。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    a2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Kleppmann 的反驳②：时钟跳变</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">Redlock 的安全性<b>依赖各节点的时钟</b>（TTL 就是靠本地时钟算的）：<BR/>· 如果某个节点的时钟<b>向前跳</b>（NTP 校时、VM 迁移），它的锁会提前过期<BR/>· 若几个节点同时跳，客户端 B 可能在 A 还"认为"自己持锁时就拿到了 3 票<BR/>· 更隐蔽的：<b>时钟漂移</b>让"锁的有效期"名不副实——你以为还有 5 秒，实际只剩 1 秒</FONT></TD></TR>
+</TABLE>>];
+
+    reply [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Antirez 的回应（简化版）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">· 停顿问题可以通过"<B>检查自己是否还在租期内</B>"来缓解（写资源前先看时间）<BR/>· 时钟跳变可以用 <B>monotonic clock + 时钟跳变检测</B> 部分规避<BR/>· 那些极端场景下，需要的是 <B>fencing token</B> 或更强的共识系统<BR/><FONT COLOR="#075985">争论的实际结论：<b>双方其实并不矛盾</b>——Redlock 能提供的是"<b>效率型锁</b>"（防止重复劳动），不是"<b>正确性型锁</b>"（保证互斥语义）。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    concl [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>真正的结论：把责任放到被保护的资源上</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">Kleppmann 那句话值得抄下来：<BR/><B>"分布式锁只有在被保护的资源本身也参与校验时，才是安全的。"</B><BR/>也就是说：锁服务返回一个<b>单调递增的 token</b>，资源侧记住见过的最大 token，拒绝更小的——<BR/>这样即使两个客户端同时进临界区，<b>过期的那个也写不进去</b>。见下一张图。</FONT></TD></TR>
+</TABLE>>];
+
+    idea -> a1 [label=" 问题一"];
+    idea -> a2 [label=" 问题二"];
+    a1 -> reply;
+    a2 -> reply;
+    reply -> concl [label=" 出路", color="#7C3AED", fontcolor="#6D28D9"];
+    { rank=same; a1; a2; }
+}

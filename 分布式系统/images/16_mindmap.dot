@@ -1,0 +1,59 @@
+digraph mindmap_14 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：分布式事务</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>分布式事务</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>2PC / XA</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>3PC</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>TCC</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Saga</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>选型</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Prepare 锁资源 → Commit/Abort 执行</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>协调者单点：它挂了，全员阻塞持锁</B></FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">强一致，适合短事务 / 单库跨分片</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">加一步 PreCommit，把「全员同意」提前告知</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">超时自行决策：PRECOMMITTED→提交，PREPARED→回滚</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">分区时一边提交一边回滚 → 工程上极少用</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Try 预留 → Confirm 确认 / Cancel 取消</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">必须处理：空回滚、悬挂、幂等</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">不阻塞、最终一致，但要业务写三套逻辑</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">T1…Tn + 补偿 C1…Cn，失败反向补偿</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">正向恢复（重试）vs 反向恢复（回滚）</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#0369A1">编排式 vs 协同式；<B>没有隔离性</B></FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">能用本地事务/乐观锁解决的，别用分布式事务</FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">跨服务优先 Saga（改造小）；要求高再上 TCC</FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">2PC 留给短事务；3PC 只作了解</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

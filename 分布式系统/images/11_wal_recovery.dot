@@ -1,0 +1,59 @@
+digraph wal_recovery {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>WAL：记录格式与崩溃恢复</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">「长度 + CRC」是为了识别半截写入；重放时宁可少一条，也绝不猜</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    fmt [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>记录格式：一条接一条，首尾相接</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="6"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" CELLPADDING="5">
+    <TR>
+      <TD BGCOLOR="#FFFBEB"><FONT POINT-SIZE="11" COLOR="#B45309">长度 4B</FONT></TD>
+      <TD BGCOLOR="#FFFBEB"><FONT POINT-SIZE="11" COLOR="#B45309">CRC32 4B</FONT></TD>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11" COLOR="#0F766E">数据（序列化后的 Entry / HardState）</FONT></TD>
+      <TD BGCOLOR="#FFFBEB"><FONT POINT-SIZE="11" COLOR="#B45309">长度</FONT></TD>
+      <TD BGCOLOR="#FFFBEB"><FONT POINT-SIZE="11" COLOR="#B45309">CRC32</FONT></TD>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11" COLOR="#0F766E">数据…</FONT></TD>
+    </TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#B45309">为什么不能只存数据？因为磁盘写入可能<b>只写了一半就断电</b>（torn write）——长度告诉你"该读多少"，CRC 告诉你"读到的对不对"</FONT></TD></TR>
+</TABLE>>];
+
+    crash [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>崩溃现场：最后一条记录只写了一半</B></FONT></TD></TR>
+  <TR><TD CELLPADDING="6"><TABLE BORDER="0" CELLBORDER="1" CELLSPACING="4" CELLPADDING="5">
+    <TR>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11" COLOR="#0F766E">记录1 ✓</FONT></TD>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11" COLOR="#0F766E">记录2 ✓</FONT></TD>
+      <TD BGCOLOR="#F0FDFA"><FONT POINT-SIZE="11" COLOR="#0F766E">记录3 ✓</FONT></TD>
+      <TD BGCOLOR="#FFF1F2"><FONT POINT-SIZE="11" COLOR="#BE123C">记录4 ✗（断在这里）</FONT></TD>
+    </TR>
+  </TABLE></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#BE123C">记录 4 可能：长度没读全 / 数据只写了一半 / 内容被写花（CRC 对不上）</FONT></TD></TR>
+</TABLE>>];
+
+    replay [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>重放规则：一旦对不上，就停在原地</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">逐条读：长度不合法 → 停；数据读不满 → 停；<B>CRC 不符 → 停</B>。<BR/>并记下「最后一个完整记录结束的位置」——这就是有效数据的边界。<BR/><FONT COLOR="#075985">为什么不"跳过坏记录继续读"？因为一旦开始猜，就可能把垃圾当成事务执行——<b>宁可少恢复一条，也不能恢复错一条</b>。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    repair [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>修复：把残渣截掉，才能继续写</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">按上一步记下的边界 <B>truncate</B> 文件。<BR/><B>不做这一步会怎样？</B>残渣会挡在中间，之后新追加的记录永远读不到——WAL 表面在写，实际却"永远恢复不出来"。<BR/>etcd 的做法更彻底：<B>重启时开一个新的 WAL 段</B>，旧段留着做历史。</FONT></TD></TR>
+</TABLE>>];
+
+    snap [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>WAL 与快照的分工</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">恢复顺序：<B>先加载最新快照 → 再重放快照之后的 WAL</B>。<BR/>所以快照之前的 WAL 段可以安全删除（日志压缩）。<BR/>这也解释了为什么"快照必须和日志一样先落盘后生效"——否则会出现「日志已截断、快照没写完」的空洞。</FONT></TD></TR>
+</TABLE>>];
+
+    fmt -> crash [label=" 追加过程中断电"];
+    crash -> replay [label=" 重启"];
+    replay -> repair [label=" 得到有效边界"];
+    repair -> snap [label=" 与快照配合"];
+}

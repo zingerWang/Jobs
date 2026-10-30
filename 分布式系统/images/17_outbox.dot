@@ -1,0 +1,41 @@
+digraph outbox {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>本地消息表（Outbox）：把「写库」和「发消息」变成一个本地事务</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">不引入分布式事务框架，也能做到「业务成功 → 下游最终一定知道」</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    problem [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>问题：写库和发消息没法同时成功</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">· <B>先写库、后发 MQ</B>：中间崩溃 → 库里有数据、下游永远收不到（<B>丢消息</B>）<BR/>· <B>先发 MQ、后写库</B>：中间崩溃 → 下游收到一条"业务根本没发生"的消息（<B>脏数据</B>）<BR/>· 用 2PC 同时管住数据库和 MQ？<B>大多数 MQ 不支持 XA</B>，而且会引入阻塞（见 16 篇）</FONT></TD></TR>
+</TABLE>>];
+
+    tx [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>核心一招：把消息也写进同一个数据库</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3"><B>BEGIN;</B><BR/>　INSERT INTO orders ...;　　　　<FONT COLOR="#4338CA">← 业务表</FONT><BR/>　INSERT INTO outbox(msg_id, body, status) VALUES('msg-1', '...', 'PENDING');　<FONT COLOR="#4338CA">← 消息表</FONT><BR/><B>COMMIT;</B>　<FONT COLOR="#4338CA">← 一个本地事务，要么都成功要么都失败</FONT><BR/><FONT COLOR="#4338CA">关键：<b>不再需要"跨系统原子性"</b>——两个写入在同一个数据库里，天然原子。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    relay [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>投递器（Relay / Dispatcher）：把 PENDING 的消息发出去</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">独立线程 / 定时任务，循环做三件事：<BR/>① 扫描 outbox 里 <B>PENDING</B> 的记录（按 id 排序，保证同一条业务记录的消息有序）<BR/>② 投递到 MQ，<B>投递成功后再把状态改成 SENT</B>（或在同一事务里删除）<BR/>③ 失败的保留原状态，下一轮重试（<B>指数退避</B>，避免打爆 MQ）<BR/><FONT COLOR="#115E59">注意 ② 的顺序：<b>先投递、后改状态</b> → 保证"至少一次"；反过来就会丢消息。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    result [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>代价：只能做到「至少一次」，重复必须靠消费端幂等</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">投递器在"投递成功、状态未更新"时崩溃 → 下一轮会<b>重复投递</b>。<BR/>所以消费端必须幂等（按 msg_id 去重），否则会出现<b>重复扣款 / 重复发货</b>。<BR/><FONT COLOR="#92400E">工程上还有个常见变体：<b>CDC（Debezium/Canal）</b>直接订阅数据库 binlog，<br/>把 outbox 表当成"变更流"读出去——省掉自己写投递器，但要求 binlog 开启且格式正确。</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三个必须做对的细节</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">· <B>消息表要定期清理</B>：SENT 的记录不能无限堆积（保留 N 天用于排查即可）<BR/>· <B>同一条业务记录的多个消息要保序</B>：按聚合根 ID 分片投递，或用有序 MQ（如 Kafka 的同 partition）<BR/>· <B>outbox 的写入必须和业务在同一个事务</B>：用不同连接/不同库写就等于没做</FONT></TD></TR>
+</TABLE>>];
+
+    problem -> tx [label=" 解法"];
+    tx -> relay [label=" 谁把消息发出去"];
+    relay -> result [label=" 只能做到至少一次"];
+    result -> note [label=" 实现注意", color="#7C3AED", fontcolor="#6D28D9"];
+}

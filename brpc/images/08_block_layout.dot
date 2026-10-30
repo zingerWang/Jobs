@@ -1,0 +1,63 @@
+digraph block_layout {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.55,
+           label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>IOBuf::Block 的内存布局</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">一次 malloc 拿到 block_size（默认 8192）字节，头部放 Block，剩下全是可写 payload</FONT>>,
+           labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8, color="#94A3B8"];
+
+    // ---------- 一块内存 ----------
+    mem [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="3" BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>malloc(block_size = 8192)  —  iobuf_inl.h:629 create_block()</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="150" BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12"><B>Block 头部</B></FONT><BR/><FONT POINT-SIZE="10">sizeof = 32 字节</FONT></TD>
+    <TD WIDTH="330" BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#0369A1"><B>payload　= cap　= 8192 − 32 = 8160 字节</B></FONT><BR/><FONT POINT-SIZE="10" COLOR="#0369A1">Block::data 指向这里，readv / memcpy 直接落在这块内存</FONT></TD>
+  </TR>
+  <TR>
+    <TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#BE123C">mem + 0</FONT></TD>
+    <TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#0369A1">mem + sizeof(Block)</FONT></TD>
+  </TR>
+</TABLE>>];
+
+    // ---------- Block 字段 ----------
+    fields [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="3" BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>struct IOBuf::Block 的 7 个字段（iobuf_inl.h:463）</B></FONT></TD></TR>
+  <TR><TD WIDTH="95" BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#BE123C"><B>nshared</B></FONT></TD><TD WIDTH="185" BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">butil::atomic&lt;int&gt;</FONT></TD><TD WIDTH="330" BGCOLOR="#FFF1F2" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">引用计数：归零才真正 free，零拷贝的根基</FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#B45309"><B>flags</B></FONT></TD><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">uint16_t</FONT></TD><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">USER_DATA / SAMPLED 两个标志位</FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#B45309"><B>abi_check</B></FONT></TD><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">uint16_t</FONT></TD><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">Debug 下探测「两份 ABI 不兼容的 IOBuf」混用</FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0369A1"><B>size</B></FONT></TD><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">uint32_t</FONT></TD><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">已写入多少字节（写指针）</FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0369A1"><B>cap</B></FONT></TD><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">uint32_t</FONT></TD><TD BGCOLOR="#F0F9FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">payload 容量；left_space() = cap − size</FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#6D28D9"><B>u（union）</B></FONT></TD><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">portal_next / data_meta</FONT></TD><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">TLS 链表的 next 指针；user_data 时改存 meta</FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#6D28D9"><B>data</B></FONT></TD><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">char*</FONT></TD><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B">payload 起点；user_data 时指向用户自己的内存</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- BlockRef ----------
+    ref [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="2" BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>struct IOBuf::BlockRef（iobuf.h:82）—— 只是「一个窗口」16 字节</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B"><B>offset</B> : uint32_t　　<B>length</B> : uint32_t</FONT></TD><TD BGCOLOR="#F5F3FF" ALIGN="LEFT" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#1E293B"><B>block</B> : Block*</FONT></TD></TR>
+  <TR><TD COLSPAN="2" BGCOLOR="#FFFFFF" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="10" COLOR="#6D28D9">BlockRef 不持有数据；多个 Ref 可指向同一个 Block 的不同区间</FONT></TD></TR>
+</TABLE>>];
+
+    // ---------- 窗口示意 ----------
+    win [label=<
+<TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0" COLOR="#CBD5E1">
+  <TR><TD COLSPAN="5" BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>同一个 Block 被 3 个 BlockRef 切成 3 个窗口（cutn 只改数字，不动数据）</B></FONT></TD></TR>
+  <TR>
+    <TD WIDTH="70" BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10"><B>ref A</B><BR/>off 0 len 4</FONT></TD>
+    <TD WIDTH="150" BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0F766E">ref B　off 4 len 16</FONT></TD>
+    <TD WIDTH="110" BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#0F766E">ref C　off 20 len 40</FONT></TD>
+    <TD WIDTH="230" BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="10" COLOR="#64748B">剩余空闲（cap 之内）</FONT></TD>
+  </TR>
+  <TR><TD COLSPAN="4" BGCOLOR="#0D9488" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="white"><B>三块 payload 在物理内存里完全连续 —— 不连续只是「IOBuf 的视角」</B></FONT></TD></TR>
+</TABLE>>];
+
+    mem -> fields [style=invis];
+    fields -> ref [style=invis];
+    ref -> win [style=invis];
+
+    ref -> mem [label="  block 指向", color="#7C3AED", fontcolor="#6D28D9", constraint=false];
+    win -> ref [label="  offset/length 组成", color="#0D9488", fontcolor="#0F766E"];
+}

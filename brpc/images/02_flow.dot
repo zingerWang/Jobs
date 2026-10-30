@@ -1,0 +1,41 @@
+digraph flow {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>编译 → 跑通 → 调试 的完整闭环</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">五步走完，你就有了一个「能在 gdb 里单步进 Channel::CallMethod」的环境</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.8, arrowsize=0.8];
+
+    dep [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0284C7" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>① 装依赖</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0F9FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0369A1">gflags · protobuf(+protoc) · leveldb · openssl · zlib（<B>必需</B>）<BR/>snappy · glog · gperftools · thrift（<B>可选</B>）</FONT></TD></TR>
+</TABLE>>];
+
+    build [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>② 编出带 -g 的 libbrpc</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#3730A3">cmake -S . -B build -DBUILD_SHARED_LIBS=ON &amp;&amp; cmake --build build -j<BR/><FONT POINT-SIZE="11" COLOR="#BE123C"><B>-g 默认就带</B>（config_brpc.sh:69 / CMakeLists.txt:91-92）</FONT></FONT></TD></TR>
+</TABLE>>];
+
+    ex [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>③ 编译 echo 例子</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">cd example/echo_c++ &amp;&amp; make<BR/>得到 <B>echo_server / echo_client</B>（echo.pb.cc 自动由 protoc 生成）</FONT></TD></TR>
+</TABLE>>];
+
+    run [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>④ 跑通</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">终端 A：<B>./echo_server -port=8000</B>（前台阻塞）<BR/>终端 B：<B>./echo_client -server=127.0.0.1:8000</B> 每秒打一行 hello world</FONT></TD></TR>
+</TABLE>>];
+
+    dbg [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>⑤ gdb 挂上去</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">b brpc::Server::AddService / brpc::Channel::CallMethod → run → bt<BR/>多协程看不清栈时：<B>source tools/gdb_bthread_stack.py</B> + bthread_list</FONT></TD></TR>
+</TABLE>>];
+
+    dep -> build [color="#0284C7", fontcolor="#0369A1", label="缺一个就停"];
+    build -> ex [color="#4F46E5", fontcolor="#4338CA", label="libbrpc.a + include"];
+    ex -> run [color="#0D9488", fontcolor="#0F766E", label="两个可执行文件"];
+    run -> dbg [color="#D97706", fontcolor="#B45309", label="有进程可 attach"];
+}

@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1450" height="1080" viewBox="0 0 1450 1080" role="img" aria-labelledby="title desc">
+<title id="title">TCP 确认与 HTTP 业务处理是不同阶段</title>
+<desc id="desc">四泳道图展示连接握手、HTTP 请求、TCP 确认、服务端等待和响应。底部说明 curl 的连接、首字节和总耗时均从传输开始累计计时。</desc>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#315f8f"/></marker><marker id="green" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#147d83"/></marker></defs>
+<style>text{font-family:"Microsoft YaHei","Noto Sans CJK SC",sans-serif;fill:#23374d}.title{font-size:32px;font-weight:700}.subtitle{font-size:20px;fill:#5c6d80}.head{font-size:23px;font-weight:700}.label{font-size:20px}.small{font-size:18px;fill:#52667c}.code{font-family:Consolas,"Microsoft YaHei",monospace;font-size:20px}.lane{stroke:#b6c6d7;stroke-width:2;stroke-dasharray:7 7}.flow{stroke:#315f8f;stroke-width:3;fill:none;marker-end:url(#arrow)}.data{stroke:#147d83;stroke-width:3;fill:none;marker-end:url(#green)}</style>
+<rect width="1450" height="1080" rx="18" fill="#f6f9fc"/>
+<text x="55" y="55" class="title">原理图 ③　从 TCP 握手到 HTTP 返回</text>
+<text x="55" y="89" class="subtitle">简化示意，非实测时序；纯 HTTP、新建连接、无代理。ACK 的绘制位置与间隔仅作说明。</text>
+<g fill="#e4edf6" stroke="#c8d7e7"><rect x="80" y="118" width="255" height="56" rx="12"/><rect x="420" y="118" width="255" height="56" rx="12"/><rect x="760" y="118" width="255" height="56" rx="12"/><rect x="1100" y="118" width="275" height="56" rx="12"/></g>
+<g text-anchor="middle" class="head"><text x="207" y="154">客户端应用</text><text x="547" y="154">客户端 TCP 栈</text><text x="887" y="154">服务端 TCP 栈</text><text x="1237" y="154">服务端应用</text></g>
+<path class="lane" d="M207 178V785 M547 178V785 M887 178V785 M1237 178V785"/>
+<text x="61" y="207" class="small">t₀ 开始</text>
+<path class="flow" d="M207 205H547"/><text x="315" y="195" class="code">connect()</text>
+<path class="flow" d="M547 250H887"/><text x="695" y="239" class="code">SYN</text>
+<path class="flow" d="M887 295H547"/><text x="664" y="284" class="code">SYN + ACK</text>
+<path class="flow" d="M547 340H887"/><text x="695" y="329" class="code">ACK</text>
+<path class="flow" d="M547 380H207"/><text x="300" y="369" class="label">连接建立，返回</text><text x="82" y="385" class="small">t₁</text>
+<path class="data" d="M207 430H547"/><text x="285" y="419" class="code">写入 HTTP GET</text>
+<path class="data" d="M547 475H887"/><text x="665" y="464" class="label">传输请求字节</text>
+<path class="data" d="M887 510H1237"/><text x="979" y="499" class="label">应用读取请求</text>
+<path class="flow" d="M887 550H547"/><text x="640" y="539" class="label">ACK：确认收到字节</text>
+<rect x="1078" y="533" width="315" height="102" rx="12" fill="#fff2d8" stroke="#e0bd73"/>
+<text x="1237" y="563" text-anchor="middle" class="head">业务等待约 2 秒</text>
+<text x="1237" y="593" text-anchor="middle" class="code">sleep(2)</text>
+<text x="1237" y="619" text-anchor="middle" class="small">此时可几乎不消耗 CPU</text>
+<rect x="390" y="577" width="609" height="57" rx="10" fill="#e7f3f2" stroke="#a0cac8"/>
+<text x="694" y="602" text-anchor="middle" class="label">TCP ACK ≠ 应用已处理 ≠ 数据已持久化</text>
+<text x="694" y="624" text-anchor="middle" class="small">网络交付进度与业务完成进度必须分别观察</text>
+<path class="data" d="M1237 666H887"/><text x="992" y="655" class="label">写入 HTTP 响应</text>
+<path class="data" d="M887 704H547"/><text x="647" y="693" class="label">响应首批字节到达</text>
+<path class="data" d="M547 742H207"/><text x="300" y="731" class="label">客户端可读到响应</text><text x="82" y="747" class="small">t₂</text>
+<circle cx="207" cy="778" r="6" fill="#147d83"/><text x="230" y="785" class="label">响应体接收完成（简化为一个结束时刻）</text><text x="82" y="783" class="small">t₃</text>
+<rect x="55" y="818" width="1340" height="220" rx="14" fill="#fff" stroke="#c7d6e5"/>
+<text x="80" y="851" class="head">curl 时间字段：同一起点累计，不能直接相加</text>
+<g class="code"><text x="82" y="898">time_connect</text><text x="82" y="944">time_starttransfer</text><text x="82" y="990">time_total</text></g>
+<g stroke-linecap="round" stroke-width="9"><path d="M430 892H660" stroke="#7093bb"/><path d="M430 938H1050" stroke="#315f8f"/><path d="M430 984H1270" stroke="#147d83"/></g>
+<g class="small"><text x="430" y="876">t₀</text><text x="678" y="899">t₁ − t₀：到连接建立</text><text x="1068" y="945">t₂ − t₀：到首字节</text><text x="1286" y="991">t₃ − t₀</text><text x="82" y="1022">TTFB 包含前置建连、传输、排队和业务等待等；不等于服务端 CPU 时间。TLS、DNS、重定向会增加阶段。</text></g>
+</svg>

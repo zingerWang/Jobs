@@ -1,0 +1,81 @@
+digraph happens_before {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.8, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>happens-before：三种「先后」来源</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">竖箭头 = 程序顺序（同进程）；斜箭头 = 消息传递；虚线 = 传递性推出的先后</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    // 三个进程标题
+    p1h [label="进程 P1", fontcolor="#4F46E5", fontsize=13, shape=plaintext];
+    p2h [label="进程 P2", fontcolor="#0D9488", fontsize=13, shape=plaintext];
+    p3h [label="进程 P3", fontcolor="#D97706", fontsize=13, shape=plaintext];
+
+    // P1 事件
+    e11 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e11</B></FONT></TD></TR>
+</TABLE>>];
+    e12 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e12</B></FONT></TD></TR>
+</TABLE>>];
+    e13 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e13</B></FONT></TD></TR>
+</TABLE>>];
+
+    // P2 事件
+    e21 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e21</B></FONT></TD></TR>
+</TABLE>>];
+    e22 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e22</B></FONT></TD></TR>
+</TABLE>>];
+    e23 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e23</B></FONT></TD></TR>
+</TABLE>>];
+
+    // P3 事件
+    e31 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e31</B></FONT></TD></TR>
+</TABLE>>];
+    e32 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="12"><B>e32</B></FONT></TD></TR>
+</TABLE>>];
+
+    // 垂直链（程序顺序）
+    p1h -> e11 -> e12 -> e13 [style=invis];
+    p2h -> e21 -> e22 -> e23 [style=invis];
+    p3h -> e31 -> e32 [style=invis];
+
+    // 行对齐
+    { rank=same; p1h; p2h; p3h; }
+    { rank=same; e11; e21; }
+    { rank=same; e12; e22; e31; }
+    { rank=same; e13; e23; e32; }
+
+    // 程序顺序（竖线）
+    e11 -> e12 [color="#4F46E5", fontcolor="#3730A3"];
+    e12 -> e13 [color="#4F46E5", fontcolor="#3730A3"];
+    e21 -> e22 [color="#0D9488", fontcolor="#0F766E"];
+    e22 -> e23 [color="#0D9488", fontcolor="#0F766E"];
+    e31 -> e32 [color="#D97706", fontcolor="#B45309"];
+
+    // 消息传递（斜线）
+    e11 -> e22 [label="发消息 m1", color="#E11D48", fontcolor="#BE123C"];
+    e22 -> e31 [label="发消息 m2", color="#E11D48", fontcolor="#BE123C"];
+
+    // 传递性（虚线）：e11 → e22 → e31，所以 e11 → e31
+    e11 -> e31 [style=dashed, color="#94A3B8", fontcolor="#64748B", label="传递性", constraint=false];
+
+    // 并发说明
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">e13 和 e23 之间既无先后也无消息联系 → <B>并发</B></FONT></TD></TR>
+</TABLE>>];
+    e13 -> note [style=invis, constraint=false];
+}

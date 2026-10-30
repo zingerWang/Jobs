@@ -1,0 +1,72 @@
+digraph io_multiplexing {
+    rankdir=TB;
+    compound=true;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.5, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>IO 复用：select / poll / epoll</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">一个线程 + 一个事件循环，同时监控海量连接，只处理就绪的 fd</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=13, color="#64748B", penwidth=1.8, arrowsize=1.0];
+
+    app [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>单线程应用进程（事件循环）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#EEF2FF" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="12" COLOR="#3730A3">epoll_wait 返回后逐个处理就绪事件</FONT></TD></TR>
+</TABLE>>];
+
+    subgraph cluster_kernel {
+        label=<<FONT COLOR="#E11D48" POINT-SIZE="14"><B>内核 epoll 机制</B></FONT>>;
+        fontname="PingFang SC";
+        color="#E11D48";
+        style="rounded,dashed";
+        penwidth=2;
+        bgcolor="#FFFDFD";
+        epoll [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>epoll_wait()</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#BE123C">阻塞等待，只返回就绪事件</FONT></TD></TR>
+</TABLE>>];
+        rbtree [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>红黑树</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">管理所有被监控的 fd<BR/>O(log n) 增删查</FONT></TD></TR>
+</TABLE>>];
+        rlist [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="13"><B>就绪链表</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#0F766E">维护已就绪的 fd<BR/>epoll_wait 直接返回</FONT></TD></TR>
+</TABLE>>];
+    }
+
+    fd1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>监听套接字 lfd</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">新连接可读</FONT></TD></TR>
+</TABLE>>];
+    fd2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>连接 cfd1</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">有数据可读</FONT></TD></TR>
+</TABLE>>];
+    fd3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>连接 cfd2</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">可写</FONT></TD></TR>
+</TABLE>>];
+    fd4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>连接 cfdN</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">空闲（不返回）</FONT></TD></TR>
+</TABLE>>];
+
+    app -> epoll [label="阻塞等待就绪事件", color="#E11D48", fontcolor="#BE123C"];
+    epoll -> fd1 [label=" 就绪", color="#0D9488", fontcolor="#0F766E"];
+    epoll -> fd2 [label=" 就绪", color="#0D9488", fontcolor="#0F766E"];
+    epoll -> fd3 [label=" 就绪", color="#0D9488", fontcolor="#0F766E"];
+    epoll -> fd4 [label=" 未就绪", style=dashed, color="#7C3AED", fontcolor="#6D28D9"];
+    rbtree -> rlist [label="触发", color="#0D9488", fontcolor="#0F766E"];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="7"><FONT POINT-SIZE="12"><B>ET 与 LT</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT" CELLPADDING="7"><FONT POINT-SIZE="11" COLOR="#B45309">· LT（默认）：缓冲区有数据就一直返回<BR/>· ET：状态变化只触发一次，须非阻塞读到 EAGAIN</FONT></TD></TR>
+</TABLE>>];
+    epoll -> note [style=dashed, color="#D97706", fontcolor="#B45309"];
+}

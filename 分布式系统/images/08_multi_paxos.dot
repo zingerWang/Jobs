@@ -1,0 +1,43 @@
+digraph multi_paxos {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.55, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>从 Paxos 到 Multi-Paxos：把「一个值」变成「一串值」</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">Phase 1 只需要成功一次 —— 这就是「选主」在 Paxos 里的样子</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9, color="#94A3B8"];
+
+    prob [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>问题：日志每一条都跑一次 Paxos，太贵</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">每条日志项 = 一次 Prepare 往返 + 一次 Accept 往返 ≈ <B>2 个 RTT</B>，吞吐直接砍半</FONT></TD></TR>
+</TABLE>>];
+
+    opt [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>优化：Phase 1 只做一次，之后一直复用</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#0F766E">某个 proposer 用编号 n 完成 Phase 1 后，就<b>锁定</b>了「没有更小的编号会插进来」<BR/>→ 后续日志项直接发 Accept(n, v)，<B>1 个 RTT 一条</B> —— 这个 proposer 实际上就成了 leader</FONT></TD></TR>
+</TABLE>>];
+
+    risk [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>代价：这个「领导权」不是强保证</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFFBEB" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#B45309">另一个 proposer 随时可以用更大的编号抢走 → 冲突时退回两阶段<BR/>所以 Multi-Paxos 要额外约定：<b>谁是 leader、什么时候算稳定、冲突了怎么收敛</b>（Lamport 原文没写死，各家实现都不一样）</FONT></TD></TR>
+</TABLE>>];
+
+    gap [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>工程坑：日志空洞（gap）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#BE123C">实例 i 还没定下来，实例 i+1 已经定了 —— 但状态机<b>必须按序 apply</b><BR/>→ 要么等，要么往 i 里填一条 <B>no-op</B> 把它「填平」（Raft 用空日志项，直接面对这个问题）</FONT></TD></TR>
+</TABLE>>];
+
+    raft [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Raft 做了什么</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F5F3FF" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#6D28D9">把「选主 + 日志复制」从优化手段提升为<b>一等公民</b>：<BR/>任期号统一给提案编号、选举限制保证新 leader 日志最全、AppendEntries 顺带心跳与一致性检查<BR/>→ 牺牲一点理论上的优雅，换来「能讲清楚、能写对」（见 09 篇）</FONT></TD></TR>
+</TABLE>>];
+
+    prob -> opt [label=" 优化方向"];
+    opt -> risk [label=" 但引入新问题"];
+    opt -> gap [label=" 但引入新问题"];
+    risk -> raft [label=" 另一种设计选择", color="#7C3AED", fontcolor="#6D28D9"];
+    gap -> raft [color="#7C3AED", fontcolor="#6D28D9"];
+    { rank=same; risk; gap; }
+}

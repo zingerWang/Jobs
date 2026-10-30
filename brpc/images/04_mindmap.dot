@@ -1,0 +1,68 @@
+digraph mindmap_04 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：读源码的方法论</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>怎么跟调用栈不迷路</B></FONT></TD></TR>
+</TABLE>>];
+
+    s0 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#334155" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>为什么需要方法论</B></FONT></TD></TR>
+</TABLE>>];
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>两种方向</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>gdb 跟栈</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>rpcz 看真实链路</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>画图记忆</B></FONT></TD></TR>
+</TABLE>>];
+    s5 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#7C3AED" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>何时该停手</B></FONT></TD></TR>
+</TABLE>>];
+
+    l0a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">跟到第 20 个文件，忘了最初在跟谁</FONT>>];
+    l0b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">搜着搜着就迷路，是没地图的锅</FONT>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#4338CA"><B>自顶向下：从用户 API 进</B></FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">适合读主流程；越往下越碎</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#0369A1"><B>自底向上：从 epoll / 事件出</B></FONT>>];
+    l1d [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">适合读唤醒/回调；栈很深</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>break / bt / step / next / finish</B></FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">p / watch / display 看关键成员</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">TUI 模式：layout src + ctrl-x a</FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#0F766E"><B>span.h / rpcz_service.cpp（真实文件名）</B></FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">/rpcz 页面看一次请求的完整时间轴</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">TRACEPRINTF 在代码里打点</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#B45309">对象图：谁持有谁</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#B45309">时序图：谁先调谁</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">状态机图：Socket / Controller 的状态流转</FONT>>];
+
+    l5a [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9"><B>陷进 butil 细节 → 不是当前这条链路的事</B></FONT>>];
+    l5b [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9"><B>陷进 protobuf 生成码 → 那是框架替你写的</B></FONT>>];
+    l5c [label=<<FONT POINT-SIZE="11" COLOR="#6D28D9">「已知边界」：系统调用 / 模板 / 第三方库</FONT>>];
+
+    root -> s0; root -> s1; root -> s2; root -> s3; root -> s4; root -> s5;
+    s0 -> l0a; s0 -> l0b;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c; s1 -> l1d;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+    s5 -> l5a; s5 -> l5b; s5 -> l5c;
+}

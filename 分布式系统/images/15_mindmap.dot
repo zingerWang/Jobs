@@ -1,0 +1,49 @@
+digraph mindmap_13 {
+    rankdir=LR;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.4, nodesep=0.35, ranksep=0.7, label=<<FONT POINT-SIZE="22" COLOR="#1E293B"><B>思维导图：分布式锁</B></FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=11, penwidth=1.5, arrowsize=0.8, color="#94A3B8"];
+
+    root [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="9"><FONT POINT-SIZE="15"><B>分布式锁</B></FONT></TD></TR>
+</TABLE>>];
+
+    s1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#4F46E5" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>三种实现</B></FONT></TD></TR>
+</TABLE>>];
+    s2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Redlock 的争议</B></FONT></TD></TR>
+</TABLE>>];
+    s3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>Fencing Token</B></FONT></TD></TR>
+</TABLE>>];
+    s4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#D97706" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="12"><B>常见坑</B></FONT></TD></TR>
+</TABLE>>];
+
+    l1a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">Redis SET NX + TTL：快，但主从切换可能丢锁</FONT>>];
+    l1b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">ZooKeeper 临时顺序节点：公平，会话断自动释放</FONT>>];
+    l1c [label=<<FONT POINT-SIZE="11" COLOR="#3730A3">etcd lease + CAS：自带 revision 可当 token</FONT>>];
+
+    l2a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">多数派 + TTL 仍挡不住「持锁者假死」</FONT>>];
+    l2b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">TTL 依赖本地时钟 → 时钟跳变会提前过期</FONT>>];
+    l2c [label=<<FONT POINT-SIZE="11" COLOR="#BE123C"><B>结论：它只是「效率型锁」，不是「正确性型锁」</B></FONT>>];
+
+    l3a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">锁服务返回单调递增 token，资源侧校验</FONT>>];
+    l3b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">token 来源：etcd revision / zxid / 持久化计数器</FONT>>];
+    l3c [label=<<FONT POINT-SIZE="11" COLOR="#0F766E">不用时间戳当 token（时钟回拨会让它失效）</FONT>>];
+
+    l4a [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">解锁不校验持有者 → 误删别人的锁（用 Lua/CAS）</FONT>>];
+    l4b [label=<<FONT POINT-SIZE="11" COLOR="#1E293B">把锁当性能工具：锁内做重活 → 锁被拖到超时</FONT>>];
+    l4c [label=<<FONT POINT-SIZE="11" COLOR="#B45309">重入、续期（watchdog）、别名 key 混用</FONT>>];
+
+    root -> s1; root -> s2; root -> s3; root -> s4;
+    s1 -> l1a; s1 -> l1b; s1 -> l1c;
+    s2 -> l2a; s2 -> l2b; s2 -> l2c;
+    s3 -> l3a; s3 -> l3b; s3 -> l3c;
+    s4 -> l4a; s4 -> l4b; s4 -> l4c;
+}

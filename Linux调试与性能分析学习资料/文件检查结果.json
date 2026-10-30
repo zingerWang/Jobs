@@ -1,0 +1,307 @@
+{
+  "content_review": "命令、源码、公式、图意与正文核对通过",
+  "examples": {
+    "compiler": "gcc.exe (Rev5, Built by MSYS2 project) 16.1.0",
+    "checks": [
+      "严格编译通过：cpu_hotspot.c",
+      "严格编译通过：crash.c",
+      "严格编译通过：crash_fixed.c",
+      "严格编译通过：deadlock.c",
+      "严格编译通过：deadlock_fixed.c",
+      "用户查询修复：正常输入返回 0，不存在用户返回 2。",
+      "锁顺序修复：completed=40000，退出码 0。",
+      "死锁示例：两方持有第一把锁，观察期内无法完成。",
+      "GDB 实际捕获 SIGSEGV、空指针及 show_user/main 调用路径。",
+      "CPU 实验：五组轮数结果等价，默认值正确，非法参数被拒绝。",
+      "HTTP 处理器：200/404、响应长度、正文及约 2 秒应用等待通过。",
+      "公式复算通过：640 KiB/s、200 在途请求、1.25 倍、63.4%。"
+    ],
+    "limits": [
+      "Windows/MSYS2 验证，不等同于 Linux 内核工具实测；Linux tcpdump、perf、futex 栈与 ptrace 策略未在本机运行。",
+      "HTTP 为内存内完整请求处理测试，不代替真实 curl / tcpdump 端到端验证。"
+    ]
+  },
+  "browser": {
+    "desktop": {
+      "headings": 16,
+      "figures": 7,
+      "images": true,
+      "brokenAnchors": [],
+      "pageOverflow": false,
+      "dialogClosed": true
+    },
+    "mobile": {
+      "pageOverflow": false
+    },
+    "zoomWorks": true,
+    "errors": [],
+    "externalRequests": []
+  },
+  "graphs": [
+    {
+      "name": "gdb_mechanism",
+      "width": 1400,
+      "height": 910,
+      "outside": [],
+      "overlaps": []
+    },
+    {
+      "name": "thread_deadlock",
+      "width": 1400,
+      "height": 1090,
+      "outside": [],
+      "overlaps": []
+    },
+    {
+      "name": "tcp_timeline",
+      "width": 1450,
+      "height": 1080,
+      "outside": [],
+      "overlaps": []
+    },
+    {
+      "name": "capture_path",
+      "width": 1450,
+      "height": 900,
+      "outside": [],
+      "overlaps": []
+    },
+    {
+      "name": "performance_model",
+      "width": 1400,
+      "height": 1030,
+      "outside": [],
+      "overlaps": []
+    },
+    {
+      "name": "mindmap",
+      "width": 1800,
+      "height": 1330,
+      "outside": [],
+      "overlaps": []
+    }
+  ],
+  "makefile": "Makefile 目标和制表符静态核查通过；本机 MSYS make 因沙箱命名对象权限限制无法启动；Linux make check 未实测。",
+  "chapters": 16,
+  "figures": 7,
+  "chinese_characters": 21528,
+  "move_verification": "移动后按 文件清单.sha256 逐文件复核",
+  "diagram_style": "恢复用户选定的原版蓝灰配图；SVG + PNG，无 Graphviz/DOT 配图依赖。",
+  "feedback_revision": {
+    "lab_milestones": "4 labs × 6 milestones",
+    "chapters": 16,
+    "questions": 13,
+    "original_code_listings_unchanged": true,
+    "source_files_unchanged": 6,
+    "original_asset_files_unchanged": 12,
+    "bash_syntax_checks": [
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 4,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 5,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 6,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 7,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 8,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 9,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 11,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 15,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 22,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 26,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 27,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 29,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 31,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 32,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 33,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 34,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 35,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 37,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 38,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 39,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 40,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 41,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 43,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 44,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 45,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux调试实战_通俗图解版.md",
+        "block": 46,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 1,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 2,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 3,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 5,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 6,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 7,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 9,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 10,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 11,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 12,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 13,
+        "syntax": "passed"
+      },
+      {
+        "file": "Linux排障速查小抄.md",
+        "block": 14,
+        "syntax": "passed"
+      }
+    ],
+    "bash_commands_executed": false,
+    "linux_runtime_tests_this_revision": false
+  },
+  "round2_polish": {
+    "gcore_clarified": true,
+    "tcpdump_decimal_MB_clarified": true,
+    "strace_filter_set_clarified": true,
+    "fences": "all backtick fences",
+    "bash_blocks_unchanged_since_syntax_check": true,
+    "sources_and_figures_unchanged": true,
+    "new_linux_runtime_tests": false
+  },
+  "beginner_revision": {
+    "command_explanations": 95,
+    "tool_reference_rows": 17,
+    "figures": 7,
+    "original_sources_unchanged": true
+  }
+}

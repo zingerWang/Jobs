@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="925" viewBox="0 0 1160 925">
+<defs><marker id="triangle" markerWidth="16" markerHeight="16" refX="14" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 14 8 L 1 15 Z" fill="white" stroke="#42647a" stroke-width="2"/></marker><marker id="open" markerWidth="13" markerHeight="14" refX="11" refY="7" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 1 L 11 7 L 1 13" fill="none" stroke="#42647a" stroke-width="2"/></marker><marker id="diamond" markerWidth="24" markerHeight="16" refX="1" refY="8" orient="auto" markerUnits="userSpaceOnUse"><path d="M 1 8 L 11 1 L 21 8 L 11 15 Z" fill="#42647a"/></marker></defs>
+<rect width="1160" height="925" fill="#f4f8fb"/>
+<text x="65" y="48" font-size="27" font-weight="bold" fill="#264f69">11 享元 · UML 类图</text>
+<text x="65" y="80" font-size="17" fill="#647d8c">关键成员摘录 · 连线编号对应下方说明 · 按代码实际持有关系绘制</text>
+<rect x="65" y="110" width="740" height="128" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 152 H805 M65 206 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="138" font-size="22" font-weight="bold" fill="#294d63">Style</text>
+<text x="83" y="175" font-size="18" font-weight="normal" fill="#294d63">+ font</text>
+<text x="83" y="198" font-size="18" font-weight="normal" fill="#294d63">+ size</text>
+<text x="83" y="229" font-size="18" font-weight="normal" fill="#294d63">（无关键操作 / 已省略）</text>
+<rect x="65" y="320" width="740" height="128" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 362 H805 M65 394 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="348" font-size="22" font-weight="bold" fill="#294d63">StylePool</text>
+<text x="83" y="385" font-size="18" font-weight="normal" fill="#294d63">- styles_: map&lt;Key, shared_ptr&lt;const Style&gt;&gt;</text>
+<text x="83" y="417" font-size="18" font-weight="normal" fill="#294d63">+ get(font, size)</text>
+<text x="83" y="440" font-size="18" font-weight="normal" fill="#294d63">+ count() const</text>
+<rect x="65" y="530" width="740" height="174" rx="3" fill="white" stroke="#7291a5" stroke-width="2"/>
+<path d="M65 572 H805 M65 672 H805" stroke="#9fb5c3" fill="none"/>
+<text x="83" y="558" font-size="22" font-weight="bold" fill="#294d63">Glyph</text>
+<text x="83" y="595" font-size="18" font-weight="normal" fill="#294d63">+ code</text>
+<text x="83" y="618" font-size="18" font-weight="normal" fill="#294d63">+ x</text>
+<text x="83" y="641" font-size="18" font-weight="normal" fill="#294d63">+ y</text>
+<text x="83" y="664" font-size="18" font-weight="normal" fill="#294d63">+ style: shared_ptr&lt;const Style&gt;</text>
+<text x="83" y="695" font-size="18" font-weight="normal" fill="#294d63">（无关键操作 / 已省略）</text>
+<path d="M805 332 H895 V164 H805" fill="none" stroke="#42647a" stroke-width="2"   marker-end="url(#open)"/>
+<text x="877" y="325" font-size="16" font-weight="bold" fill="#294d63">1</text>
+<path d="M805 542 H950 V182 H805" fill="none" stroke="#42647a" stroke-width="2"   marker-end="url(#open)"/>
+<text x="932" y="535" font-size="16" font-weight="bold" fill="#294d63">2</text>
+<text x="65" y="745" font-size="22" font-weight="bold" fill="#294d63">关系说明（箭头指向基类、接口或被使用的对象）</text>
+<text x="65" y="785" font-size="18" font-weight="normal" fill="#294d63">1. StylePool → Style：关联 / 保存引用</text>
+<text x="65" y="815" font-size="18" font-weight="normal" fill="#294d63">2. Glyph → Style：关联 / 保存引用</text>
+</svg>

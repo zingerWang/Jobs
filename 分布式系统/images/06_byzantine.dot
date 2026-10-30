@@ -1,0 +1,39 @@
+digraph byzantine {
+    rankdir=TB;
+    graph [fontname="PingFang SC", bgcolor="white", pad=0.5, nodesep=0.7, ranksep=0.5, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>拜占庭将军问题</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">将军需统一「进攻/撤退」，但叛徒会撒谎搅局</FONT>>, labelloc=t, fontname="PingFang SC"];
+    node [fontname="PingFang SC", shape=plaintext, margin=0];
+    edge [fontname="PingFang SC", fontsize=12, penwidth=1.6, arrowsize=0.9];
+
+    city [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#475569" COLOR="white" ALIGN="CENTER" CELLPADDING="8"><FONT POINT-SIZE="14"><B>被围困的城市</B></FONT></TD></TR>
+</TABLE>>];
+
+    g1 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>将军 1（忠诚）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">提议「进攻」</FONT></TD></TR>
+</TABLE>>];
+    g2 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#0D9488" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>将军 2（忠诚）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#F0FDFA" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#0F766E">听取消息</FONT></TD></TR>
+</TABLE>>];
+    g3 [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#E11D48" COLOR="white" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="13"><B>将军 3（叛徒）</B></FONT></TD></TR>
+  <TR><TD BGCOLOR="#FFF1F2" ALIGN="CENTER" CELLPADDING="5"><FONT POINT-SIZE="11" COLOR="#BE123C">对 1 说进攻，对 2 说撤退</FONT></TD></TR>
+</TABLE>>];
+
+    city -> g1 [style=invis, constraint=false];
+    g1 -> g3 [label="说：进攻", color="#0D9488", fontcolor="#0F766E"];
+    g3 -> g1 [label="回：我也进攻", color="#E11D48", fontcolor="#BE123C"];
+    g1 -> g2 [label="进攻", color="#0D9488", fontcolor="#0F766E"];
+    g3 -> g2 [label="撒谎：我撤退", color="#E11D48", fontcolor="#BE123C"];
+
+    note [label=<
+<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="0">
+  <TR><TD BGCOLOR="#F8FAFC" ALIGN="CENTER" CELLPADDING="6"><FONT POINT-SIZE="11" COLOR="#334155">将军 1 以为「多数进攻」，将军 2 以为「打平」<BR/>→ 两个忠诚将军结论不同，共识失败</FONT></TD></TR>
+</TABLE>>];
+    g2 -> note [style=invis, constraint=false];
+}
