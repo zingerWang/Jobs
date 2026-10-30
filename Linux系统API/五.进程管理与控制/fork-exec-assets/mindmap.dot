@@ -1,13 +1,20 @@
-digraph G { graph [rankdir=LR, bgcolor="white", pad="0.4", nodesep="0.45", ranksep="0.8", dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">fork 与 exec 系列函数</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">创建谁、运行什么、结束后如何收尾</FONT>>]; node [shape=plaintext, fontname="PingFang SC", fontsize=14]; edge [color="#64748B", arrowsize=0.8, penwidth=1.5, fontname="PingFang SC", fontsize=12];
-r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>进程创建与程序执行</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">fork / exec / waitpid</TD></TR></TABLE></TD></TR></TABLE>>];
-a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>职责分工</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">fork 创建子进程</TD></TR><TR><TD ALIGN="LEFT">exec 换程序，PID 不变</TD></TR><TR><TD ALIGN="LEFT">waitpid 等待并回收</TD></TR></TABLE></TD></TR></TABLE>>];
-b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>fork 返回与资源</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">父进程得到子 PID，子进程得到 0</TD></TR><TR><TD ALIGN="LEFT">私有内存逻辑独立，COW 推迟复制</TD></TR><TR><TD ALIGN="LEFT">fd 表项独立，打开文件描述共享</TD></TR></TABLE></TD></TR></TABLE>>];
-c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>exec 接口与属性</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">成功不返回，失败返回 -1</TD></TR><TR><TD ALIGN="LEFT">l/v 参数形式；p 搜索；e 环境</TD></TR><TR><TD ALIGN="LEFT">FD_CLOEXEC 决定成功执行时关闭</TD></TR></TABLE></TD></TR></TABLE>>];
-d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>完整执行流程</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">子进程准备后 exec</TD></TR><TR><TD ALIGN="LEFT">失败后报错并 _exit</TD></TR><TR><TD ALIGN="LEFT">父进程 waitpid 后解码状态</TD></TR></TABLE></TD></TR></TABLE>>];
-e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="12"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>常见问题</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">缓冲重复输出与 fd 泄漏</TD></TR><TR><TD ALIGN="LEFT">多线程 fork 后的锁状态</TD></TR><TR><TD ALIGN="LEFT">路径、权限、格式和资源限制</TD></TR></TABLE></TD></TR></TABLE>>];
-r -> a [label=""];
-r -> b [label=""];
-r -> c [label=""];
-r -> d [label=""];
-r -> e [label=""];
+digraph process_map {
+graph [rankdir=LR, bgcolor="white", pad="0.35", nodesep="0.22", ranksep="0.65", dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">进程管理：从 fork、exec 到终端与时间</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">进程基础与控制 · 进程关系与终端 · 时间与休眠</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=14];
+edge [arrowhead=normal, arrowsize=0.7, penwidth=1.4, fontname="PingFang SC"];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>进程管理</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">5.1 进程基础与控制<BR ALIGN="LEFT"/>5.2 进程关系与终端<BR ALIGN="LEFT"/>5.3 时间与定时器</FONT></TD></TR></TABLE>>];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>进程基础</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">PID、PPID、虚拟地址空间<BR ALIGN="LEFT"/>argv 与 environ：参数和环境</FONT></TD></TR></TABLE>>];
+root -> n0 [color="#4F46E5"];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>创建与共享</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">fork：父子返回值不同，COW 推迟复制<BR ALIGN="LEFT"/>私有变量独立；共享映射仍需同步<BR ALIGN="LEFT"/>vfork：共享地址空间，暂停调用线程<BR ALIGN="LEFT"/>clone：资源选项、线程与 namespace</FONT></TD></TR></TABLE>>];
+root -> n1 [color="#0284C7"];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>执行与回收</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">exec：换程序，PID 保留，成功不返回<BR ALIGN="LEFT"/>l/v 参数，p 搜索，e 环境<BR ALIGN="LEFT"/>FD_CLOEXEC：成功 exec 时关闭 fd<BR ALIGN="LEFT"/>waitpid：回收僵尸，按状态宏解码</FONT></TD></TR></TABLE>>];
+root -> n2 [color="#0D9488"];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>终止与错误路径</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">exit / _exit / abort：清理与终止方式<BR ALIGN="LEFT"/>缓冲复制、fd 泄漏、多线程 fork 限制<BR ALIGN="LEFT"/>system：Shell 解释与命令注入<BR ALIGN="LEFT"/>longjmp：恢复位置，不回滚资源</FONT></TD></TR></TABLE>>];
+root -> n3 [color="#E11D48"];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>进程关系与终端</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">进程组 PGID、会话 SID、控制终端<BR ALIGN="LEFT"/>前台组接收终端信号；fg / bg<BR ALIGN="LEFT"/>setsid：新会话，初始无控制终端</FONT></TD></TR></TABLE>>];
+root -> n4 [color="#7C3AED"];
+n5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>时间与休眠</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">time / REALTIME：现实时间<BR ALIGN="LEFT"/>MONOTONIC：经过时间；CPU 时钟：消耗<BR ALIGN="LEFT"/>纳秒表示不等于纳秒精度或准时唤醒<BR ALIGN="LEFT"/>clock_nanosleep：截止时间、EINTR、超期</FONT></TD></TR></TABLE>>];
+root -> n5 [color="#D97706"];
+n6 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>实现与复习</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">完整示例、编译命令、预期结果、排错<BR ALIGN="LEFT"/>面试表达：问题 → 机制 → 取舍<BR ALIGN="LEFT"/>Q&amp;A：误区、边界与进一步追问</FONT></TD></TR></TABLE>>];
+root -> n6 [color="#475569"];
 }
