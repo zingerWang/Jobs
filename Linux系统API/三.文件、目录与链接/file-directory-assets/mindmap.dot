@@ -1,0 +1,18 @@
+digraph process_map {
+graph [rankdir=LR, bgcolor="white", pad="0.35", nodesep="0.22", ranksep="0.65", dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">文件、目录与链接</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">对象与名字 · 路径与目录 · ACL 权限与继承</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=14];
+edge [arrowhead=normal, arrowsize=0.7, penwidth=1.4, fontname="PingFang SC"];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>文件、目录与链接</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">先分清操作对象<BR ALIGN="LEFT"/>再判断权限与生命周期</FONT></TD></TR></TABLE>>];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>对象与链接（1～3）</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">名字、inode、fd 分属不同层次<BR ALIGN="LEFT"/>硬链接共享对象；软链接保存目标路径<BR ALIGN="LEFT"/>unlink 删除名字，不立即撤销打开引用</FONT></TD></TR></TABLE>>];
+root -> n0 [color="#0284C7"];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>目录与遍历（4～6）</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">目录 r 列名，x 搜索，w 修改目录项<BR ALIGN="LEFT"/>创建：mode、umask、默认 ACL<BR ALIGN="LEFT"/>readdir：结束与错误、生命周期、并发</FONT></TD></TR></TABLE>>];
+root -> n1 [color="#4F46E5"];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>工作目录与路径（7～8）</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">cwd 可能在线程之间共享<BR ALIGN="LEFT"/>目录 fd 固定起点，不消除所有路径风险<BR ALIGN="LEFT"/>symlinkat 不改写目标字符串</FONT></TD></TR></TABLE>>];
+root -> n2 [color="#D97706"];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>UGO 与 ACL：访问时（9）</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">owner → 指定用户 → 匹配组 → other<BR ALIGN="LEFT"/>UGO 与 ACL 不是先后两道关卡<BR ALIGN="LEFT"/>指定用户和组类条目受 mask 限制<BR ALIGN="LEFT"/>组模式位有 mask 时表示 mask</FONT></TD></TR></TABLE>>];
+root -> n3 [color="#0D9488"];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>创建与删除：分开看（9）</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">无默认 ACL：mode 与 umask 决定初始权限<BR ALIGN="LEFT"/>有默认 ACL：继承模板，再受 mode 限制<BR ALIGN="LEFT"/>删除：父目录 w+x<BR ALIGN="LEFT"/>内容可写不等于文件名可删除</FONT></TD></TR></TABLE>>];
+root -> n4 [color="#7C3AED"];
+n5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>实验与复习（10～12）</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">完整代码、命令、预期结果与失败路径<BR ALIGN="LEFT"/>接口返回值与易错点速查<BR ALIGN="LEFT"/>Q&amp;A：两种 mask 与目录权限</FONT></TD></TR></TABLE>>];
+root -> n5 [color="#475569"];
+}
