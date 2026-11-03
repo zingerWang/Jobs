@@ -1,0 +1,18 @@
+digraph G { graph [rankdir=LR, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">并查集：压缩后父链更短</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">箭头指向父结点；示意完整压缩，源码使用路径减半</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+a3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>3</B></FONT></TD></TR></TABLE>>];
+a2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>2</B></FONT></TD></TR></TABLE>>];
+a1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>1</B></FONT></TD></TR></TABLE>>];
+a0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>根 0</B></FONT></TD></TR></TABLE>>];
+b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>3</B></FONT></TD></TR></TABLE>>];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>2</B></FONT></TD></TR></TABLE>>];
+b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>1</B></FONT></TD></TR></TABLE>>];
+b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>根 0</B></FONT></TD></TR></TABLE>>];
+a3 -> a2 [label="parent"];
+a2 -> a1 [label="parent"];
+a1 -> a0 [label="parent"];
+a0 -> b3 [label="路径压缩",style=dashed,color="#E11D48"];
+b3 -> b0 [label="parent"];
+b2 -> b0 [label="parent"];
+b1 -> b0 [label="parent"];
+subgraph cluster_before {label="压缩前";a3;a2;a1;a0;} subgraph cluster_after {label="压缩后";b3;b2;b1;b0;}
+}

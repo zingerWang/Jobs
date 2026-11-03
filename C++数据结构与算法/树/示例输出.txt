@@ -1,0 +1,5 @@
+contains 20: 1
+array sum: 20
+LCA(3,4): 1
+path sum(3,2): 10
+matches in ushers: 3

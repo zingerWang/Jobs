@@ -1,0 +1,20 @@
+digraph G { graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">Trie 共享前缀，AC 连接可复用后缀</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">实线为字符边；虚线为 fail；★ 表示模式串结束</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>根：空串</B></FONT></TD></TR></TABLE>>];
+h [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>h</B></FONT></TD></TR></TABLE>>];
+he [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>he ★</B></FONT></TD></TR></TABLE>>];
+her [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>her</B></FONT></TD></TR></TABLE>>];
+hers [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>hers ★</B></FONT></TD></TR></TABLE>>];
+s [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>s</B></FONT></TD></TR></TABLE>>];
+sh [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>sh</B></FONT></TD></TR></TABLE>>];
+she [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>she ★</B></FONT></TD></TR></TABLE>>];
+r -> h [label="h"];
+h -> he [label="e"];
+he -> her [label="r"];
+her -> hers [label="s"];
+r -> s [label="s"];
+s -> sh [label="h"];
+sh -> she [label="e"];
+sh -> h [label="fail",style=dashed,color="#E11D48",constraint=false];
+she -> he [label="fail",style=dashed,color="#E11D48",constraint=false];
+
+}

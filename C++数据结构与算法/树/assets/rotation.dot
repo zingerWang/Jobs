@@ -1,0 +1,22 @@
+digraph G { graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">右旋：移动链接，保持有序</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">大小范围始终是 A &lt; x &lt; B &lt; y &lt; C；右侧是旋转后</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+y [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>y：原根</B></FONT></TD></TR></TABLE>>];
+x [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>x</B></FONT></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>A 子树</B></FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>B 子树</B></FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>C 子树</B></FONT></TD></TR></TABLE>>];
+x2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>x：新根</B></FONT></TD></TR></TABLE>>];
+y2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>y</B></FONT></TD></TR></TABLE>>];
+a2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>A 子树</B></FONT></TD></TR></TABLE>>];
+b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>B 子树</B></FONT></TD></TR></TABLE>>];
+c2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>C 子树</B></FONT></TD></TR></TABLE>>];
+y -> x [label="左"];
+y -> c [label="右"];
+x -> a [label="左"];
+x -> b [label="右"];
+x2 -> a2 [label="左"];
+x2 -> y2 [label="右"];
+y2 -> b2 [label="左"];
+y2 -> c2 [label="右"];
+y -> x2 [label="右旋",style=dashed,color="#0D9488",constraint=false];
+{rank=same;y;x2;}
+}

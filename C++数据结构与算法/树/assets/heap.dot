@@ -1,0 +1,14 @@
+digraph G { graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">小顶堆：数组隐含父子关系</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">数组 [1, 3, 2, 7, 6, 5]；兄弟之间没有排序要求</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>1</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">下标 0</TD></TR></TABLE></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>3</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">下标 1</TD></TR></TABLE></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>2</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">下标 2</TD></TR></TABLE></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>7</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">下标 3</TD></TR></TABLE></TD></TR></TABLE>>];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>6</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">下标 4</TD></TR></TABLE></TD></TR></TABLE>>];
+n5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>5</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">下标 5</TD></TR></TABLE></TD></TR></TABLE>>];
+n0 -> n1 [label="2i+1"];
+n0 -> n2 [label="2i+2"];
+n1 -> n3 [label=""];
+n1 -> n4 [label=""];
+n2 -> n5 [label=""];
+
+}

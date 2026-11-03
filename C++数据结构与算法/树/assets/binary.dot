@@ -1,0 +1,16 @@
+digraph G { graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">一棵树，四种访问顺序</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">根在第 1 层；叶子高度为 1；这棵树高度为 3</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+n8 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>8</B></FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>3</B></FONT></TD></TR></TABLE>>];
+n12 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>12</B></FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>1</B></FONT></TD></TR></TABLE>>];
+n6 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>6</B></FONT></TD></TR></TABLE>>];
+n10 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>10</B></FONT></TD></TR></TABLE>>];
+n14 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>14</B></FONT></TD></TR></TABLE>>];
+n8 -> n3 [label="左"];
+n8 -> n12 [label="右"];
+n3 -> n1 [label="左"];
+n3 -> n6 [label="右"];
+n12 -> n10 [label="左"];
+n12 -> n14 [label="右"];
+
+}

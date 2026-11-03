@@ -1,0 +1,12 @@
+digraph G { graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">B+ 树：先定位叶子，再连续扫描</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">内部保存分隔键；叶子保存记录或记录引用</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>分隔键 [20 | 40]</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">3 个孩子对应 3 段范围</TD></TR></TABLE></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>叶子 [5, 10, 15]</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">记录位于叶子</TD></TR></TABLE></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>叶子 [20, 25, 30]</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">20 同时是上层分隔键</TD></TR></TABLE></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>叶子 [40, 45, 50]</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">查询到 45 后停止</TD></TR></TABLE></TD></TR></TABLE>>];
+r -> a [label="键 < 20"];
+r -> b [label="20 ≤ 键 < 40"];
+r -> c [label="键 ≥ 40"];
+a -> b [label="next",constraint=false,color="#0D9488"];
+b -> c [label="next",constraint=false,color="#0D9488"];
+{rank=same;a;b;c;}
+}

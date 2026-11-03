@@ -1,0 +1,12 @@
+digraph G { graph [rankdir=LR, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">树状数组：前缀 7 被拆成三段</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">内部采用 1-based；查询依次执行 i -= lowbit(i)</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>查询前 7 项</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">7 = 111₂</TD></TR></TABLE></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>bit[7]：第 7 项</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">lowbit(7)=1；下一个 i=6</TD></TR></TABLE></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>bit[6]：第 5～6 项</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">lowbit(6)=2；下一个 i=4</TD></TR></TABLE></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>bit[4]：第 1～4 项</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">lowbit(4)=4；下一个 i=0</TD></TR></TABLE></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>三段互不重叠</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><TABLE BORDER="0" CELLBORDER="0"><TR><TD ALIGN="LEFT">[1,4] + [5,6] + [7,7]</TD></TR><TR><TD ALIGN="LEFT">覆盖整个前缀 [1,7]</TD></TR></TABLE></TD></TR></TABLE>>];
+r -> a [label=""];
+a -> b [label="减 1"];
+b -> c [label="减 2"];
+c -> d [label="减 4，结束"];
+
+}

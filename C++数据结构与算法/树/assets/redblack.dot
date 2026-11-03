@@ -1,0 +1,16 @@
+digraph G { graph [rankdir=TB, bgcolor="white", pad="0.35", nodesep="0.4", ranksep="0.65", ordering=out, dpi=200, fontname="Microsoft YaHei", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">黑高相同，红结点不能相连</FONT></B><BR/><FONT POINT-SIZE="12" COLOR="#64748B">图中每条根到 NIL 路径均有 2 个黑结点（包含根和 NIL）</FONT>>]; node [shape=plaintext, fontname="Microsoft YaHei", fontsize=13]; edge [fontname="Microsoft YaHei", fontsize=11, color="#64748B", penwidth=1.5, arrowsize=0.8];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>8 黑</B></FONT></TD></TR></TABLE>>];
+l [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>3 红</B></FONT></TD></TR></TABLE>>];
+q [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>12 红</B></FONT></TD></TR></TABLE>>];
+z0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>NIL 黑</B></FONT></TD></TR></TABLE>>];
+z1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>NIL 黑</B></FONT></TD></TR></TABLE>>];
+z2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>NIL 黑</B></FONT></TD></TR></TABLE>>];
+z3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>NIL 黑</B></FONT></TD></TR></TABLE>>];
+r -> l [label="左"];
+r -> q [label="右"];
+l -> z0 [label=""];
+l -> z1 [label=""];
+q -> z2 [label=""];
+q -> z3 [label=""];
+
+}

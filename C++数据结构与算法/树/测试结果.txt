@@ -1,0 +1,10 @@
+interview algorithms and Morris restoration: passed
+binary tree: passed
+AVL: passed
+LLRB: passed
+Treap: passed
+Splay: passed
+interval structures: passed
+LCA, HLD, reroot, diameter, centroid: passed
+heap, DSU, Trie, AC, Huffman, B/B+, KD: passed
+ALL TESTS PASSED
