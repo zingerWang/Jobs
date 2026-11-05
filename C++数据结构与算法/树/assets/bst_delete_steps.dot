@@ -1,0 +1,34 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">删除有两个孩子的结点：用后继接替</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">原来的 10 被移走；键和值必须作为同一条记录处理</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+subgraph cluster_a { label="① 删除 8 前"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+ar [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>8：待删</B></FONT></TD></TR></TABLE>>];
+al [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>3</B></FONT></TD></TR></TABLE>>];
+arr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>12</B></FONT></TD></TR></TABLE>>];
+aone [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>1</B></FONT></TD></TR></TABLE>>];
+asix [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>6</B></FONT></TD></TR></TABLE>>];
+afourteen [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>14</B></FONT></TD></TR></TABLE>>];
+aten [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>10：后继</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">右子树最小值</FONT></TD></TR></TABLE>>];
+ar -> al [color="#0284C7", fontcolor="#0284C7", label="左"];
+ar -> arr [color="#0284C7", fontcolor="#0284C7", label="右"];
+al -> aone [color="#0284C7", fontcolor="#0284C7", label="左"];
+al -> asix [color="#0284C7", fontcolor="#0284C7", label="右"];
+arr -> aten [color="#0284C7", fontcolor="#0284C7", label="左"];
+arr -> afourteen [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+subgraph cluster_b { label="② 用 10 替换，再删原位置的 10"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+br [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>10：接替</B></FONT></TD></TR></TABLE>>];
+bl [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>3</B></FONT></TD></TR></TABLE>>];
+brr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>12</B></FONT></TD></TR></TABLE>>];
+bone [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>1</B></FONT></TD></TR></TABLE>>];
+bsix [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>6</B></FONT></TD></TR></TABLE>>];
+bfourteen [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>14</B></FONT></TD></TR></TABLE>>];
+br -> bl [color="#0284C7", fontcolor="#0284C7", label="左"];
+br -> brr [color="#0284C7", fontcolor="#0284C7", label="右"];
+bl -> bone [color="#0284C7", fontcolor="#0284C7", label="左"];
+bl -> bsix [color="#0284C7", fontcolor="#0284C7", label="右"];
+brr -> bfourteen [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+{rank=same; ar; br;}
+}

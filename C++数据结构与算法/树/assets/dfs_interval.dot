@@ -1,0 +1,20 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">DFS 编号：子树连续，任意路径未必连续</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">按先根后左再右编号；方括号内是数组位置，不是结点值</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>8 [0]</B></FONT></TD></TR></TABLE>>];
+l [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>3 [1]</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">子树区间起点</FONT></TD></TR></TABLE>>];
+rr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>12 [4]</B></FONT></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>1 [2]</B></FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>6 [3]</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">子树区间终点前一项</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>10 [5]</B></FONT></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>14 [6]</B></FONT></TD></TR></TABLE>>];
+r -> l [color="#0284C7", fontcolor="#0284C7"];
+r -> rr [color="#0284C7", fontcolor="#0284C7"];
+l -> a [color="#0284C7", fontcolor="#0284C7"];
+l -> b [color="#0284C7", fontcolor="#0284C7"];
+rr -> c [color="#0284C7", fontcolor="#0284C7"];
+rr -> e [color="#0284C7", fontcolor="#0284C7"];
+arr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>数组：8 | 3 | 1 | 6 | 12 | 10 | 14</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">3 的子树是 [1,4)；路径 1→10 跳过下标 3 的结点 6</FONT></TD></TR></TABLE>>];
+b -> arr [style="dashed", color="#0284C7", fontcolor="#0284C7", label="映射到数组"];
+}

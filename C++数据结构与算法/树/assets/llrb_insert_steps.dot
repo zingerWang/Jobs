@@ -1,0 +1,37 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">LLRB 插入 10、20、30：颜色怎样变化？</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">红色表示红链接的下端；省略的空孩子均为黑色 NIL</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+subgraph cluster_a { label="① 已有 10，插入 20"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+ax [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>10 黑</B></FONT></TD></TR></TABLE>>];
+ay [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>20 红</B></FONT></TD></TR></TABLE>>];
+ax -> ay [color="#0284C7", fontcolor="#0284C7", label="右红"];
+}
+subgraph cluster_b { label="② 左旋，并传递原根颜色"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+by [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>20 黑</B></FONT></TD></TR></TABLE>>];
+bx [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>10 红</B></FONT></TD></TR></TABLE>>];
+by -> bx [color="#0284C7", fontcolor="#0284C7", label="左红"];
+}
+subgraph cluster_c { label="③ 插入 30"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+cy [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>20 黑</B></FONT></TD></TR></TABLE>>];
+cx [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>10 红</B></FONT></TD></TR></TABLE>>];
+cz [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>30 红</B></FONT></TD></TR></TABLE>>];
+cy -> cx [color="#0284C7", fontcolor="#0284C7", label="左"];
+cy -> cz [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+subgraph cluster_d { label="④ fix 先处理右红：左旋"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+dz [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30 黑</B></FONT></TD></TR></TABLE>>];
+dy [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>20 红</B></FONT></TD></TR></TABLE>>];
+dx [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>10 红</B></FONT></TD></TR></TABLE>>];
+dz -> dy [color="#0284C7", fontcolor="#0284C7", label="左"];
+dy -> dx [color="#0284C7", fontcolor="#0284C7", label="左"];
+}
+subgraph cluster_e { label="⑤ 右旋、翻色、根置黑"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+ey [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>20 黑</B></FONT></TD></TR></TABLE>>];
+ex [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>10 黑</B></FONT></TD></TR></TABLE>>];
+ez [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30 黑</B></FONT></TD></TR></TABLE>>];
+ey -> ex [color="#0284C7", fontcolor="#0284C7", label="左"];
+ey -> ez [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+{rank=same; ax; by; cy; dz; ey;}
+}

@@ -1,0 +1,27 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">LR 失衡：先拉直，再压低</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">插入顺序 30、10、20；每一步的中序仍是 10、20、30</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+subgraph cluster_a { label="① 左孩子向右拐"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+ar [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>30</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">BF = 2</FONT></TD></TR></TABLE>>];
+al [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>10</B></FONT></TD></TR></TABLE>>];
+am [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>20</B></FONT></TD></TR></TABLE>>];
+ar -> al [color="#0284C7", fontcolor="#0284C7", label="左"];
+al -> am [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+subgraph cluster_b { label="② 对 10 左旋"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+br [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>30</B></FONT></TD></TR></TABLE>>];
+bm [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>20</B></FONT></TD></TR></TABLE>>];
+bl [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>10</B></FONT></TD></TR></TABLE>>];
+br -> bm [color="#0284C7", fontcolor="#0284C7", label="左"];
+bm -> bl [color="#0284C7", fontcolor="#0284C7", label="左"];
+}
+subgraph cluster_c { label="③ 对 30 右旋"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+cm [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>20</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">高度恢复为 2</FONT></TD></TR></TABLE>>];
+cl [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>10</B></FONT></TD></TR></TABLE>>];
+cr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30</B></FONT></TD></TR></TABLE>>];
+cm -> cl [color="#0284C7", fontcolor="#0284C7", label="左"];
+cm -> cr [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+{rank=same; ar; br; cm;}
+}

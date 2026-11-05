@@ -1,0 +1,12 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">最大路径和：完整候选和返回值分开算</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">在结点 8 处，两边贡献分别为 3、6；向父亲只能延伸一边</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+p [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>父亲</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">只能接收 8+max(3,6)=14</FONT></TD></TR></TABLE>>];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>8：当前结点</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">完整候选 3+8+6=17<BR/>用它更新全局答案</FONT></TD></TR></TABLE>>];
+l [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>左边贡献 3</B></FONT></TD></TR></TABLE>>];
+rr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>右边贡献 6</B></FONT></TD></TR></TABLE>>];
+r -> p [color="#0D9488", fontcolor="#0D9488", label="返回 14"];
+l -> r [color="#0284C7", fontcolor="#0284C7", label="贡献 3"];
+rr -> r [color="#0284C7", fontcolor="#0284C7", label="贡献 6"];
+}

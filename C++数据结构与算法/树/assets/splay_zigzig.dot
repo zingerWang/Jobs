@@ -1,0 +1,27 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">Splay 同向双旋：先提父亲，再提目标</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">访问 10；旋转只改变关系，中序仍是 10、20、30</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+subgraph cluster_a { label="① 目标与父亲都在左边"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+ag [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30：祖父</B></FONT></TD></TR></TABLE>>];
+ap [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>20：父亲</B></FONT></TD></TR></TABLE>>];
+ax [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>10：目标</B></FONT></TD></TR></TABLE>>];
+ag -> ap [color="#0284C7", fontcolor="#0284C7", label="左"];
+ap -> ax [color="#0284C7", fontcolor="#0284C7", label="左"];
+}
+subgraph cluster_b { label="② 对 30 右旋，提升 20"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+bp [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>20</B></FONT></TD></TR></TABLE>>];
+bx [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>10</B></FONT></TD></TR></TABLE>>];
+bg [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30</B></FONT></TD></TR></TABLE>>];
+bp -> bx [color="#0284C7", fontcolor="#0284C7", label="左"];
+bp -> bg [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+subgraph cluster_c { label="③ 对 20 右旋，提升 10"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+cx [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>10：到根</B></FONT></TD></TR></TABLE>>];
+cp [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>20</B></FONT></TD></TR></TABLE>>];
+cg [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30</B></FONT></TD></TR></TABLE>>];
+cx -> cp [color="#0284C7", fontcolor="#0284C7", label="右"];
+cp -> cg [color="#0284C7", fontcolor="#0284C7", label="右"];
+}
+{rank=same; ag; bp; cx;}
+}

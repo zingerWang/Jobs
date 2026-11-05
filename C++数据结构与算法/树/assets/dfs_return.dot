@@ -1,0 +1,14 @@
+digraph G {
+graph [rankdir=LR, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">递归究竟什么时候回来？</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">只放大 3、1、6 这棵子树；中序在左边返回后输出当前值</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>进入 visit(3)</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">记住：左边结束后还要处理 3</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>进入 visit(1)</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">左为空 → 输出 1 → 右为空</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>回到 visit(3)</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">左边已完成 → 输出 3</FONT></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>进入 visit(6)</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">左为空 → 输出 6 → 右为空</FONT></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>visit(3) 结束</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">把控制权交还给调用它的 8</FONT></TD></TR></TABLE>>];
+a -> b [color="#0284C7", fontcolor="#0284C7"];
+b -> c [color="#0284C7", fontcolor="#0284C7"];
+c -> d [color="#0284C7", fontcolor="#0284C7"];
+d -> e [color="#0284C7", fontcolor="#0284C7"];
+}

@@ -1,0 +1,19 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">倍增 LCA：共同祖先相同，就先别跳那么远</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">求 1 与 10 的 LCA；祖先跳跃用虚线，树边用实线</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>8：LCA</B></FONT></TD></TR></TABLE>>];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>3</B></FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>12</B></FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>1：u</B></FONT></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>10：v</B></FONT></TD></TR></TABLE>>];
+r -> a [color="#0284C7", fontcolor="#0284C7"];
+r -> b [color="#0284C7", fontcolor="#0284C7"];
+a -> c [color="#0284C7", fontcolor="#0284C7"];
+b -> e [color="#0284C7", fontcolor="#0284C7"];
+c -> r [style="dashed", constraint="false", color="#D97706", fontcolor="#D97706", label="2 步同到 8：不跳"];
+e -> r [style="dashed", constraint="false", color="#D97706", fontcolor="#D97706", label="2 步同到 8：不跳"];
+rule [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>改试 1 步：3 与 12 不同，可以同时跳</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">到 3、12 后，它们的父亲同为 8，所以返回 8</FONT></TD></TR></TABLE>>];
+c -> rule [style="invis", color="#0284C7", fontcolor="#0284C7"];
+e -> rule [style="invis", color="#0284C7", fontcolor="#0284C7"];
+}

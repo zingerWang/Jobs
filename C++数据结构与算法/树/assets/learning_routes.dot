@@ -1,0 +1,26 @@
+digraph G {
+graph [rankdir=LR, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">先分清：树是工具，还是题目的输入？</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">每条箭头表示下一步为什么需要新方法</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>我要解决什么问题？</B></FONT></TD></TR></TABLE>>];
+order [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>查某个数、按大小输出</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">BST：利用大小排除一边</FONT></TD></TR></TABLE>>];
+balance [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>插入后长成链怎么办？</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">AVL／红黑树／Treap／Splay</FONT></TD></TR></TABLE>>];
+root -> order [color="#0284C7", fontcolor="#0284C7"];
+order -> balance [color="#0284C7", fontcolor="#0284C7"];
+top [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>反复拿当前最小值</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">堆：只维护父子优先级</FONT></TD></TR></TABLE>>];
+huff [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>反复合并两个最小项</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">哈夫曼树复用小顶堆</FONT></TD></TR></TABLE>>];
+root -> top [color="#0284C7", fontcolor="#0284C7"];
+top -> huff [color="#0284C7", fontcolor="#0284C7"];
+range [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>反复统计数组的一段</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">线段树／BIT／ST 表</FONT></TD></TR></TABLE>>];
+path [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>数据本来连成一棵树？</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">DFS 序／HLD 转成数组区间</FONT></TD></TR></TABLE>>];
+root -> range [color="#0284C7", fontcolor="#0284C7"];
+range -> path [color="#0284C7", fontcolor="#0284C7"];
+special [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>访问成本或数据类型变化</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">页式存储／字符串／空间点</FONT></TD></TR></TABLE>>];
+choose [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>按任务选择组织方式</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">B+／Trie 与 AC／KD-Tree</FONT></TD></TR></TABLE>>];
+root -> special [color="#0284C7", fontcolor="#0284C7"];
+special -> choose [color="#0284C7", fontcolor="#0284C7"];
+input [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>输入已经是一棵树</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">父子关系固定，要求算答案</FONT></TD></TR></TABLE>>];
+dp [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>避免重复遍历同一部分</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">LCA／树形 DP／换根／点分治</FONT></TD></TR></TABLE>>];
+root -> input [color="#0284C7", fontcolor="#0284C7"];
+input -> dp [color="#0284C7", fontcolor="#0284C7"];
+}

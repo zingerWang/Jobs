@@ -1,0 +1,12 @@
+digraph G {
+graph [rankdir=LR, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">换根：跨过一条边，距离怎样变化？</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">从 u 移到相邻的 v；边不变，只改变计算距离的起点</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+outer [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>v 子树外</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">n−size[v] 个点<BR/>离新起点 v 都远 1 步</FONT></TD></TR></TABLE>>];
+u [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>旧起点 u</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">已有 answer[u]</FONT></TD></TR></TABLE>>];
+v [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>新起点 v</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">目标 answer[v]</FONT></TD></TR></TABLE>>];
+inner [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>原先的 v 子树内</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">size[v] 个点<BR/>离新起点 v 都近 1 步</FONT></TD></TR></TABLE>>];
+outer -> u [color="#0284C7", fontcolor="#0284C7"];
+u -> v [color="#0284C7", fontcolor="#0284C7", label="跨过这条边"];
+v -> inner [color="#0284C7", fontcolor="#0284C7"];
+}

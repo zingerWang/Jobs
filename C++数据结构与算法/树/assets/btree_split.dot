@@ -1,0 +1,21 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">同样是分裂：B 树移动记录，B+ 树复制导航键</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">B 树示例 t=2；B+ 示例仅为说明分隔规则，叶容量取 3</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+subgraph cluster_b { label="B 树：满根 [10,20,30] 分裂"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+br [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>20</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">记录移到父结点</FONT></TD></TR></TABLE>>];
+bl [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>10</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">左结点</FONT></TD></TR></TABLE>>];
+brr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>30</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">右结点</FONT></TD></TR></TABLE>>];
+br -> bl [color="#0284C7", fontcolor="#0284C7", label="小于 20"];
+br -> brr [color="#0284C7", fontcolor="#0284C7", label="大于 20"];
+}
+subgraph cluster_p { label="B+：叶 [10,20,30] 插入 40 后分裂"; fontcolor="#475569"; fontsize=15; color="#CBD5E1"; style=rounded;
+pr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>30</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">复制的导航键</FONT></TD></TR></TABLE>>];
+pl [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>10 | 20</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">叶子记录</FONT></TD></TR></TABLE>>];
+prr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>30 | 40</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">30 的记录仍在这里</FONT></TD></TR></TABLE>>];
+pr -> pl [color="#0284C7", fontcolor="#0284C7", label="小于 30"];
+pr -> prr [color="#0284C7", fontcolor="#0284C7", label="大于等于 30"];
+}
+pl -> prr [constraint="false", color="#0284C7", fontcolor="#0284C7", label="next"];
+{rank=same; br; pr;}
+}

@@ -1,0 +1,22 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">保留旧版本：只复制改动经过的路径</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">下标 1 从 1 改为 5；青绿为新结点，灰色结点由两个版本共用</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+old [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>旧根 sum=10</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">版本 0</FONT></TD></TR></TABLE>>];
+new [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>新根 sum=14</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">版本 1</FONT></TD></TR></TABLE>>];
+ol [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>[0,2) sum=3</B></FONT></TD></TR></TABLE>>];
+nl [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>[0,2) sum=7</B></FONT></TD></TR></TABLE>>];
+right [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>[2,4) sum=7</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">不变，两个版本共用</FONT></TD></TR></TABLE>>];
+zero [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>[0,1) = 2</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">共用</FONT></TD></TR></TABLE>>];
+one [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>[1,2) = 1</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">旧叶子</FONT></TD></TR></TABLE>>];
+five [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>[1,2) = 5</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">新叶子</FONT></TD></TR></TABLE>>];
+old -> ol [color="#0284C7", fontcolor="#0284C7"];
+old -> right [color="#0284C7", fontcolor="#0284C7"];
+new -> nl [color="#0284C7", fontcolor="#0284C7"];
+new -> right [color="#0284C7", fontcolor="#0284C7"];
+ol -> zero [color="#0284C7", fontcolor="#0284C7"];
+ol -> one [color="#0284C7", fontcolor="#0284C7"];
+nl -> zero [color="#0284C7", fontcolor="#0284C7"];
+nl -> five [color="#0284C7", fontcolor="#0284C7"];
+{rank=same; old; new;}
+}

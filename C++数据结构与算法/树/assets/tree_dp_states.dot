@@ -1,0 +1,12 @@
+digraph G {
+graph [rankdir=TB, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">子树向父亲交什么？两个有条件的答案</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">相邻结点不能同时选；只返回最大值会丢掉父亲需要的信息</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+p [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>父亲要决定：自己选不选？</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">自己选 → 只能取孩子 skip<BR/>自己不选 → 可以取 max(skip,take)</FONT></TD></TR></TABLE>>];
+r [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>结点值 9</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">skip=8；take=9</FONT></TD></TR></TABLE>>];
+l [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>叶子值 3</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">skip=0；take=3</FONT></TD></TR></TABLE>>];
+rr [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>叶子值 5</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">skip=0；take=5</FONT></TD></TR></TABLE>>];
+p -> r [color="#0284C7", fontcolor="#0284C7", label="两种条件分开保存"];
+r -> l [color="#0284C7", fontcolor="#0284C7"];
+r -> rr [color="#0284C7", fontcolor="#0284C7"];
+}

@@ -1,0 +1,14 @@
+digraph G {
+graph [rankdir=LR, newrank=true, bgcolor="white", pad="0.3", nodesep="0.25", ranksep="0.5", ordering=out, dpi=200, fontname="PingFang SC", labelloc=t, label=<<B><FONT POINT-SIZE="24" COLOR="#1E293B">读完 she 后，为什么还能接上 r？</FONT></B><BR/><FONT POINT-SIZE="13" COLOR="#64748B">模式 he、she、hers；文本 ushers；文本指针始终向右</FONT>>];
+node [shape=plaintext, fontname="PingFang SC", fontsize=13];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7, penwidth=1.4];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>读 u → 根</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">没有匹配前缀</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>读 s、h、e → she</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">报告 she；沿 fail 还匹配 he</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>保留后缀 he</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">she 无 r 边，fail 指向 he</FONT></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>读 r → her</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">复用已经读过的 he</FONT></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>读 s → hers</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">报告 hers；累计 3 次匹配</FONT></TD></TR></TABLE>>];
+a -> b [color="#0284C7", fontcolor="#0284C7"];
+b -> c [color="#0284C7", fontcolor="#0284C7"];
+c -> d [color="#0284C7", fontcolor="#0284C7"];
+d -> e [color="#0284C7", fontcolor="#0284C7"];
+}
