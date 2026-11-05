@@ -1,0 +1,12 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.65, dpi=200, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>多线程 fork：复制了锁，没复制持锁线程</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">普通私有内存：父进程后来解锁，不会替子进程解锁</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>父进程</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">线程 A 持有锁 L<BR/>线程 B 调用 fork</FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>父进程继续</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">A、B 都在<BR/>A 可正常释放父进程的 L</FONT></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>子进程</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">只留下调用 fork 的 B<BR/>自己的 L 仍可能显示被占用</FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>子进程再次获取 L</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">原持锁线程 A 不存在<BR/>可能永远等不到解锁</FONT></TD></TR></TABLE>>];
+n0 -> n1 [label="父分支"];
+n0 -> n2 [label="子分支"];
+n2 -> n3 [label="例如库函数内部加锁"];
+}

@@ -1,0 +1,16 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.65, dpi=200, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>条件等待中的取消与清理</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">这里采用延迟取消；清理回调已提前登记</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>工作线程</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">取得 mutex<BR/>cleanup_push 登记解锁</FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>cond_wait</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">释放 mutex<BR/>在取消点等待</FONT></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>其他线程 cancel</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">提出取消请求</FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>执行清理前</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">重新取得 mutex</FONT></TD></TR></TABLE>>];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>cleanup 回调</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">解锁 mutex<BR/>线程以取消状态结束</FONT></TD></TR></TABLE>>];
+n5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>pthread_join</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">取得 PTHREAD_CANCELED<BR/>确认线程已经退出</FONT></TD></TR></TABLE>>];
+n0 -> n1 [label="条件不满足"];
+n1 -> n3 [label="收到取消请求"];
+n2 -> n3 [label="触发取消处理"];
+n3 -> n4 [label="先持锁，再清理"];
+n4 -> n5 [label="回收"];
+}

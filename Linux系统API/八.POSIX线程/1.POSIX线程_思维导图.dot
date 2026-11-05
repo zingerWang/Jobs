@@ -1,0 +1,30 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", pad=0.3, nodesep=0.35, ranksep=0.65, dpi=200, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>POSIX 线程知识地图</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">从任务生命周期出发，再理解共享数据与退出边界</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7", arrowsize=0.7];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>POSIX 线程</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">创建任务、共享数据、同步与安全退出</FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>一、线程基础</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">共享地址空间；各自的栈与线程状态<BR/>pthread_t；错误码约定</FONT></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>二、生命周期</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">create / pthread_exit<BR/>join 等待；detach 分离</FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>三、互斥锁</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">临界区、可见性、锁顺序<BR/>保护完整的数据操作</FONT></TD></TR></TABLE>>];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>四、条件变量</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">持锁检查 → 释放锁等待 → 重新持锁<BR/>while 重查；关闭时广播</FONT></TD></TR></TABLE>>];
+n5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>五、自旋锁与读写锁</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">自旋消耗 CPU；读共享写独占<BR/>写饥饿与策略取舍</FONT></TD></TR></TABLE>>];
+n6 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>六、屏障</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">参与者到齐后放行<BR/>合并结果可能需要第二道屏障</FONT></TD></TR></TABLE>>];
+n7 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>七、线程属性</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">初始化 → 配置 → 创建 → 销毁<BR/>栈、分离状态、调度</FONT></TD></TR></TABLE>>];
+n8 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>八、once 与线程私有数据</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">一次初始化；每线程保存自己的值<BR/>TSD 析构；__thread / thread_local</FONT></TD></TR></TABLE>>];
+n9 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>九、取消与清理</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">优先协作退出；延迟取消点<BR/>cleanup 与 join</FONT></TD></TR></TABLE>>];
+n10 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>十、fork 与故障</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">子进程只保留调用线程<BR/>SIGSEGV 默认终止整个进程</FONT></TD></TR></TABLE>>];
+n11 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>十一、原子与内存序</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">volatile 不提供同步<BR/>原子读改写；release / acquire</FONT></TD></TR></TABLE>>];
+n12 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>十二、十三、验证与复习</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">七个完整程序；编译与排错<BR/>面试回答；Q&amp;A</FONT></TD></TR></TABLE>>];
+n0 -> n1 [label=""];
+n0 -> n2 [label=""];
+n0 -> n3 [label=""];
+n0 -> n4 [label=""];
+n0 -> n5 [label=""];
+n0 -> n6 [label=""];
+n0 -> n7 [label=""];
+n0 -> n8 [label=""];
+n0 -> n9 [label=""];
+n0 -> n10 [label=""];
+n0 -> n11 [label=""];
+n0 -> n12 [label=""];
+}
