@@ -1,0 +1,16 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.3, ranksep=0.7, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>程序怎样使用内核服务</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">库函数在用户态运行；需要内核服务时，通过受控入口提交请求</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, color="#0284C7", fontcolor="#0284C7"];
+app [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>应用程序</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">调用函数，检查返回值<BR/>管理自己的对象与缓冲区</FONT></TD></TR></TABLE>>];
+lib [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>C 库：glibc 等</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">open / fwrite / malloc 等<BR/>按接口规则处理参数和结果</FONT></TD></TR></TABLE>>];
+user [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>在用户态完成的工作</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">字符串处理、已有内存分配<BR/>部分缓冲操作、vDSO 查询</FONT></TD></TR></TABLE>>];
+sys [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>系统调用入口</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">按目标平台约定提交请求<BR/>进入内核不等于换线程</FONT></TD></TR></TABLE>>];
+kernel [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>Linux 内核</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">权限、进程、内存、文件系统<BR/>缓存、网络协议与设备管理</FONT></TD></TR></TABLE>>];
+device [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>设备及驱动相关操作</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">需要时访问设备<BR/>并非每个请求都产生磁盘 I/O</FONT></TD></TR></TABLE>>];
+app -> lib [label="调用"];
+lib -> user [label="可以在用户态完成"];
+lib -> sys [label="需要内核服务"];
+sys -> kernel [label="受控进入"];
+kernel -> device [label="需要设备处理时"];
+}
