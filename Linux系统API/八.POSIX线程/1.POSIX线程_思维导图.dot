@@ -13,8 +13,7 @@ n7 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR
 n8 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>八、once 与线程私有数据</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">一次初始化；每线程保存自己的值<BR/>TSD 析构；__thread / thread_local</FONT></TD></TR></TABLE>>];
 n9 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>九、取消与清理</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">优先协作退出；延迟取消点<BR/>cleanup 与 join</FONT></TD></TR></TABLE>>];
 n10 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>十、fork 与故障</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">子进程只保留调用线程<BR/>SIGSEGV 默认终止整个进程</FONT></TD></TR></TABLE>>];
-n11 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>十一、原子与内存序</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">volatile 不提供同步<BR/>原子读改写；release / acquire</FONT></TD></TR></TABLE>>];
-n12 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>十二、十三、验证与复习</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">七个完整程序；编译与排错<BR/>面试回答；Q&amp;A</FONT></TD></TR></TABLE>>];
+n12 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>十一、十二、验证与复习</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">六个完整程序；编译与排错<BR/>面试回答；Q&amp;A</FONT></TD></TR></TABLE>>];
 n0 -> n1 [label=""];
 n0 -> n2 [label=""];
 n0 -> n3 [label=""];
@@ -25,6 +24,5 @@ n0 -> n7 [label=""];
 n0 -> n8 [label=""];
 n0 -> n9 [label=""];
 n0 -> n10 [label=""];
-n0 -> n11 [label=""];
 n0 -> n12 [label=""];
 }
