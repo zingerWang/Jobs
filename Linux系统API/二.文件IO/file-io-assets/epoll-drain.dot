@@ -1,0 +1,13 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.22, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>边沿触发：收到通知后，把当前可读数据处理完</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">示例：一次到达 10 字节，此后没有新数据；fd 已设为非阻塞</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, arrowhead=normal, penwidth=1.3];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>收到可读通知</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">当前有 10 字节</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>只读 4 字节就去等</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">仍剩 6 字节<BR ALIGN="LEFT"/>没有保证会再来一个新边沿</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>循环读取</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">先读 4，再读剩余 6<BR ALIGN="LEFT"/>实际每次以返回值为准</FONT></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>下一次 read → EAGAIN</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">确认此刻无数据可读<BR ALIGN="LEFT"/>再等待后续就绪通知</FONT></TD></TR></TABLE>>];
+a -> b [label="错误停下的位置", color="#E11D48", fontcolor="#E11D48"];
+a -> c [label="继续处理", color="#0284C7", fontcolor="#0284C7"];
+c -> d [label="继续尝试直到耗尽", color="#0D9488", fontcolor="#0D9488"];
+
+}
