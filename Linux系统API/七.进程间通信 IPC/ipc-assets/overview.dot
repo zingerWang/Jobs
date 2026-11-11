@@ -1,0 +1,16 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.3, ranksep=0.7, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>进程协作要分别解决三个问题</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">找到同一对象只是开始，还要设计数据、等待和资源寿命</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, color="#0284C7", fontcolor="#0284C7"];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>两个进程需要协作</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">各自有地址空间<BR/>普通变量不会自动共享</FONT></TD></TR></TABLE>>];
+data [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>数据放在哪里？</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">字节流：pipe / FIFO / socket<BR/>消息队列或共享内存</FONT></TD></TR></TABLE>>];
+sync [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>什么时候可以继续？</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">互斥：谁能同时访问<BR/>就绪：数据和空位是否可用</FONT></TD></TR></TABLE>>];
+life [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>谁负责清理？</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><FONT COLOR="#1E293B" POINT-SIZE="12">关闭本进程引用<BR/>删除名称或 ID，解除映射</FONT></TD></TR></TABLE>>];
+protocol [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>共同遵守的协议</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">报文格式、同步、所有权<BR/>超时、断连与崩溃恢复</FONT></TD></TR></TABLE>>];
+root -> data [label="传递数据"];
+root -> sync [label="协调执行"];
+root -> life [label="管理寿命"];
+data -> protocol [label=""];
+sync -> protocol [label=""];
+life -> protocol [label=""];
+}

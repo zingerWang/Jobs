@@ -94,7 +94,7 @@
 			✅ SIGCHLD：信号处理函数循环waitpid(-1, &status, WNOHANG)回收，防止僵尸
 			✅ SIGPIPE：向已关闭socket/管道写，默认终止进程
 			多线程环境下的信号行为：pthread_sigmask、pthread_kill
-	七、进程间通信 IPC
+	七、[进程间通信 IPC](七.进程间通信%20IPC/1.进程间通信IPC.md)
 		管道与FIFO
 			pipe匿名管道（亲缘进程）
 			FIFO有名管道（无亲缘进程）

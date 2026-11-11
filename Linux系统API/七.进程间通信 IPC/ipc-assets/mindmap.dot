@@ -1,0 +1,24 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.3, ranksep=0.7, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>Linux 进程间通信 IPC</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">按通信需求选工具，再检查初始化、等待、清理和恢复</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, color="#0284C7", fontcolor="#0284C7"];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>Linux 进程间通信 IPC</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">传递数据、同步执行<BR/>管理公共资源与失败路径</FONT></TD></TR></TABLE>>];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>一、匿名管道</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">端点、字节流与读写循环<BR/>EOF / SIGPIPE / PIPE_BUF</FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>二、FIFO</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">按名称会合，数据仍在内核<BR/>打开顺序与名称清理</FONT></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>三、popen / pclose</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">单向流和 Shell 命令<BR/>退出状态、注入与等待</FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>四、socketpair</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">全双工；类型决定消息边界<BR/>SCM_RIGHTS 传递资源引用</FONT></TD></TR></TABLE>>];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>五、eventfd</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">累计通知与事件循环<BR/>同步数据，明确退出协议</FONT></TD></TR></TABLE>>];
+n5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>六、两套 IPC 接口</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">消息、存储、信号量<BR/>key/ID 与名称/句柄</FONT></TD></TR></TABLE>>];
+n6 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>七、System V IPC</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">消息类型、共享段、semop<BR/>SEM_UNDO 与显式删除</FONT></TD></TR></TABLE>>];
+n7 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>八、POSIX IPC</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">优先级、映射、wait/post<BR/>mq_notify 与 close/unlink</FONT></TD></TR></TABLE>>];
+n8 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>九、选型与验证</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">九个 C++ 程序与 FIFO 实验<BR/>排查清单、口头回答、Q&amp;A</FONT></TD></TR></TABLE>>];
+root -> n0 [label=""];
+root -> n1 [label=""];
+root -> n2 [label=""];
+root -> n3 [label=""];
+root -> n4 [label=""];
+root -> n5 [label=""];
+root -> n6 [label=""];
+root -> n7 [label=""];
+root -> n8 [label=""];
+}
