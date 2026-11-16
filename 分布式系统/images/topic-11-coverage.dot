@@ -1,0 +1,13 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.22, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>从真实请求收集证据</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">按顺序检查每一步的状态</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, arrowhead=normal, penwidth=1.3];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>请求入口</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">记录业务键和开始时间</FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>记录等待与执行</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">区分排队慢与执行慢</FONT></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>关联指标日志与追踪</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">指标定位范围，trace 定位阶段</FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>撤销故障验证恢复</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">检查业务状态与告警恢复</FONT></TD></TR></TABLE>>];
+n0 -> n1 [label="", color="#0284C7", fontcolor="#0284C7"];
+n1 -> n2 [label="", color="#0284C7", fontcolor="#0284C7"];
+n2 -> n3 [label="", color="#0284C7", fontcolor="#0284C7"];
+
+}

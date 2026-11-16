@@ -1,0 +1,6 @@
+﻿square(5)      = 25（编译期常量）
+sum_to(100)    = 5050（编译期常量）
+must_be_compile_time(21) = 42
+f(3) 在常量上下文 = 300
+f(runtime_n) 在运行期 = 5
+constinit g_start = 55

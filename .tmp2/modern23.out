@@ -1,0 +1,9 @@
+﻿10/2 -> 5
+1/0 有值吗：false，错误码 0
+9/3 再 +1 = 4
+Color::Green 底层值 = 2
+contains("42") = true
+ranges::to 之后 size=5，末元素=10
+Widget::scale(4) = 40
+deducing this 读取 x = 5
+const 对象也能调用同一个模板：9

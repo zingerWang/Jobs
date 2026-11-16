@@ -1,0 +1,15 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.22, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>四个问题：怎样排队、权重多少、在哪跑、用多久</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">Linux 调度对象是线程；提高优先级不能消除 I/O 或锁等待</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, arrowhead=normal, penwidth=1.3];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>线程请求运行</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">先区分可运行与等待状态</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>调度策略</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">普通分时、FIFO、RR 等<BR ALIGN="LEFT"/>规定调度规则</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>nice 相对权重</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">影响普通调度中的竞争<BR ALIGN="LEFT"/>不是固定 CPU 百分比</FONT></TD></TR></TABLE>>];
+d [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>CPU 亲和性</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">允许在哪些 CPU 上执行<BR ALIGN="LEFT"/>不意味着独占这些 CPU</FONT></TD></TR></TABLE>>];
+e [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>cgroup CPU 配额</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">限制组在周期内的 CPU 时间<BR ALIGN="LEFT"/>与在线 CPU 数量不同</FONT></TD></TR></TABLE>>];
+a -> b [label="按什么规则", color="#7C3AED", fontcolor="#7C3AED"];
+a -> c [label="普通任务如何竞争", color="#0284C7", fontcolor="#0284C7"];
+a -> d [label="在哪些 CPU 上", color="#475569", fontcolor="#475569"];
+a -> e [label="总时间预算", color="#D97706", fontcolor="#D97706"];
+
+}

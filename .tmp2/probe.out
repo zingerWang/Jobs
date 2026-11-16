@@ -1,0 +1,15 @@
+﻿__cplusplus            = 202302
+__cpp_constexpr        = 202211
+__cpp_variadic_templates = 200704
+__cpp_rvalue_references  = 200610
+__cpp_variable_templates = 201304
+__cpp_if_constexpr     = 201606
+__cpp_structured_bindings = 201606
+__cpp_inline_variables = 201606
+__cpp_concepts         = 202002
+__cpp_consteval        = 202211
+__cpp_lib_format       = 202304
+__cpp_lib_jthread      = 201911
+__cpp_lib_expected     = 202211
+__cpp_lib_print        = 202406
+__cpp_lib_ranges_to_container = 202202

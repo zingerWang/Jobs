@@ -1,0 +1,17 @@
+﻿1) unique_ptr 只能移动，不能拷贝：
+  u1 是否为空：是  *u2=5
+2) make_shared 一次分配（控制块与对象同块内存）：
+  use_count=1
+  拷贝后 use_count=2
+  离开作用域后 use_count=1
+3) 循环引用：
+  构造 Node A
+  构造 Node B
+  a.use_count=1 b.use_count=2
+  析构 Node A
+  析构 Node B
+  两个 Node 都析构了
+4) 自定义删除器：
+  已写入
+  已 fclose
+5) shared_ptr 的线程安全边界：引用计数原子，所指对象不原子

@@ -1,0 +1,7 @@
+﻿sum_all(1,2,3,4) = 10
+sum_all()        = 0
+1 2.500000 3 
+apply(sum_all, (3,4)) = 7
+invoke(&Counter::add, c, 1, 2) = 103
+invoke(&Counter::base, c)     = 100
+invoke(lambda, 10)            = 100

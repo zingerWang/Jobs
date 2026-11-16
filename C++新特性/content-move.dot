@@ -1,0 +1,16 @@
+digraph move {
+  rankdir=LR;
+  dpi=200;
+  node [shape=plaintext, fontname="PingFang SC"];
+  edge [color="#CBD5E1", penwidth=2];
+  root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>一次函数调用：参数该被拷贝，还是被移动？</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">判断依据是「值类别」+「构造函数签名」，不是变量名</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  b0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>实参是左值（有名字的对象）</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">匹配 const T& → 拷贝构造</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">要移动必须显式 std::move(x)</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  root -> b0 [label="拷贝"];
+  b1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>实参是右值（临时对象 / move 的结果）</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">匹配 T&& → 移动构造</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">移走资源后源对象进入「有效但未指定」状态</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  root -> b1 [label="移动"];
+  b2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>形参写 T&&，但 T 是模板参数 → 转发引用</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">左值实参：T 推成 U&，按引用折叠得 U&</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">右值实参：T 推成 U，保持 U&&</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">用 std::forward<T>(x) 原样传下去</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  root -> b2 [label="转发"];
+  b3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white"><B>移动构造没写 noexcept 会怎样</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">vector 扩容只能退化为拷贝</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">所以移动构造 / 移动赋值一律加 noexcept</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  root -> b3 [label="代价"];
+  label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>移动语义与完美转发：值类别决定调用哪个构造函数</B></FONT>>;
+}

@@ -1,0 +1,18 @@
+digraph evolution {
+  rankdir=LR;
+  dpi=200;
+  node [shape=plaintext, fontname="PingFang SC"];
+  edge [color="#94A3B8", penwidth=2];
+  s0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>C++11  现代 C++ 奠基</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">移动语义 / constexpr / 可变参数模板</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">智能指针 / thread / atomic</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">把「带类的 C」变成能写现代库的语言</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  s1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>C++14  小步补全</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">泛型 lambda / 放宽 constexpr</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">make_unique / exchange</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">补上 C++11 没做完的孔</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  s2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>C++17  大更新</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">结构化绑定 / if constexpr / 折叠</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">optional·variant·string_view·filesystem</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">语法糖与标准库一次补齐</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  s3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>C++20  里程碑</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">concepts / ranges / 协程 / modules</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">consteval·constinit·<=>·format·jthread</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">四大件改变写代码的方式</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  s4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>C++23  实用化</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">expected / mdspan / print / flat_map</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">deducing this / 多维下标</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">把常用惯用法标准化</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  s5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>C++26  下一步</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">反射 / 契约 / senders-receivers</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">#embed / pack indexing</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#1F2937">编译期与并发模型再进一步</FONT></TD></TR></TABLE></TD></TR></TABLE>>];
+  s0 -> s1;
+  s1 -> s2;
+  s3 -> s4;
+  s4 -> s5;
+  s2 -> s3 [style=dashed, label="换行"];
+  label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>C++11 → C++26：每个标准在解决什么问题</B></FONT>>;
+}

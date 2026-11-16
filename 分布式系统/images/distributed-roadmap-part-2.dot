@@ -1,0 +1,39 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.22, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>分布式系统：从原理到故障处理</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">学习提纲 · 先解释为什么，再理解机制与保证范围</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [fontname="PingFang SC", fontsize=11, arrowsize=0.7, arrowhead=normal, penwidth=1.3];
+root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white" POINT-SIZE="15"><B>分布式系统学习路线</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">从故障场景理解机制<BR ALIGN="LEFT"/>再讨论边界、代价与验证</FONT></TD></TR></TABLE>>];
+g3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>04 · RPC、超时与重试</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">没收到响应，不等于对方没有执行</FONT></TD></TR></TABLE>>];
+g3_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>调用基础</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">序列化、连接管理、请求编号与错误分类<BR ALIGN="LEFT"/>gRPC、brpc、Thrift：结合调用链学习<BR ALIGN="LEFT"/>总截止时间向下传递；取消不代表撤销已发生的效果</FONT></TD></TR></TABLE>>];
+g3_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>重试控制</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">区分明确失败、成功与结果未知<BR ALIGN="LEFT"/>指数退避、随机抖动、次数限制与重试预算<BR ALIGN="LEFT"/>避免多层重试放大流量；区分可重试与不可重试错误</FONT></TD></TR></TABLE>>];
+g3_2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#E11D48"><FONT COLOR="white" POINT-SIZE="15"><B>幂等实现</B></FONT></TD></TR><TR><TD BGCOLOR="#FFF1F2" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">业务幂等键、请求内容校验、结果保存与有效期<BR ALIGN="LEFT"/>唯一约束／条件更新处理相同请求并发到达<BR ALIGN="LEFT"/>去重记录与业务变更需协调，不能只查一次是否存在</FONT></TD></TR></TABLE>>];
+g4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>05 · 分布式锁、租约与 ID</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">锁到期后，旧持有者为什么还可能写数据</FONT></TD></TR></TABLE>>];
+g4_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>锁的实现与边界</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">Redis：原子获取、持有者标识、条件释放与续期<BR ALIGN="LEFT"/>ZooKeeper 临时节点；etcd Lease 与事务<BR ALIGN="LEFT"/>Redlock 要分析故障假设，不能等同任意场景的安全锁</FONT></TD></TR></TABLE>>];
+g4_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>旧持有者隔离</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">长暂停 → 租约到期 → 新持有者开始工作<BR ALIGN="LEFT"/>Fencing token：递增凭证随操作发送<BR ALIGN="LEFT"/>实际资源校验凭证并拒绝旧操作；续期不能代替它</FONT></TD></TR></TABLE>>];
+g4_2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>分布式 ID 与替代方案</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">Snowflake：时间、节点编号、序列及回拨处理<BR ALIGN="LEFT"/>号段：批量分配；UUID：唯一性与索引局部性<BR ALIGN="LEFT"/>互斥需求也可用唯一约束、版本号与条件更新解决</FONT></TD></TR></TABLE>>];
+g5 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>06 · 事务与跨服务业务一致性</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">多个服务怎样一起完成一笔业务</FONT></TD></TR></TABLE>>];
+g5_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>原子提交</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">2PC：准备、提交；恢复日志与协调者故障<BR ALIGN="LEFT"/>XA 是事务接口规范，常与两阶段提交配合<BR ALIGN="LEFT"/>3PC 有时延与故障假设，不能保证任意分区下无阻塞</FONT></TD></TR></TABLE>>];
+g5_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>业务补偿</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">TCC：预留、确认、取消；空回滚、悬挂与幂等<BR ALIGN="LEFT"/>Saga：本地事务串联；编排或事件协作<BR ALIGN="LEFT"/>补偿是新业务操作，可能失败，也不一定恢复原样</FONT></TD></TR></TABLE>>];
+g5_2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>落地与恢复</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">Seata：AT／TCC／Saga／XA，理解模式边界<BR ALIGN="LEFT"/>业务状态机、超时恢复、重试、对账与人工介入<BR ALIGN="LEFT"/>区分提交原子性、隔离性和业务最终一致性</FONT></TD></TR></TABLE>>];
+g6 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>07 · 消息队列与可靠事件</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">数据库已提交，消息却没发出去怎么办</FONT></TD></TR></TABLE>>];
+g6_0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>消息传递机制</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">解耦、异步、削峰；Kafka／RocketMQ／RabbitMQ<BR ALIGN="LEFT"/>生产确认、持久化、副本、消费确认与位点<BR ALIGN="LEFT"/>分区内顺序、消费组、重平衡与重复投递</FONT></TD></TR></TABLE>>];
+g6_1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>数据库与消息衔接</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">Outbox：业务记录与待发事件写入同一本地事务<BR ALIGN="LEFT"/>轮询或 CDC 转发，转发仍可能重复<BR ALIGN="LEFT"/>消费去重记录与业务修改同事务；事务消息需明确协议</FONT></TD></TR></TABLE>>];
+g6_2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>语义与积压治理</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">至多一次、至少一次、恰好一次：说明保证范围<BR ALIGN="LEFT"/>外部数据库的副作用不会自动获得恰好一次保证<BR ALIGN="LEFT"/>背压、积压监控、重试队列、死信与安全重放</FONT></TD></TR></TABLE>>];
+root -> g3 [label="", color="#E11D48", fontcolor="#E11D48"];
+g3 -> g3_0 [label="", color="#E11D48", fontcolor="#E11D48"];
+g3 -> g3_1 [label="", color="#E11D48", fontcolor="#E11D48"];
+g3 -> g3_2 [label="", color="#E11D48", fontcolor="#E11D48"];
+root -> g4 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+g4 -> g4_0 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+g4 -> g4_1 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+g4 -> g4_2 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+root -> g5 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+g5 -> g5_0 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+g5 -> g5_1 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+g5 -> g5_2 [label="", color="#7C3AED", fontcolor="#7C3AED"];
+root -> g6 [label="", color="#0284C7", fontcolor="#0284C7"];
+g6 -> g6_0 [label="", color="#0284C7", fontcolor="#0284C7"];
+g6 -> g6_1 [label="", color="#0284C7", fontcolor="#0284C7"];
+g6 -> g6_2 [label="", color="#0284C7", fontcolor="#0284C7"];
+
+}

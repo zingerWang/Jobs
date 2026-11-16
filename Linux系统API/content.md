@@ -178,12 +178,12 @@
 	十一、库、调度与资源限制
 		静态库、共享库
 			dlopen / dlsym 动态加载
-			✅ dlerror() 获取动态链接错误；编译需 -ldl
+			✅ dlerror() 获取动态链接错误；保留 -ldl 兼容旧 glibc，2.34 起功能并入 libc
 		进程调度
 			nice值、调度策略
 		资源与系统限制
-			✅ sysconf() / pathconf()：运行时系统配置
-				✅ sysconf(_SC_OPEN_MAX)：最大文件描述符
-				✅ sysconf(_SC_NPROCESSORS_ONLN)：在线CPU核心数，线程池调参
-				✅ sysconf(_SC_PAGESIZE)：获取内存页大小，mmap内存对齐必备
-			getrlimit / setrlimit：进程资源限制
+			✅ sysconf() / pathconf()：运行环境与路径相关配置
+				✅ sysconf(_SC_OPEN_MAX)：进程打开文件限制，不是剩余 fd 数
+				✅ sysconf(_SC_NPROCESSORS_ONLN)：在线逻辑 CPU 数；线程池还需考虑亲和性与配额
+				✅ sysconf(_SC_PAGESIZE)：普通页大小，用于 mmap 偏移等对齐计算
+			getrlimit / setrlimit：进程资源软硬限制、继承与申请失败处理

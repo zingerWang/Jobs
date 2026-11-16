@@ -1,0 +1,6 @@
+﻿auto：a1=100 n=200 a2=7 a3=9 a4=200 a5=200
+decltype：d1=1 d2=2 d3=300 n=300
+decltype((n)) 是引用，n=400
+sizeof(auto)=16  sizeof(bool)=1
+auto b = bits[0]; b = true 之后 bits[0]=1（被改到了）
+bool c = bits[1]; c = true 之后 bits[1]=0（没改到）

@@ -1,0 +1,10 @@
+﻿pair: 7 apple | tuple: 1 9.9 3 | array: 10 20
+struct: 42 SKU-1 29.9（原对象 amount 已被改）
+  apple -> 3
+  pear -> 5
+CTAD pair: 1 2.5
+optional 有值吗：无
+value_or = 5
+variant 当前持有 string：hello
+variant 切到 int：42
+string_view[0..4] = view，size=20

@@ -1,0 +1,14 @@
+digraph G {
+graph [rankdir=LR, dpi=200, bgcolor="white", pad=0.3, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>守护进程与伪终端</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">从控制终端到服务管理与交互输入输出</FONT>>];
+node [shape=plaintext, fontname="PingFang SC"];
+edge [arrowhead=normal, arrowsize=0.7, penwidth=1.3];
+n0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>守护进程与伪终端</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B">服务脱离终端与交互程序获得终端</FONT></TD></TR></TABLE>>];
+n1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>一、守护进程</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B">会话分离、O_NOCTTY 与信号退出</FONT></TD></TR></TABLE>>];
+n2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white"><B>二、单实例与日志</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B">flock 锁的范围与 syslog 日志</FONT></TD></TR></TABLE>>];
+n3 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white"><B>三、资源限制与属性</B></FONT></TD></TR><TR><TD BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B">prlimit 与 prctl</FONT></TD></TR></TABLE>>];
+n4 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>四、伪终端</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B">master、slave、raw 模式与窗口尺寸</FONT></TD></TR></TABLE>>];
+n0 -> n1 [color="#0D9488"];
+n0 -> n2 [color="#D97706"];
+n0 -> n3 [color="#7C3AED"];
+n0 -> n4 [color="#0284C7"];
+}
