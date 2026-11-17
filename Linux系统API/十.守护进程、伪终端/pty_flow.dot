@@ -1,0 +1,20 @@
+digraph PTYFlow {
+  graph [rankdir=LR, dpi=200, bgcolor="white", pad=0.25, nodesep=0.45, ranksep=0.5, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>终端模拟器、PTY 与应用怎样连接</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">蓝色箭头：输入向右传递　绿色箭头：输出向左返回</FONT>>];
+  node [shape=plaintext, fontname="PingFang SC"];
+  edge [fontname="PingFang SC", fontsize=11, arrowsize=0.8, penwidth=1.6];
+  user [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white"><B>用户</B></FONT></TD></TR><TR><TD BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">按键输入<BR/>查看屏幕</FONT></TD></TR></TABLE>>];
+  emulator [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>终端模拟器</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">接收按键、显示文字<BR/>读写 master 的 fd</FONT></TD></TR></TABLE>>];
+  subgraph cluster_pty { label="PTY：内核提供的一对端点"; fontname="PingFang SC"; fontsize=15; fontcolor="#0284C7"; color="#7DD3FC"; style="rounded"; margin=16;
+  master [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>master（主端）</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">模拟器操作这一端</FONT></TD></TR></TABLE>>];
+  slave [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>slave（从端）</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">应用访问的终端设备<BR/>输入输出按终端设置处理</FONT></TD></TR></TABLE>>];
+  }
+  app [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>Bash 或正在运行的命令</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">fd 0 读取输入<BR/>fd 1、2 写出结果或报错</FONT></TD></TR></TABLE>>];
+  user -> emulator [label="按键", color="#0284C7", fontcolor="#0284C7"];
+  emulator -> master [label="写入输入", color="#0284C7", fontcolor="#0284C7"];
+  master -> slave [dir=back, label="输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+  slave -> app [label="读取输入", color="#0284C7", fontcolor="#0284C7"];
+  app -> slave [label="写入输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+  master -> slave [label="输入", color="#0284C7", fontcolor="#0284C7"];
+  master -> emulator [label="读取输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+  emulator -> user [label="显示文字", color="#0D9488", fontcolor="#0D9488", constraint=false];
+}

@@ -1,0 +1,25 @@
+digraph SSHFlow {
+ graph [rankdir=LR, dpi=200, bgcolor="white", pad=0.3, ranksep=0.48, nodesep=0.45, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>SSH 交互：本地终端怎样连接远端命令</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">蓝色箭头：输入向右传递　绿色箭头：输出向左返回　两组 PTY 分别位于两台机器</FONT>>];
+ node [shape=plaintext, fontname="PingFang SC"];
+ edge [fontname="PingFang SC", fontsize=11, arrowsize=0.8, penwidth=1.6];
+subgraph cluster_local { label="本机"; fontname="PingFang SC"; fontsize=17; fontcolor="#4F46E5"; color="#A5B4FC"; style="rounded"; margin=18;
+local [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>用户与本地终端模拟器</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">用户按键、查看屏幕<BR/>模拟器收发字节、显示文字</FONT></TD></TR></TABLE>>];
+lp [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>本地 PTY</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">master：连接终端模拟器<BR/>slave：连接 ssh 客户端</FONT></TD></TR></TABLE>>];
+client [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>ssh 客户端</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">转发本地输入<BR/>接收远端输出</FONT></TD></TR></TABLE>>];
+}
+subgraph cluster_remote { label="远端机器"; fontname="PingFang SC"; fontsize=17; fontcolor="#0D9488"; color="#5EEAD4"; style="rounded"; margin=18;
+server [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>SSH 服务端</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">接收网络输入<BR/>转发远端输出</FONT></TD></TR></TABLE>>];
+rp [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>远端 PTY</B></FONT></TD></TR><TR><TD BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">master：连接 SSH 服务端<BR/>slave：连接远端应用</FONT></TD></TR></TABLE>>];
+app [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>远端 Bash 或命令</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">读取标准输入<BR/>写出结果和报错</FONT></TD></TR></TABLE>>];
+}
+local -> lp [dir=back, label="输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+local -> lp [label="输入", color="#0284C7", fontcolor="#0284C7"];
+lp -> client [dir=back, label="输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+lp -> client [label="输入", color="#0284C7", fontcolor="#0284C7"];
+client -> server [label="加密传输输入", color="#0284C7", fontcolor="#0284C7"];
+client -> server [dir=back, label="加密传回输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+server -> rp [dir=back, label="输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+server -> rp [label="输入", color="#0284C7", fontcolor="#0284C7"];
+rp -> app [dir=back, label="输出", color="#0D9488", fontcolor="#0D9488", constraint=false];
+rp -> app [label="输入", color="#0284C7", fontcolor="#0284C7"];
+}
