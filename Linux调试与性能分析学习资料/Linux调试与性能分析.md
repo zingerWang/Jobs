@@ -897,6 +897,21 @@ ps -L -p 12345 -o pid,tid,pcpu,stat,wchan:24,comm
 
 崩溃后优先分析**已经保存的现场**，例如 `gdb ./app ./core`。普通 core 只能静态检查，不能继续崩溃前的执行；在有可执行文件时重新 `run` 是启动新的进程，不是恢复旧现场。使用独立的 `gcore` 工具在线转储时，会暂停目标来保存内存等状态，并可能产生较大 I/O；**它不通过让目标崩溃来生成 core，成功完成并解除附加后，目标会继续运行。** 暂停不保证很短，时间取决于转储量、存储速度及环境，因此仍可能造成请求超时。若是在已附加的交互式 GDB 中执行 `generate-core-file`，转储完成不会替你执行 `continue` 或 `detach`。这些都不是无干扰采集；不要为了取得 core 主动让业务崩溃。[gcore 官方说明](https://sourceware.org/gdb/current/onlinedocs/gdb.html/gcore-man.html)
 
+**如何查看当前 Shell 的文件描述符限制和其他资源限制？** 在 Linux 的 Bash 中执行：
+
+```bash
+# 查看当前 Shell 的文件描述符软限制，即当前生效的上限；随后启动的子进程会继承此限制
+ulimit -Sn
+
+# 查看当前 Shell 的文件描述符硬限制，即无相应特权的进程能够调高软限制的最大值
+ulimit -Hn
+
+# 查看当前 Shell 进程的各项资源限制，包括软限制、硬限制和单位
+# $$ 表示当前 Shell 的进程 ID；Max open files 对应上面两条命令查看的限制
+# 这些命令只查询限制，不会修改配置；检查已运行的服务时，应将 $$ 换成服务进程的 PID
+cat /proc/$$/limits
+```
+
 **core 为什么没有出现在当前目录？** 先读配置，不要直接修改：
 
 ```bash
