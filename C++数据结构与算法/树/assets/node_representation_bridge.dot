@@ -1,0 +1,10 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.4, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>链接换成编号，父子关系不变</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">左右孩子由字段指定；整数编号不隐含 2i+1、2i+2 的关系</FONT>>];
+node [shape=plaintext,fontname="PingFang SC"];
+edge [fontname="PingFang SC",fontsize=11,color="#0284C7",fontcolor="#0284C7",arrowsize=0.7];
+p [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>指针表示：根的值为 8</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">left 拥有值为 3 的结点<BR ALIGN="LEFT"/>right 拥有值为 12 的结点</FONT></TD></TR></TABLE>>];
+pool [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>下标表示：root = 1</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">a[1] = {key:8, l:2, r:3}<BR ALIGN="LEFT"/>a[2] = {key:3, l:0, r:0}<BR ALIGN="LEFT"/>a[3] = {key:12, l:0, r:0}</FONT></TD></TR></TABLE>>];
+owner [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#475569"><FONT COLOR="white" POINT-SIZE="15"><B>谁负责释放？</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F8FAFC"><FONT COLOR="#1E293B" POINT-SIZE="12">指针版：父结点拥有孩子<BR ALIGN="LEFT"/>池版本：容器拥有全部结点<BR ALIGN="LEFT"/>l/r 只记录关系，不触发释放</FONT></TD></TR></TABLE>>];
+p -> pool [label="同一棵树的两种表示"];
+pool -> owner [label="关系与所有权分开看"];
+}

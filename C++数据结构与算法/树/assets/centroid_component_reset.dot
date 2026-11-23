@@ -1,0 +1,12 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.4, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>每层只统计经过当前重心的路径</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">同一棵七结点树，目标距离 K = 3；括号内数字表示到当前重心的距离</FONT>>];
+node [shape=plaintext,fontname="PingFang SC"];
+edge [fontname="PingFang SC",fontsize=11,color="#0284C7",fontcolor="#0284C7",arrowsize=0.7];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>① 当前重心 c = 1</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">删去 1 后分成三块<BR ALIGN="LEFT"/>A：0(1) — 2(2) — 6(3)<BR ALIGN="LEFT"/>B：3(1) — 5(2)<BR ALIGN="LEFT"/>C：4(1)</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>② 每块先全查，再合并</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">freq 初始只有 {0:1}<BR ALIGN="LEFT"/>查 A：新增 1 对，然后合并 A<BR ALIGN="LEFT"/>查 B：新增 2 对，然后合并 B<BR ALIGN="LEFT"/>查 C：新增 2 对，本层合计 5</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>③ 单独递归处理 A</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">当前分量变成 0 — 2 — 6<BR ALIGN="LEFT"/>重新计算规模 3，重心改为 2<BR ALIGN="LEFT"/>距离重算：0(1)、2(0)、6(1)<BR ALIGN="LEFT"/>重新建 freq={0:1}；此层新增 0 对</FONT></TD></TR></TABLE>>];
+a -> b [label="不让同一块提前
+混入 freq"];
+b -> c [label="保留 removed 标记
+不继承距离和 freq"];
+}

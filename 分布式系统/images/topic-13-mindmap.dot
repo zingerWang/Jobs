@@ -15,4 +15,6 @@ root -> n2;
 root -> n3;
 root -> n4;
 root -> n5;
+engineering [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>支付未知与幂等存储</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">页面超时先确认结果；重试沿用原业务键<BR ALIGN="LEFT"/>本地去重与业务同事务；缓存不能代替持久流水</FONT></TD></TR></TABLE>>];
+root -> engineering [color="#D97706",fontcolor="#D97706"];
 }

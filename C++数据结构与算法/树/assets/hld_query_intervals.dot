@@ -1,0 +1,11 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.4, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>路径 5 → 6：查询两段，跳过旁支</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">紫色段先查，绿色段后查；灰色位置属于旁支结点 4</FONT>>];
+node [shape=plaintext,fontname="PingFang SC"];
+edge [fontname="PingFang SC",fontsize=11,color="#0284C7",fontcolor="#0284C7",arrowsize=0.7];
+first [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>① 先处理较深链</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">链头 2，链尾 6<BR ALIGN="LEFT"/>区间 [5,7)：结点 2、6<BR ALIGN="LEFT"/>本段和 100<BR ALIGN="LEFT"/>接着跳到 parent[2] = 0</FONT></TD></TR></TABLE>>];
+last [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>② 剩下两端已同链</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">结点 0 与 5，链头都是 0<BR ALIGN="LEFT"/>区间 [0,4)：结点 0、1、3、5<BR ALIGN="LEFT"/>本段和 130；总和 230</FONT></TD></TR></TABLE>>];
+flat [label=<<TABLE BORDER="0" CELLBORDER="1" COLOR="white" CELLSPACING="0" CELLPADDING="9"><TR><TD COLSPAN="7" BGCOLOR="#475569"><FONT COLOR="white"><B>线段树中的数组（pos 从左到右递增）</B></FONT></TD></TR><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white">pos 0</FONT></TD><TD BGCOLOR="#0D9488"><FONT COLOR="white">pos 1</FONT></TD><TD BGCOLOR="#0D9488"><FONT COLOR="white">pos 2</FONT></TD><TD BGCOLOR="#0D9488"><FONT COLOR="white">pos 3</FONT></TD><TD BGCOLOR="#475569"><FONT COLOR="white">pos 4</FONT></TD><TD BGCOLOR="#7C3AED"><FONT COLOR="white">pos 5</FONT></TD><TD BGCOLOR="#7C3AED"><FONT COLOR="white">pos 6</FONT></TD></TR><TR><TD PORT="p0" BGCOLOR="#F0FDFA">结点 0<BR/>权值 10</TD><TD PORT="p1" BGCOLOR="#F0FDFA">结点 1<BR/>权值 20</TD><TD PORT="p2" BGCOLOR="#F0FDFA">结点 3<BR/>权值 40</TD><TD PORT="p3" BGCOLOR="#F0FDFA">结点 5<BR/>权值 60</TD><TD PORT="p4" BGCOLOR="#F8FAFC">结点 4<BR/>权值 50</TD><TD PORT="p5" BGCOLOR="#F5F3FF">结点 2<BR/>权值 30</TD><TD PORT="p6" BGCOLOR="#F5F3FF">结点 6<BR/>权值 70</TD></TR></TABLE>>];
+first -> last [label="离开已查询的整条链"];
+first -> flat:p5 [label="[5,7)",color="#7C3AED",fontcolor="#7C3AED"];
+last -> flat:p0 [label="[0,4)",color="#0D9488",fontcolor="#0D9488"];
+}

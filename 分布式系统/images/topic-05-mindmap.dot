@@ -17,4 +17,6 @@ root -> n3;
 root -> n4;
 root -> n5;
 root -> n6;
+engineering [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>读写协调与身份回收</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">读锁失效、升级公平性和读取快照分开处理<BR ALIGN="LEFT"/>节点号租约不等于安全复用；世代必须进入协议</FONT></TD></TR></TABLE>>];
+root -> engineering [color="#D97706",fontcolor="#D97706"];
 }

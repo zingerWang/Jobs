@@ -1,0 +1,11 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.4, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>fail 构建与文本扫描是两件事</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">词库 he、she、hers；根的状态编号为 0</FONT>>];
+node [shape=plaintext,fontname="PingFang SC"];
+edge [fontname="PingFang SC",fontsize=11,color="#0284C7",fontcolor="#0284C7",arrowsize=0.7];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#7C3AED"><FONT COLOR="white" POINT-SIZE="15"><B>① BFS 已知浅层退路</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F5F3FF"><FONT COLOR="#1E293B" POINT-SIZE="12">fail[sh] = h<BR ALIGN="LEFT"/>go[h][e] = he<BR ALIGN="LEFT"/>所以 fail[she] = he</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>② 构建时补全转移</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">she 没有原始 r 边<BR ALIGN="LEFT"/>go[she][r] = go[he][r]<BR ALIGN="LEFT"/>结果是 her</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>③ 运行时只查一次表</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">读完 e：状态 she，报告 she 和 he<BR ALIGN="LEFT"/>再读 r：状态直接转为 her<BR ALIGN="LEFT"/>文本位置向前，不重新读取 he</FONT></TD></TR></TABLE>>];
+a -> b [label="利用已算好的 fail"];
+b -> c [label="预计算好退路
+扫描无需逐条退回"];
+}

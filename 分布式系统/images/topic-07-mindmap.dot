@@ -17,4 +17,6 @@ root -> n3;
 root -> n4;
 root -> n5;
 root -> n6;
+engineering [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>隔离与增量移交</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">DLQ 转发也会失败；保留顺序、幂等与重放证据<BR ALIGN="LEFT"/>协同重平衡少撤销，不消除重复消费</FONT></TD></TR></TABLE>>];
+root -> engineering [color="#D97706",fontcolor="#D97706"];
 }

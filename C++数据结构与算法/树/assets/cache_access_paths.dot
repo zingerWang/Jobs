@@ -1,0 +1,10 @@
+digraph G {
+graph [rankdir=LR, bgcolor="white", dpi=200, pad=0.3, nodesep=0.4, ranksep=0.6, fontname="PingFang SC", labelloc=t, label=<<FONT POINT-SIZE="24" COLOR="#1E293B"><B>存储连续，不代表访问连续</B></FONT><BR/><FONT POINT-SIZE="13" COLOR="#64748B">示意假设：64 字节缓存行、16 字节结点、起始地址按行对齐；非性能实测</FONT>>];
+node [shape=plaintext,fontname="PingFang SC"];
+edge [fontname="PingFang SC",fontsize=11,color="#0284C7",fontcolor="#0284C7",arrowsize=0.7];
+a [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white" POINT-SIZE="15"><B>连续结点池的布局</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0F9FF"><FONT COLOR="#1E293B" POINT-SIZE="12">行 A：[0] [1] [2] [3]<BR ALIGN="LEFT"/>行 B：[4] [5] [6] [7]<BR ALIGN="LEFT"/>……<BR ALIGN="LEFT"/>行 C：[1000] [1001] [1002] [1003]</FONT></TD></TR></TABLE>>];
+b [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white" POINT-SIZE="15"><B>访问 0 → 1 → 2 → 3</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">第一次取来行 A<BR ALIGN="LEFT"/>后续可能复用行 A<BR ALIGN="LEFT"/>一行内的数据得到更多利用</FONT></TD></TR></TABLE>>];
+c [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="10"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>树链接为 0 → 1000 → 50000</B></FONT></TD></TR><TR><TD ALIGN="LEFT" BGCOLOR="#FFFBEB"><FONT COLOR="#1E293B" POINT-SIZE="12">编号来自父子字段<BR ALIGN="LEFT"/>这些结点不在同一行<BR ALIGN="LEFT"/>每次跳转仍可能缓存未命中</FONT></TD></TR></TABLE>>];
+a -> b [label="访问顺序靠近布局顺序",color="#0D9488",fontcolor="#0D9488"];
+a -> c [label="访问顺序远离布局顺序",color="#D97706",fontcolor="#D97706"];
+}

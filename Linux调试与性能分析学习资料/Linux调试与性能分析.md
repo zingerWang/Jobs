@@ -910,7 +910,21 @@ ulimit -Hn
 # $$ 表示当前 Shell 的进程 ID；Max open files 对应上面两条命令查看的限制
 # 这些命令只查询限制，不会修改配置；检查已运行的服务时，应将 $$ 换成服务进程的 PID
 cat /proc/$$/limits
+
+# 列出当前 Shell 已打开的文件描述符编号，例如 0、1、2 通常对应标准输入、输出和错误
+# 检查服务时同样将 $$ 换成实际服务 PID；若要查看各描述符指向哪里，可改用 ls -l
+ls /proc/$$/fd
+
+# 查看系统级的文件句柄总量上限；它约束内核分配的打开文件对象，不是单个进程的 fd 上限
+# 多个 fd 可以共享一个打开文件对象，因此这个值不能直接与所有进程的 fd 数量之和比较
+cat /proc/sys/fs/file-max
+
+# 查看单个进程的文件描述符硬限制（RLIMIT_NOFILE）允许设置到的内核上限
+# 它不是该进程当前生效的软限制；当前软、硬限制应查看上面的 /proc/PID/limits
+cat /proc/sys/fs/nr_open
 ```
+
+系统级限制的含义参见 [Linux 内核文档：file-max 与 nr_open](https://docs.kernel.org/admin-guide/sysctl/fs.html)。
 
 **core 为什么没有出现在当前目录？** 先读配置，不要直接修改：
 

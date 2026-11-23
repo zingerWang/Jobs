@@ -5,9 +5,9 @@ edge [fontname="PingFang SC", fontsize=11, color="#0284C7", fontcolor="#0284C7",
 root [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#4F46E5"><FONT COLOR="white"><B>树数据结构面试指南</B></FONT></TD></TR><TR><TD BGCOLOR="#EEF2FF"><FONT COLOR="#1E293B" POINT-SIZE="12">先问任务，再看规则<BR/>例子 → 过程 → 复杂度 → 边界</FONT></TD></TR></TABLE>>];
 base [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>1～3 基础与查找</B></FONT></TD></TR></TABLE>>];
 root -> base [color="#0284C7", fontcolor="#0284C7"];
-base0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>关系与存储</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">根、子树、深度与高度<BR/>指针、数组、邻接表</FONT></TD></TR></TABLE>>];
+base0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>关系与存储</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">根、子树、深度与高度<BR/>所有权、指针与下标表示对照</FONT></TD></TR></TABLE>>];
 base -> base0 [color="#0284C7", fontcolor="#0284C7"];
-base1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>访问与排除</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">DFS／BFS 访问所有点<BR/>BST 按键排除一边</FONT></TD></TR></TABLE>>];
+base1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>访问与排除</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">DFS／BFS；显式栈保存返回状态<BR/>BST 按键排除一边</FONT></TD></TR></TABLE>>];
 base -> base1 [color="#0284C7", fontcolor="#0284C7"];
 heap [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>4 极值与优先级</B></FONT></TD></TR></TABLE>>];
 root -> heap [color="#0284C7", fontcolor="#0284C7"];
@@ -23,7 +23,7 @@ balance1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8
 balance -> balance1 [color="#0284C7", fontcolor="#0284C7"];
 special [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>9～11 按任务组织数据</B></FONT></TD></TR></TABLE>>];
 root -> special [color="#0284C7", fontcolor="#0284C7"];
-special0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>页与字符串</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">B／B+：分裂、导航、叶链<BR/>Trie／AC：前缀与 fail</FONT></TD></TR></TABLE>>];
+special0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>页与字符串</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">B／B+：分裂、叶链与缓存布局<BR/>AC：BFS 构建与逐字符追踪</FONT></TD></TR></TABLE>>];
 special -> special0 [color="#0284C7", fontcolor="#0284C7"];
 special1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>集合与空间</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">DSU：代表元与合并<BR/>KD-Tree：距离下界剪枝</FONT></TD></TR></TABLE>>];
 special -> special1 [color="#0284C7", fontcolor="#0284C7"];
@@ -35,9 +35,9 @@ interval1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="
 interval -> interval1 [color="#0284C7", fontcolor="#0284C7"];
 treeops [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0284C7"><FONT COLOR="white"><B>13～14 输入本来是树</B></FONT></TD></TR></TABLE>>];
 root -> treeops [color="#0284C7", fontcolor="#0284C7"];
-treeops0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>关系转换成数组</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">LCA：倍增跳祖先<BR/>DFS 序／HLD：子树与路径区间</FONT></TD></TR></TABLE>>];
+treeops0 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>关系转换成数组</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">LCA：倍增跳祖先<BR/>HLD：链头跳转与区间单步追踪</FONT></TD></TR></TABLE>>];
 treeops -> treeops0 [color="#0284C7", fontcolor="#0284C7"];
-treeops1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>分解与传递答案</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">重心／点分治：分类统计路径<BR/>树形 DP／换根：复用子树结果</FONT></TD></TR></TABLE>>];
+treeops1 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>分解与传递答案</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">点分治：先查后合并、重算分量<BR/>树形 DP／换根：复用子树结果</FONT></TD></TR></TABLE>>];
 treeops -> treeops1 [color="#0284C7", fontcolor="#0284C7"];
 treeops2 [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="8"><TR><TD BGCOLOR="#0D9488"><FONT COLOR="white"><B>进阶分支</B></FONT></TD></TR><TR><TD BGCOLOR="#F0FDFA"><FONT COLOR="#1E293B" POINT-SIZE="12">LCT：连边断边后的路径<BR/>DSU on Tree：复用子树计数</FONT></TD></TR></TABLE>>];
 treeops -> treeops2 [color="#0284C7", fontcolor="#0284C7"];

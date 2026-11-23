@@ -17,4 +17,6 @@ root -> n3;
 root -> n4;
 root -> n5;
 root -> n6;
+engineering [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>自适应并发</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">用延迟反馈调整在途上限，并保持上下界<BR ALIGN="LEFT"/>基线、样本偏差、多代理总量与恢复振荡要验证</FONT></TD></TR></TABLE>>];
+root -> engineering [color="#D97706",fontcolor="#D97706"];
 }

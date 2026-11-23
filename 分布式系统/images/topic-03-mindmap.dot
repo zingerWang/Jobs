@@ -15,4 +15,6 @@ root -> n2;
 root -> n3;
 root -> n4;
 root -> n5;
+engineering [label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="9"><TR><TD BGCOLOR="#D97706"><FONT COLOR="white" POINT-SIZE="15"><B>预选举与读安全</B></FONT></TD></TR><TR><TD BGCOLOR="#FFFBEB" ALIGN="LEFT"><FONT COLOR="#1E293B" POINT-SIZE="12">Pre-Vote 减少孤立节点抬高任期的干扰<BR ALIGN="LEFT"/>租约读依赖计时；安全读检查多数派与应用进度</FONT></TD></TR></TABLE>>];
+root -> engineering [color="#D97706",fontcolor="#D97706"];
 }
